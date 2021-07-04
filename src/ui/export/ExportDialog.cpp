@@ -4,8 +4,8 @@
 #include "export/ExportTemplateLoader.h"
 #include "export/MediaExport.h"
 #include "globals/Manager.h"
+#include "log/Log.h"
 
-#include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <string>
@@ -93,10 +93,10 @@ void ExportDialog::onBtnExport()
 
     if (m_canceled) {
         ui->message->setErrorMessage(tr("Export canceled."));
-        qInfo() << "[Export] Cancelled";
+        qCInfo(generic) << "[Export] Cancelled";
     } else {
         ui->message->setSuccessMessage(tr("Export completed."));
-        qInfo() << "[Export] Finished successfully";
+        qCInfo(generic) << "[Export] Finished successfully";
     }
     ui->btnExport->setEnabled(true);
 }
@@ -141,7 +141,7 @@ void ExportDialog::resetProgress()
 
 void ExportDialog::warnAboutInvalidTheme()
 {
-    qCritical() << "[ExportDialog] Internal Error: Couldn't find selected theme:" << themeName();
+    qCCritical(generic) << "[ExportDialog] Internal Error: Couldn't find selected theme:" << themeName();
     ui->message->setErrorMessage(tr("Selected theme not found! Try to restart MediaElch."));
 }
 

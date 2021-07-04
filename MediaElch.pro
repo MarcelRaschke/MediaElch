@@ -4,6 +4,7 @@ equals(QT_MAJOR_VERSION, 5) {
     lessThan(QT_MINOR_VERSION, 6): error(Qt 5.6 or higher is required!)
 }
 equals(QT_MAJOR_VERSION, 6) {
+    lessThan(QT_MINOR_VERSION, 2): error("Qt 6.2 is required as 6.0 and 6.1 do not support QMultiMedia!")
     warning("Qt 6 has not been tested with MediaElch, yet!")
 }
 contains(CONFIG, USE_EXTERN_QUAZIP) {
@@ -15,6 +16,8 @@ contains(CONFIG, USE_EXTERN_QUAZIP) {
     DEFINES += QUAZIP_BUILD
     DEFINES += QUAZIP_STATIC # Required by Quazip to export symbols
     include(third_party/quazip/quazip/quazip.pri)
+    # For correct include paths
+    INCLUDEPATH += third_party/quazip
 }
 
 TEMPLATE = app
@@ -26,7 +29,7 @@ INCLUDEPATH += $$PWD/src
 }
 
 QT += core gui network xml sql widgets multimedia multimediawidgets \
-      concurrent qml quick quickwidgets opengl
+      concurrent qml quick quickwidgets opengl svg
 
 CONFIG += warn_on c++14
 CONFIG += lrelease embed_translations
@@ -100,6 +103,10 @@ icon.path = /usr/share/pixmaps
 icon.files = data/desktop/MediaElch.png
 INSTALLS += icon
 
+metaInfo.path = /usr/share/metainfo
+metaInfo.files = data/desktop/com.kvibes.MediaElch.metainfo.xml
+INSTALLS += metaInfo
+
 ICON = MediaElch.icns
 RC_FILE = MediaElch.rc
 QMAKE_INFO_PLIST = MediaElch.plist
@@ -107,9 +114,13 @@ QMAKE_INFO_PLIST = MediaElch.plist
 SOURCES += src/main.cpp \
     src/concerts/ConcertController.cpp \
     src/data/MediaInfoFile.cpp \
+    src/data/MediaStatusColumn.cpp \
+    src/data/RatingModel.cpp \
     src/export/CsvExport.cpp \
+    src/data/ActorModel.cpp \
     src/globals/Containers.cpp \
     src/globals/Random.cpp \
+    src/movies/file_searcher/MovieDirScan.cpp \
     src/music/AllMusicId.cpp \
     src/music/MusicBrainzId.cpp \
     src/music/TheAudioDbId.cpp \
@@ -121,6 +132,7 @@ SOURCES += src/main.cpp \
     src/scrapers/music/Discogs.cpp \
     src/scrapers/music/MusicBrainz.cpp \
     src/scrapers/music/TheAudioDb.cpp \
+    src/scrapers/movie/MovieSearchJob.cpp \
     src/ui/concerts/ConcertFilesWidget.cpp \
     src/ui/concerts/ConcertSearch.cpp \
     src/ui/concerts/ConcertSearchWidget.cpp \
@@ -169,7 +181,7 @@ SOURCES += src/main.cpp \
     src/file/FileFilter.cpp \
     src/file/FilenameUtils.cpp \
     src/file/Path.cpp \
-    src/globals/Actor.cpp \
+    src/data/Actor.cpp \
     src/globals/ComboDelegate.cpp \
     src/globals/DownloadManager.cpp \
     src/globals/DownloadManagerElement.cpp \
@@ -178,7 +190,6 @@ SOURCES += src/main.cpp \
     src/globals/Helper.cpp \
     src/globals/ImageDialog.cpp \
     src/globals/ImagePreviewDialog.cpp \
-    src/globals/JsonRequest.cpp \
     src/globals/Manager.cpp \
     src/globals/MessageIds.cpp \
     src/globals/Math.cpp \
@@ -269,20 +280,27 @@ SOURCES += src/main.cpp \
     src/scrapers/concert/tmdb/TmdbConcert.cpp \
     src/scrapers/concert/tmdb/TmdbConcertSearchJob.cpp \
     src/scrapers/movie/adultdvdempire/AdultDvdEmpire.cpp \
+    src/scrapers/movie/adultdvdempire/AdultDvdEmpireSearchJob.cpp \
     src/scrapers/movie/adultdvdempire/AdultDvdEmpireApi.cpp \
     src/scrapers/movie/aebn/AEBN.cpp \
+    src/scrapers/movie/aebn/AebnSearchJob.cpp \
     src/scrapers/movie/aebn/AebnApi.cpp \
     src/scrapers/movie/custom/CustomMovieScraper.cpp \
     src/scrapers/movie/hotmovies/HotMovies.cpp \
+    src/scrapers/movie/hotmovies/HotMoviesSearchJob.cpp \
     src/scrapers/movie/hotmovies/HotMoviesApi.cpp \
     src/scrapers/movie/imdb/ImdbMovie.cpp \
+    src/scrapers/movie/imdb/ImdbMovieSearchJob.cpp \
     src/scrapers/movie/imdb/ImdbMovieScraper.cpp \
     src/scrapers/movie/MovieScraper.cpp \
     src/scrapers/music/MusicScraper.cpp \
     src/scrapers/movie/ofdb/OFDb.cpp \
+    src/scrapers/movie/ofdb/OfdbSearchJob.cpp \
     src/scrapers/movie/ofdb/OfdbApi.cpp \
     src/scrapers/movie/tmdb/TmdbMovie.cpp \
+    src/scrapers/movie/tmdb/TmdbMovieSearchJob.cpp \
     src/scrapers/movie/videobuster/VideoBuster.cpp \
+    src/scrapers/movie/videobuster/VideoBusterSearchJob.cpp \
     src/scrapers/movie/videobuster/VideoBusterApi.cpp \
     src/scrapers/music/TvTunes.cpp \
     src/scrapers/music/UniversalMusicScraper.cpp \
@@ -359,6 +377,7 @@ SOURCES += src/main.cpp \
     src/ui/settings/TvScraperSettingsWidget.cpp \
     src/ui/settings/CustomTvScraperSettingsWidget.cpp \
     src/ui/settings/TvShowSettingsWidget.cpp \
+    src/ui/small_widgets/ActorsWidget.cpp \
     src/ui/small_widgets/AlphabeticalList.cpp \
     src/ui/small_widgets/Badge.cpp \
     src/ui/small_widgets/ClosableImage.cpp \
@@ -381,8 +400,12 @@ SOURCES += src/main.cpp \
     src/ui/small_widgets/MyTableWidgetItem.cpp \
     src/ui/small_widgets/MyTreeView.cpp \
     src/ui/small_widgets/MyWidget.cpp \
+    src/ui/small_widgets/PlaceholderLineEdit.cpp \
+    src/ui/small_widgets/RatingSourceDelegate.cpp \
+    src/ui/small_widgets/RatingsWidget.cpp \
     src/ui/small_widgets/SearchOverlay.cpp \
     src/ui/small_widgets/SlidingStackedWidget.cpp \
+    src/ui/small_widgets/SpinBoxDelegate.cpp \
     src/ui/small_widgets/TagCloud.cpp \
     src/ui/small_widgets/TvShowTreeView.cpp \
     src/ui/tv_show/TvShowFilesWidget.cpp \
@@ -427,9 +450,13 @@ macx {
 HEADERS  += Version.h \
     src/concerts/ConcertController.h \
     src/data/MediaInfoFile.h \
+    src/data/MediaStatusColumn.h \
+    src/data/RatingModel.h \
     src/export/CsvExport.h \
+    src/data/ActorModel.h \
     src/globals/Containers.h \
     src/globals/Random.h \
+    src/movies/file_searcher/MovieDirScan.h \
     src/music/AllMusicId.h \
     src/music/MusicBrainzId.h \
     src/music/TheAudioDbId.h \
@@ -441,6 +468,7 @@ HEADERS  += Version.h \
     src/scrapers/music/Discogs.h \
     src/scrapers/music/MusicBrainz.h \
     src/scrapers/music/TheAudioDb.h \
+    src/scrapers/movie/MovieSearchJob.h \
     src/ui/concerts/ConcertFilesWidget.h \
     src/ui/concerts/ConcertSearch.h \
     src/ui/concerts/ConcertSearchWidget.h \
@@ -497,7 +525,7 @@ HEADERS  += Version.h \
     src/file/FileFilter.h \
     src/file/FilenameUtils.h \
     src/file/Path.h \
-    src/globals/Actor.h \
+    src/data/Actor.h \
     src/globals/ComboDelegate.h \
     src/globals/DownloadManager.h \
     src/globals/DownloadManagerElement.h \
@@ -506,7 +534,6 @@ HEADERS  += Version.h \
     src/globals/Helper.h \
     src/globals/ImageDialog.h \
     src/globals/ImagePreviewDialog.h \
-    src/globals/JsonRequest.h \
     src/globals/LocaleStringCompare.h \
     src/globals/Manager.h \
     src/globals/MessageIds.h \
@@ -596,18 +623,25 @@ HEADERS  += Version.h \
     src/scrapers/concert/tmdb/TmdbConcert.h \
     src/scrapers/concert/tmdb/TmdbConcertSearchJob.h \
     src/scrapers/movie/adultdvdempire/AdultDvdEmpire.h \
+    src/scrapers/movie/adultdvdempire/AdultDvdEmpireSearchJob.h \
     src/scrapers/movie/adultdvdempire/AdultDvdEmpireApi.h \
     src/scrapers/movie/aebn/AEBN.h \
+    src/scrapers/movie/aebn/AebnSearchJob.h \
     src/scrapers/movie/aebn/AebnApi.h \
     src/scrapers/movie/custom/CustomMovieScraper.h \
     src/scrapers/movie/hotmovies/HotMovies.h \
+    src/scrapers/movie/hotmovies/HotMoviesSearchJob.h \
     src/scrapers/movie/hotmovies/HotMoviesApi.h \
     src/scrapers/movie/imdb/ImdbMovie.h \
+    src/scrapers/movie/imdb/ImdbMovieSearchJob.h \
     src/scrapers/movie/imdb/ImdbMovieScraper.h \
     src/scrapers/movie/ofdb/OFDb.h \
+    src/scrapers/movie/ofdb/OfdbSearchJob.h \
     src/scrapers/movie/ofdb/OfdbApi.h \
     src/scrapers/movie/tmdb/TmdbMovie.h \
+    src/scrapers/movie/tmdb/TmdbMovieSearchJob.h \
     src/scrapers/movie/videobuster/VideoBuster.h \
+    src/scrapers/movie/videobuster/VideoBusterSearchJob.h \
     src/scrapers/movie/videobuster/VideoBusterApi.h \
     src/scrapers/music/TvTunes.h \
     src/scrapers/music/UniversalMusicScraper.h \
@@ -684,6 +718,7 @@ HEADERS  += Version.h \
     src/ui/settings/TvScraperSettingsWidget.h \
     src/ui/settings/CustomTvScraperSettingsWidget.h \
     src/ui/settings/TvShowSettingsWidget.h \
+    src/ui/small_widgets/ActorsWidget.h \
     src/ui/small_widgets/AlphabeticalList.h \
     src/ui/small_widgets/Badge.h \
     src/ui/small_widgets/ClosableImage.h \
@@ -706,8 +741,12 @@ HEADERS  += Version.h \
     src/ui/small_widgets/MyTableWidgetItem.h \
     src/ui/small_widgets/MyTreeView.h \
     src/ui/small_widgets/MyWidget.h \
+    src/ui/small_widgets/PlaceholderLineEdit.h \
+    src/ui/small_widgets/RatingSourceDelegate.h \
+    src/ui/small_widgets/RatingsWidget.h \
     src/ui/small_widgets/SearchOverlay.h \
     src/ui/small_widgets/SlidingStackedWidget.h \
+    src/ui/small_widgets/SpinBoxDelegate.h \
     src/ui/small_widgets/TagCloud.h \
     src/ui/small_widgets/TvShowTreeView.h \
     src/ui/tv_show/TvShowFilesWidget.h \
@@ -803,10 +842,12 @@ FORMS    += src/ui/main/MainWindow.ui \
     src/ui/settings/TvScraperSettingsWidget.ui \
     src/ui/settings/CustomTvScraperSettingsWidget.ui \
     src/ui/settings/TvShowSettingsWidget.ui \
+    src/ui/small_widgets/ActorsWidget.ui \
     src/ui/small_widgets/FilterWidget.ui \
     src/ui/small_widgets/ImageLabel.ui \
     src/ui/small_widgets/LoadingStreamDetails.ui \
     src/ui/small_widgets/MediaFlags.ui \
+    src/ui/small_widgets/RatingsWidget.ui \
     src/ui/small_widgets/TagCloud.ui \
     src/ui/tv_show/TvShowFilesWidget.ui \
     src/ui/support/SupportDialog.ui \

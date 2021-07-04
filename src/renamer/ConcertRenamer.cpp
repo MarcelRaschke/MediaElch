@@ -61,6 +61,13 @@ ConcertRenamer::RenameError ConcertRenamer::renameConcert(Concert& concert)
             Renamer::replace(newFileName, "partNo", QString::number(++partNo));
             Renamer::replace(newFileName, "videoCodec", concert.streamDetails()->videoCodec());
             Renamer::replace(newFileName, "audioCodec", concert.streamDetails()->audioCodec());
+            // TODO: Let the user decide whether only the first should be used or
+            //       if a space should be the separator.
+            Renamer::replace(newFileName, "audioLanguage", concert.streamDetails()->allAudioLanguages().join("-"));
+            // TODO: Let the user decide whether only the first should be used or
+            //       if a space should be the separator.
+            Renamer::replace(
+                newFileName, "subtitleLanguage", concert.streamDetails()->allSubtitleLanguages().join("-"));
             Renamer::replace(newFileName, "channels", QString::number(concert.streamDetails()->audioChannels()));
             Renamer::replace(newFileName,
                 "resolution",
@@ -158,6 +165,12 @@ ConcertRenamer::RenameError ConcertRenamer::renameConcert(Concert& concert)
             newFolderName, "3D", videoDetails.value(StreamDetails::VideoDetails::StereoMode) != "");
         Renamer::replace(newFolderName, "videoCodec", concert.streamDetails()->videoCodec());
         Renamer::replace(newFolderName, "audioCodec", concert.streamDetails()->audioCodec());
+        // TODO: Let the user decide whether only the first should be used or
+        //       if a space should be the separator.
+        Renamer::replace(newFolderName, "audioLanguage", concert.streamDetails()->allAudioLanguages().join("-"));
+        // TODO: Let the user decide whether only the first should be used or
+        //       if a space should be the separator.
+        Renamer::replace(newFolderName, "subtitleLanguage", concert.streamDetails()->allSubtitleLanguages().join("-"));
         Renamer::replace(newFolderName, "channels", QString::number(concert.streamDetails()->audioChannels()));
         Renamer::replace(newFolderName,
             "resolution",

@@ -58,7 +58,7 @@ TheTvDbImages::TheTvDbImages(QObject* parent) : ImageProvider(parent)
         "tr"};
     m_meta.defaultLocale = Locale("en");
 
-    m_dummyShow = new TvShow(QString(), this);
+    m_dummyShow = new TvShow(mediaelch::DirectoryPath(), this);
     m_dummyEpisode = new TvShowEpisode(QStringList(), m_dummyShow);
     m_searchResultLimit = 0;
 
@@ -112,7 +112,7 @@ void TheTvDbImages::searchTvShow(QString searchStr, mediaelch::Locale locale, in
 
     auto* searchJob = tvdb->search(config);
     connect(searchJob, &ShowSearchJob::sigFinished, this, &TheTvDbImages::onSearchTvShowFinished, Qt::UniqueConnection);
-    searchJob->execute();
+    searchJob->start();
 }
 
 void TheTvDbImages::onSearchTvShowFinished(mediaelch::scraper::ShowSearchJob* searchJob)
@@ -150,7 +150,7 @@ void TheTvDbImages::loadTvShowData(TvDbId tvdbId, ImageType type, const mediaelc
 
         auto* scrapeJob = tvdb->loadEpisode(config);
         connect(scrapeJob, &EpisodeScrapeJob::sigFinished, this, episodeLoaded, Qt::UniqueConnection);
-        scrapeJob->execute();
+        scrapeJob->start();
 
     } else {
         const QSet<ShowScraperInfo> infosToLoad{ShowScraperInfo::Banner,

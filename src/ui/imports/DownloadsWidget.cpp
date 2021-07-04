@@ -6,7 +6,6 @@
 #include <QMutexLocker>
 #include <QThread>
 
-#include "data/Storage.h"
 #include "globals/Helper.h"
 #include "globals/Manager.h"
 #include "settings/Settings.h"
@@ -76,12 +75,12 @@ void DownloadsWidget::scanDownloadFolders(bool scanDownloads, bool scanImports)
 
     QMutexLocker locker(&m_mutex);
     if (m_isSearchInProgress) {
-        qInfo() << "[DownloadsWidget] Cannot start scan: Already in progress";
+        qCInfo(generic) << "[DownloadsWidget] Cannot start scan: Already in progress";
         return;
     }
     m_isSearchInProgress = true;
 
-    qInfo() << "[DownloadsWidget] Start scanning for imports/downloads. Start Timer.";
+    qCInfo(generic) << "[DownloadsWidget] Start scanning for imports/downloads. Start Timer.";
     m_scanTimer.start();
 
     locker.unlock();
@@ -157,7 +156,7 @@ void DownloadsWidget::onDelete(QString baseName)
         return;
     }
 
-    for (const QString& fileName : m_packages[baseName].files) {
+    for (const QString& fileName : asConst(m_packages[baseName].files)) {
         QFile::remove(fileName);
     }
 
@@ -317,7 +316,7 @@ void DownloadsWidget::updateImportsList(const QMap<QString, mediaelch::DownloadF
                 importType->setCurrentIndex(1);
                 onChangeImportType(1, importType);
                 for (int i = 0, n = importDetail->count(); i < n; ++i) {
-                    if (importDetail->itemData(i, Qt::UserRole).value<Storage*>()->show()->dir() == guessedDir) {
+                    if (importDetail->itemData(i, Qt::UserRole).value<TvShow*>()->dir().toString() == guessedDir) {
                         importDetail->setCurrentIndex(i);
                         onChangeImportDetail(i, importDetail);
                         break;
@@ -348,7 +347,7 @@ void DownloadsWidget::onChangeImportType(int currentIndex)
 void DownloadsWidget::onChangeImportType(int currentIndex, QComboBox* box)
 {
     if (box == nullptr) {
-        qCritical() << "[DownloadsWidget] Import type change: Cannot get QComboBox from sender";
+        qCCritical(generic) << "[DownloadsWidget] Import type change: Cannot get QComboBox from sender";
         return;
     }
 
@@ -371,7 +370,7 @@ void DownloadsWidget::onChangeImportType(int currentIndex, QComboBox* box)
 
     auto* detailBox = dynamic_cast<QComboBox*>(ui->tableImports->cellWidget(row, 4));
     if (detailBox == nullptr) {
-        qCritical() << "[DownloadsWidget] Import type change: Cannot get QComboBox from download table";
+        qCCritical(generic) << "[DownloadsWidget] Import type change: Cannot get QComboBox from download table";
         return;
     }
 
@@ -385,7 +384,7 @@ void DownloadsWidget::onChangeImportType(int currentIndex, QComboBox* box)
         }
     } else if (type == "tvshow") {
         for (TvShow* show : Manager::instance()->tvShowModel()->tvShows()) {
-            detailBox->addItem(show->title(), Storage::toVariant(this, show));
+            detailBox->addItem(show->title(), QVariant::fromValue(show));
             sub = true;
         }
     } else if (type == "concert") {
@@ -397,7 +396,7 @@ void DownloadsWidget::onChangeImportType(int currentIndex, QComboBox* box)
 
     auto* actions = dynamic_cast<ImportActions*>(ui->tableImports->cellWidget(row, 5));
     if (actions == nullptr) {
-        qCritical() << "[DownloadsWidget] Import type change: Cannot get ImportActions from download table";
+        qCCritical(generic) << "[DownloadsWidget] Import type change: Cannot get ImportActions from download table";
         return;
     }
 
@@ -439,7 +438,7 @@ void DownloadsWidget::onChangeImportDetail(int currentIndex, QComboBox* box)
     if (type == "movie") {
         actions->setImportDir(box->currentText());
     } else if (type == "tvshow") {
-        actions->setTvShow(box->itemData(currentIndex, Qt::UserRole).value<Storage*>()->show());
+        actions->setTvShow(box->itemData(currentIndex, Qt::UserRole).value<TvShow*>());
     } else if (type == "concert") {
         actions->setImportDir(box->currentText());
     }
@@ -472,7 +471,7 @@ void DownloadsWidget::onScanFinished(mediaelch::DownloadFileSearcher* searcher)
     m_isSearchInProgress = false;
     locker.unlock();
 
-    qInfo() << "[DownloadsWidget] Scanning for imports/downloads took:" << m_scanTimer.elapsed() << "ms";
+    qCInfo(generic) << "[DownloadsWidget] Scanning for imports/downloads took:" << m_scanTimer.elapsed() << "ms";
     m_scanTimer.restart();
 
     const auto packages = searcher->packages();
@@ -490,7 +489,7 @@ void DownloadsWidget::onScanFinished(mediaelch::DownloadFileSearcher* searcher)
     // thread, calling deleteLater() deletes it likely immediately.
     searcher->deleteLater();
 
-    qInfo() << "[DownloadsWidget] Updating imports/downloads lists:" << m_scanTimer.elapsed() << "ms";
+    qCInfo(generic) << "[DownloadsWidget] Updating imports/downloads lists:" << m_scanTimer.elapsed() << "ms";
     m_scanTimer.invalidate();
 
     const bool hasDownloads = !packages.isEmpty() || !imports.isEmpty();

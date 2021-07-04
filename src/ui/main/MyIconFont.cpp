@@ -7,7 +7,8 @@
  * It has been renamed and adjusted to match another font than FontAwesome
  */
 
-#include <QDebug>
+#include "log/Log.h"
+
 #include <QFile>
 #include <QFontDatabase>
 #include <utility>
@@ -55,32 +56,40 @@ public:
         painter->setPen(color);
 
         // add some 'padding' around the icon
-        int drawSize = qRound(rect.height() * options.value("scale-factor").toFloat());
+        float drawSize = rect.height() * options.value("scale-factor").toFloat();
 
-        painter->setFont(awesome->font(drawSize));
+        painter->setFont(awesome->font(qRound(drawSize)));
         painter->drawText(rect, text, QTextOption(Qt::AlignCenter | Qt::AlignVCenter));
 
-        const float size = 0.5f;
+        // Marker Text
+        QString marker = options.value("marker-text").toString();
+
+        const float size = 0.6f;
         QRect starRect(rect.left() + 1,
             qRound(rect.top() + rect.height() * (1 - size)) - 1,
             qRound(rect.width() * size),
             qRound(rect.height() * size));
         painter->setBrush(starColor);
         painter->setPen(starColor);
+
+        // Font size depends on the number of digits
+        const int digits = marker.size();
+        drawSize = starRect.height() * options.value("scale-factor").toFloat();
 #ifdef Q_OS_MAC
-        drawSize = qRound(starRect.height() * options.value("scale-factor").toFloat());
-        const int digits = options.value("marker-text").toString().size();
-        painter->setFont(QFont("", drawSize - (digits * 2 + 1))); // mac needs a smaller font
+        drawSize *= 0.8;
 #else
-        QFont f;
-        f.setPointSize(6);
-        painter->setFont(f);
+        drawSize *= 0.94;
 #endif
+        drawSize = drawSize - (digits * 2 + 2);
+
+        QFont f;
+        f.setPointSizeF(drawSize);
+        painter->setFont(f);
+
         painter->setRenderHint(QPainter::Antialiasing, true);
         painter->drawEllipse(starRect);
         painter->setPen(QColor(255, 255, 255));
-        painter->drawText(
-            starRect, options.value("marker-text").toString(), QTextOption(Qt::AlignCenter | Qt::AlignVCenter));
+        painter->drawText(starRect, Qt::AlignCenter | Qt::AlignVCenter | Qt::TextDontClip, marker);
 
         painter->restore();
     }
@@ -292,13 +301,15 @@ bool MyIconFont::initFontAwesome()
         // load the font file
         QFile res(":/fonts/Pe-icon-7-stroke.ttf");
         if (!res.open(QIODevice::ReadOnly)) {
-            qDebug() << "Font awesome font could not be loaded!";
+            qCDebug(generic) << "Font awesome font could not be loaded!";
             return false;
         }
         QByteArray fontData(res.readAll());
         res.close();
 
-        // fetch the given font
+        // FIXME: MEMORY LEAK
+        // For some reason, on linux, I get a memory leak here.
+        // Calling removeApplicationFont() doesn't work either.
         fontAwesomeFontId = QFontDatabase::addApplicationFontFromData(fontData);
     }
 
@@ -306,7 +317,7 @@ bool MyIconFont::initFontAwesome()
     if (!loadedFontFamilies.isEmpty()) {
         fontName_ = loadedFontFamilies.at(0);
     } else {
-        qDebug() << "Font awesome font is empty?!";
+        qCDebug(generic) << "Font awesome font is empty?!";
         fontAwesomeFontId = -1; // restore the font-awesome id
         return false;
     }
@@ -427,7 +438,6 @@ QIcon MyIconFont::icon(const QString& name, const QVariantMap& options)
         return icon(namedCodepoints_.value(name), options);
     }
 
-
     // create a merged QVariantMap to have default options and icon-specific options
     QVariantMap optionMap = mergeOptions(defaultOptions_, options);
 
@@ -473,7 +483,7 @@ QIcon MyIconFont::icon(const QString& name,
 /// \param optionMap the options to pass to the painter
 QIcon MyIconFont::icon(MyIconFontIconPainter* painter, const QVariantMap& optionMap)
 {
-    // Warning, when you use memoryleak detection. You should turn it of for the next call
+    // Warning, when you use memoryleak detection. You should turn it off for the next call
     // QIcon's placed in gui items are often cached and not deleted when my memory-leak detection checks for leaks.
     // I'm not sure if it's a Qt bug or something I do wrong
     auto* engine = new MyIconFontIconPainterIconEngine(this, painter, optionMap);

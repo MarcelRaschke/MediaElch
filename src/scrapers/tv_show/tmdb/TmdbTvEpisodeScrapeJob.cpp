@@ -1,5 +1,6 @@
 #include "scrapers/tv_show/tmdb/TmdbTvEpisodeScrapeJob.h"
 
+#include "log/Log.h"
 #include "scrapers/tmdb/TmdbApi.h"
 #include "scrapers/tv_show/tmdb/TmdbTvEpisodeParser.h"
 #include "tv_shows/TvShowEpisode.h"
@@ -14,19 +15,19 @@ TmdbTvEpisodeScrapeJob::TmdbTvEpisodeScrapeJob(TmdbApi& api, EpisodeScrapeJob::C
 {
 }
 
-void TmdbTvEpisodeScrapeJob::execute()
+void TmdbTvEpisodeScrapeJob::start()
 {
     TmdbId showId(config().identifier.showIdentifier);
 
     if (!showId.isValid()) {
-        qWarning() << "[TmdbTvEpisodeScrapeJob] Invalid TMDb ID for TV show, cannot scrape episode!";
+        qCWarning(generic) << "[TmdbTvEpisodeScrapeJob] Invalid TMDb ID for TV show, cannot scrape episode!";
         m_error.error = ScraperError::Type::ConfigError;
         m_error.message = tr("TMDb show ID is invalid! Cannot load requested episode.");
-        QTimer::singleShot(0, [this]() { emit sigFinished(this); });
+        QTimer::singleShot(0, this, [this]() { emit sigFinished(this); });
         return;
     }
 
-    qInfo() << "[TmdbTvEpisodeScrapeJob] Have to load season first.";
+    qCInfo(generic) << "[TmdbTvEpisodeScrapeJob] Have to load season first.";
 
     m_api.loadEpisode(config().locale,
         showId,

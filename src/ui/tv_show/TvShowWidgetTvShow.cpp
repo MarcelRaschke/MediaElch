@@ -11,6 +11,7 @@
 #include "globals/Helper.h"
 #include "globals/ImageDialog.h"
 #include "globals/ImagePreviewDialog.h"
+#include "globals/LocaleStringCompare.h"
 #include "globals/Manager.h"
 #include "globals/MessageIds.h"
 #include "globals/ScraperInfos.h"
@@ -150,9 +151,11 @@ TvShowWidgetTvShow::TvShowWidgetTvShow(QWidget* parent) :
     connect(ui->sortTitle,     &QLineEdit::textEdited,           this, &TvShowWidgetTvShow::onSortTitleChange);
     connect(ui->originalTitle, &QLineEdit::textEdited,           this, &TvShowWidgetTvShow::onOriginalTitleChange);
     connect(ui->certification, &QComboBox::editTextChanged,      this, &TvShowWidgetTvShow::onCertificationChange);
-    connect(ui->rating,        elchOverload<double>(&QDoubleSpinBox::valueChanged), this, &TvShowWidgetTvShow::onRatingChange);
+    connect(ui->ratings,       &RatingsWidget::ratingsChanged,   this, [this](){
+        m_show->setChanged(true);
+        ui->buttonRevert->setVisible(true);
+    });
     connect(ui->userRating,    elchOverload<double>(&QDoubleSpinBox::valueChanged), this, &TvShowWidgetTvShow::onUserRatingChange);
-    connect(ui->votes,         elchOverload<int>(&QSpinBox::valueChanged),          this, &TvShowWidgetTvShow::onVotesChange);
     connect(ui->top250,        elchOverload<int>(&QSpinBox::valueChanged),          this, &TvShowWidgetTvShow::onTop250Change);
     connect(ui->firstAired,    &QDateTimeEdit::dateChanged,      this, &TvShowWidgetTvShow::onFirstAiredChange);
     connect(ui->studio,        &QLineEdit::textEdited,           this, &TvShowWidgetTvShow::onStudioChange);
@@ -162,8 +165,6 @@ TvShowWidgetTvShow::TvShowWidgetTvShow(QWidget* parent) :
     connect(ui->comboStatus,   elchOverload<int>(&QComboBox::currentIndexChanged), this, &TvShowWidgetTvShow::onStatusChange);
     // clang-format on
 
-    ui->rating->setSingleStep(0.1);
-    ui->rating->setMinimum(0.0);
     ui->userRating->setSingleStep(0.1);
     ui->userRating->setMinimum(0.0);
 
@@ -223,17 +224,11 @@ void TvShowWidgetTvShow::onClear()
     ui->certification->clear();
     ui->certification->blockSignals(blocked);
 
-    blocked = ui->rating->blockSignals(true);
-    ui->rating->clear();
-    ui->rating->blockSignals(blocked);
+    ui->ratings->clear();
 
     blocked = ui->userRating->blockSignals(true);
     ui->userRating->clear();
     ui->userRating->blockSignals(blocked);
-
-    blocked = ui->votes->blockSignals(true);
-    ui->votes->clear();
-    ui->votes->blockSignals(blocked);
 
     blocked = ui->top250->blockSignals(true);
     ui->top250->clear();
@@ -296,7 +291,7 @@ void TvShowWidgetTvShow::onSetEnabled(bool enabled)
  */
 void TvShowWidgetTvShow::setTvShow(TvShow* show)
 {
-    qDebug() << "Entered, show=" << show->title();
+    qCDebug(generic) << "Entered, show=" << show->title();
     show->loadData(Manager::instance()->mediaCenterInterface());
     m_show = show;
     updateTvShowInfo();
@@ -317,14 +312,12 @@ void TvShowWidgetTvShow::setTvShow(TvShow* show)
 void TvShowWidgetTvShow::updateTvShowInfo()
 {
     if (m_show == nullptr) {
-        qDebug() << "My show is invalid";
+        qCDebug(generic) << "My show is invalid";
         return;
     }
 
     ui->certification->blockSignals(true);
-    ui->rating->blockSignals(true);
     ui->userRating->blockSignals(true);
-    ui->votes->blockSignals(true);
     ui->top250->blockSignals(true);
     ui->firstAired->blockSignals(true);
     ui->overview->blockSignals(true);
@@ -341,11 +334,7 @@ void TvShowWidgetTvShow::updateTvShowInfo()
     ui->tmdbId->setText(m_show->tmdbId().toString());
     ui->tvdbId->setText(m_show->tvdbId().toString());
     ui->tvmazeId->setText(m_show->tvmazeId().toString());
-    // TODO: multiple ratings
-    if (!m_show->ratings().isEmpty()) {
-        ui->rating->setValue(m_show->ratings().back().rating);
-        ui->votes->setValue(m_show->ratings().back().voteCount);
-    }
+    ui->ratings->setRatings(&(m_show->ratings()));
     ui->userRating->setValue(m_show->userRating());
     ui->top250->setValue(m_show->top250());
     ui->firstAired->setDate(m_show->firstAired());
@@ -373,9 +362,16 @@ void TvShowWidgetTvShow::updateTvShowInfo()
 
     QStringList genres;
     QStringList tags;
-    for (const TvShow* show : Manager::instance()->tvShowModel()->tvShows()) {
+    QSet<QString> certifications;
+    certifications.insert("");
+
+    const auto& allShows = Manager::instance()->tvShowModel()->tvShows();
+    for (const TvShow* show : allShows) {
         genres.append(show->genres());
         tags.append(show->tags());
+        if (show->certification().isValid()) {
+            certifications.insert(show->certification().toString());
+        }
     }
 
     // `setTags` requires distinct lists
@@ -385,12 +381,19 @@ void TvShowWidgetTvShow::updateTvShowInfo()
     ui->genreCloud->setTags(genres, m_show->genres());
     ui->tagCloud->setTags(tags, m_show->tags());
 
-    auto certifications = m_show->certifications();
-    certifications.prepend(Certification::NoCertification);
-    for (const auto& cert : certifications) {
-        ui->certification->addItem(cert.toString());
+    // Certifications ---------------------------------------------------------
+
+    const auto episodeCertifications = m_show->episodeCertifications();
+    for (const auto& cert : episodeCertifications) {
+        certifications << cert.toString();
     }
-    ui->certification->setCurrentIndex(certifications.indexOf(m_show->certification()));
+
+    QStringList certificationsSorted = certifications.values();
+    std::sort(certificationsSorted.begin(), certificationsSorted.end(), LocaleStringCompare());
+    ui->certification->addItems(certificationsSorted);
+    ui->certification->setCurrentIndex(certificationsSorted.indexOf(m_show->certification().toString()));
+
+    // Images ---------------------------------------------------------
 
     updateImages(QVector<ImageType>() << ImageType::TvShowPoster       //
                                       << ImageType::TvShowBackdrop     //
@@ -405,9 +408,7 @@ void TvShowWidgetTvShow::updateTvShowInfo()
     ui->badgeTuneMissing->setVisible(!m_show->hasTune());
 
     ui->certification->blockSignals(false);
-    ui->rating->blockSignals(false);
     ui->userRating->blockSignals(false);
-    ui->votes->blockSignals(false);
     ui->top250->blockSignals(false);
     ui->firstAired->blockSignals(false);
     ui->overview->blockSignals(false);
@@ -446,7 +447,7 @@ void TvShowWidgetTvShow::updateImages(QVector<ImageType> images)
 void TvShowWidgetTvShow::onSaveInformation()
 {
     if (m_show == nullptr) {
-        qDebug() << "My show is invalid";
+        qCDebug(generic) << "My show is invalid";
         return;
     }
 
@@ -473,7 +474,8 @@ void TvShowWidgetTvShow::onRevertChanges()
 void TvShowWidgetTvShow::onStartScraperSearch()
 {
     if (m_show == nullptr) {
-        qCritical() << "[TvShowWidgetTvShow] Cannot start show search without valid show! This must not happen!";
+        qCCritical(generic)
+            << "[TvShowWidgetTvShow] Cannot start show search without valid show! This must not happen!";
         return;
     }
 
@@ -542,14 +544,14 @@ void TvShowWidgetTvShow::onInfoLoadDone(TvShow* show, QSet<ShowScraperInfo> deta
 void TvShowWidgetTvShow::onLoadDone(TvShow* show, QMap<ImageType, QVector<Poster>> posters)
 {
     if (m_show == nullptr) {
-        qDebug() << "My show is invalid";
+        qCDebug(generic) << "My show is invalid";
         return;
     }
 
     if (m_show == show) {
         updateTvShowInfo();
     } else {
-        qDebug() << "Show has changed";
+        qCDebug(generic) << "Show has changed";
     }
     int downloadsSize = 0;
     if (!show->posters().isEmpty() && show->infosToLoad().contains(ShowScraperInfo::Poster)) {
@@ -746,8 +748,8 @@ void TvShowWidgetTvShow::onPosterDownloadFinished(DownloadManagerElement elem)
         if (elem.imageType == ImageType::TvShowSeasonBackdrop) {
             helper::resizeBackdrop(elem.data);
         }
-        ImageCache::instance()->invalidateImages(
-            Manager::instance()->mediaCenterInterface()->imageFileName(elem.show, elem.imageType, elem.season));
+        ImageCache::instance()->invalidateImages(mediaelch::FilePath(
+            Manager::instance()->mediaCenterInterface()->imageFileName(elem.show, elem.imageType, elem.season)));
         elem.show->setSeasonImage(elem.season, elem.imageType, elem.data);
     } else if (elem.imageType == ImageType::TvShowExtraFanart) {
         helper::resizeBackdrop(elem.data);
@@ -764,8 +766,8 @@ void TvShowWidgetTvShow::onPosterDownloadFinished(DownloadManagerElement elem)
                 if (m_show == elem.show) {
                     image->setImage(elem.data);
                 }
-                ImageCache::instance()->invalidateImages(
-                    Manager::instance()->mediaCenterInterface()->imageFileName(elem.show, elem.imageType));
+                ImageCache::instance()->invalidateImages(mediaelch::FilePath(
+                    Manager::instance()->mediaCenterInterface()->imageFileName(elem.show, elem.imageType)));
                 elem.show->setImage(elem.imageType, elem.data);
                 break;
             }
@@ -785,10 +787,10 @@ void TvShowWidgetTvShow::onPosterDownloadFinished(DownloadManagerElement elem)
 void TvShowWidgetTvShow::onDownloadsFinished(TvShow* show)
 {
     if (show == nullptr) {
-        qCritical() << "[TvShowWidgetTvShow]";
+        qCCritical(generic) << "[TvShowWidgetTvShow]";
         return;
     }
-    qDebug() << "Downloads finished for show:" << show->title();
+    qCDebug(generic) << "Downloads finished for show:" << show->title();
     emit sigDownloadsFinished(Constants::TvShowProgressMessageId + show->showId());
     if (show == m_show) {
         onSetEnabled(true);
@@ -1051,19 +1053,6 @@ void TvShowWidgetTvShow::onCertificationChange(QString text)
     ui->buttonRevert->setVisible(true);
 }
 
-/**
- * \brief Marks the show as changed when the rating has changed
- */
-void TvShowWidgetTvShow::onRatingChange(double value)
-{
-    if ((m_show == nullptr) || m_show->ratings().isEmpty()) {
-        return;
-    }
-    m_show->ratings().back().rating = value;
-    m_show->setChanged(true);
-    ui->buttonRevert->setVisible(true);
-}
-
 void TvShowWidgetTvShow::onUserRatingChange(double value)
 {
     if (m_show == nullptr) {
@@ -1172,7 +1161,7 @@ void TvShowWidgetTvShow::onExtraFanartDropped(QUrl imageUrl)
 void TvShowWidgetTvShow::onDownloadTune()
 {
     if (m_show == nullptr) {
-        qCritical() << "[TvShowWidgetTvShow] Show is undefined, cannot download TV tunes!";
+        qCCritical(generic) << "[TvShowWidgetTvShow] Show is undefined, cannot download TV tunes!";
         return;
     }
     auto* tvTunesDialog = new TvTunesDialog(*m_show, this);
@@ -1256,16 +1245,6 @@ void TvShowWidgetTvShow::onImageDropped(ImageType imageType, QUrl imageUrl)
     m_posterDownloadManager->addDownload(d);
     image->setLoading(true);
     ui->buttonRevert->setVisible(true);
-}
-
-void TvShowWidgetTvShow::onVotesChange(int value)
-{
-    if ((m_show == nullptr) || m_show->ratings().isEmpty()) {
-        return;
-    }
-    m_show->ratings().back().voteCount = value;
-    ui->buttonRevert->setVisible(true);
-    m_show->setChanged(true);
 }
 
 void TvShowWidgetTvShow::onTop250Change(int value)

@@ -1,9 +1,9 @@
 #include "AdvancedSettings.h"
 
-#include <QDebug>
 #include <QTextStream>
 
 #include "Settings.h"
+#include "log/Log.h"
 
 AdvancedSettings::AdvancedSettings()
 {
@@ -191,6 +191,11 @@ bool AdvancedSettings::isFolderExcluded(QString dir) const
         }
     }
     return false;
+}
+
+bool AdvancedSettings::isUserDefined() const
+{
+    return m_userDefined;
 }
 
 bool AdvancedSettings::useFirstStudioOnly() const

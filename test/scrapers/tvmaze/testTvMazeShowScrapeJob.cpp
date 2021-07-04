@@ -53,7 +53,7 @@ TEST_CASE("TvMaze scrapes show details", "[show][TvMaze][load_data]")
         // TvMaze has no vote count
 
         CHECK(show.runtime() == 30min);
-        CHECK(show.posters().size() == 30);
+        CHECK(show.posters().size() == 31);
         CHECK(show.backdrops().size() == 1);
         CHECK(show.seasonPosters(SeasonNumber::NoSeason, true).size() > 30);
 
@@ -61,11 +61,11 @@ TEST_CASE("TvMaze scrapes show details", "[show][TvMaze][load_data]")
         REQUIRE(!genres.empty());
         CHECK_THAT(genres[0], Contains("Comedy"));
 
-        const auto& actors = show.actors();
+        const auto& actors = show.actors().actors();
         REQUIRE(actors.size() > 5);
         CHECK(actors[0]->name == "Dan Castellaneta");
         CHECK(actors[0]->role == "Homer Simpson");
         CHECK(actors[0]->id == "14854");
-        CHECK(actors[0]->thumb == "http://static.tvmaze.com/uploads/images/original_untouched/0/963.jpg");
+        CHECK(actors[0]->thumb == "https://static.tvmaze.com/uploads/images/original_untouched/0/963.jpg");
     }
 }

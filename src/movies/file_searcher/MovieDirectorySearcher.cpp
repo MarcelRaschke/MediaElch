@@ -1,65 +1,123 @@
 #include "MovieDirectorySearcher.h"
 
+#include "data/Database.h"
 #include "file/FilenameUtils.h"
 #include "globals/Manager.h"
 #include "globals/MessageIds.h"
 
 #include "file/FilenameUtils.h"
 
-#include <QFutureWatcher>
+#include <QMutexLocker>
 #include <QtConcurrent>
+#include <memory>
 
 namespace mediaelch {
 
-MovieDirectorySearcher::MovieDirectorySearcher(const SettingsDir& dir, bool inSeparateFolders, QObject* parent) :
-    QObject(parent), m_dir{dir}, m_inSeparateFolders{inSeparateFolders}
+void MovieLoaderStore::addMovie(Movie* movie)
+{
+    movie->setParent(nullptr);
+    movie->moveToThread(thread());
+    movie->setParent(this);
+
+    QMutexLocker locker(&m_lock);
+    m_movies.append(movie);
+}
+
+void MovieLoaderStore::addMovies(const QVector<Movie*>& movies)
+{
+    for (Movie* movie : movies) {
+        movie->setParent(nullptr);
+        movie->moveToThread(thread());
+        movie->setParent(this);
+    }
+
+    QMutexLocker locker(&m_lock);
+    m_movies.append(movies);
+}
+
+QVector<Movie*> MovieLoaderStore::takeAll(QObject* parent)
+{
+    QMutexLocker locker(&m_lock);
+    QVector<Movie*> movies = std::move(m_movies);
+    m_movies = {};
+    locker.unlock();
+
+    for (Movie* movie : asConst(movies)) {
+        movie->setParent(parent);
+    }
+    return movies;
+}
+
+void MovieLoaderStore::clear()
+{
+    QMutexLocker locker(&m_lock);
+    qDeleteAll(m_movies);
+    m_movies.clear();
+}
+
+MovieDiskLoader::MovieDiskLoader(SettingsDir dir, MovieLoaderStore& store, FileFilter filter, QObject* parent) :
+    MovieLoader(&store, parent), m_dir{std::move(dir)}, m_filter{std::move(filter)}, m_db{Database::newConnection(this)}
 {
 }
 
-void MovieDirectorySearcher::load()
+MovieDiskLoader::~MovieDiskLoader()
 {
-    if (m_aborted.load()) {
-        return;
-    }
+    qDeleteAll(m_movies);
+    m_movies.clear();
+    delete m_db;
+}
 
-    Manager::instance()->database()->clearMoviesInDirectory(m_dir.path);
+void MovieDiskLoader::start()
+{
+    qCInfo(c_movie) << "[Movie] Scanning directory:" << QDir::toNativeSeparators(m_dir.path.path());
 
     // No filter, no media files...
-    if (!Settings::instance()->advanced()->movieFilters().hasFilter()) {
-        emit loaded(this);
+    if (!m_filter.hasFilter()) {
+        qCCritical(c_movie) << "[Movie] Can't scan for movies because there is no movie file filter!";
+        emit finished(this);
         return;
     }
 
-    qDebug() << "[MovieDirectorySearcher] Scanning directory:" << QDir::toNativeSeparators(m_dir.path.path());
+    emit progress(this, 0, 0);
+    emit progressText(this, "");
     loadMovieContents();
 
-    const int approximateMovieCount = m_inSeparateFolders ? m_contents.size() : 0;
-    emit startLoading(approximateMovieCount);
+    if (isAborted()) {
+        emit finished(this);
+        return;
+    }
 
-    qDebug() << "[MovieDirectorySearcher] Creating movies for" << QDir::toNativeSeparators(m_dir.path.path());
-    createMovies();
+    m_processed = 0;
+    m_approxTotal = m_dir.separateFolders ? m_contents.size() : 0;
+    emit progress(this, m_processed, m_approxTotal);
+
+    qCDebug(c_movie) << "[Movie] Creating movies for directory:" << QDir::toNativeSeparators(m_dir.path.path());
+
+    // Can be blocking as this class should NOT be run in the GUI thread and
+    // emitting signals is thread safe.
+    QtConcurrent::blockingMap(m_contents, [this](const QStringList& files) { createMovie(files); });
+
+    storeAndAddToDatabase();
+
+    emit finished(this);
 }
 
-void MovieDirectorySearcher::abort()
+void MovieDiskLoader::abort()
 {
     m_aborted.store(true);
-    m_watcher.cancel();
-    m_watcher.waitForFinished();
 }
 
-void MovieDirectorySearcher::loadMovieContents()
+void MovieDiskLoader::loadMovieContents()
 {
     QDirIterator it(m_dir.path.path(),
-        Settings::instance()->advanced()->movieFilters().filters(),
+        m_filter.filters(),
         QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files,
         QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
 
     QString lastDir;
 
     while (it.hasNext()) {
-        if (m_aborted.load()) {
-            // 0, because "contents" isn't stored, yet
-            emit loaded(this);
+        if (isAborted()) {
             return;
         }
         it.next();
@@ -121,15 +179,7 @@ void MovieDirectorySearcher::loadMovieContents()
             continue;
         }
 
-        if (dirName != lastDir) {
-            lastDir = dirName;
-            if (m_contents.count() % 20 == 0) {
-                // TODO  emit currentDir(dirName);
-            }
-        }
-
         if (isFile && QString::compare("index.bdmv", fileName, Qt::CaseInsensitive) == 0) {
-            qDebug() << "[MovieDirectorySearcher] Found BluRay structure";
             QDir bluRayDir(it.fileInfo().dir());
             if (QString::compare(bluRayDir.dirName(), "BDMV", Qt::CaseInsensitive) == 0) {
                 bluRayDir.cdUp();
@@ -138,7 +188,6 @@ void MovieDirectorySearcher::loadMovieContents()
             isSpecialDir = true;
         }
         if (QString::compare("VIDEO_TS.IFO", fileName, Qt::CaseInsensitive) == 0) {
-            qDebug() << "[MovieDirectorySearcher] Found DVD structure";
             QDir videoDir(it.fileInfo().dir());
             if (QString::compare(videoDir.dirName(), "VIDEO_TS", Qt::CaseInsensitive) == 0) {
                 videoDir.cdUp();
@@ -155,34 +204,20 @@ void MovieDirectorySearcher::loadMovieContents()
             m_contents[dirPath].append(it.filePath());
             m_lastModifications.insert(it.filePath(), it.fileInfo().lastModified());
         }
-    }
-}
 
-void MovieDirectorySearcher::createMovies()
-{
-    std::function<QVector<Movie*>(QStringList files)> fct = [this](QStringList files) -> QVector<Movie*> {
-        return createMovie(std::move(files));
-    };
-
-    connect(&m_watcher, &QFutureWatcher<QVector<Movie*>>::finished, this, [this]() { emit loaded(this); });
-    connect(&m_watcher, &QFutureWatcher<QVector<Movie*>>::resultReadyAt, this, [this](int index) {
-        // Called in the main thread, so no need for a mutex.
-        const QVector<Movie*> movies = m_watcher.resultAt(index);
-        for (Movie* movie : movies) {
-            postProcessMovie(movie);
+        if (dirName != lastDir) {
+            lastDir = dirName;
+            // TODO: Use SignalThrottler
+            if (m_contents.count() % 40 == 0) {
+                emit progressText(this, dirName);
+            }
         }
-    });
-    QFuture<QVector<Movie*>> future = QtConcurrent::mapped(m_contents, fct);
-    m_watcher.setFuture(future);
+    }
 }
 
-QVector<Movie*> MovieDirectorySearcher::createMovie(QStringList files)
+void MovieDiskLoader::createMovie(QStringList files)
 {
-    if (m_aborted.load()) {
-        return {};
-    }
-
-    QVector<Movie*> movies;
+    // Note: This method is call in parallel!
 
     DiscType discType = DiscType::Single;
 
@@ -197,7 +232,6 @@ QVector<Movie*> MovieDirectorySearcher::createMovie(QStringList files)
             }
             files = f;
             discType = DiscType::BluRay;
-            qDebug() << "It's a BluRay structure";
         }
     }
 
@@ -212,22 +246,23 @@ QVector<Movie*> MovieDirectorySearcher::createMovie(QStringList files)
             }
             files = f;
             discType = DiscType::Dvd;
-            qDebug() << "It's a DVD structure";
         }
     }
 
     if (files.isEmpty()) {
-        return {};
+        return;
     }
 
-    if (files.count() == 1 || m_inSeparateFolders) {
+    if (files.count() == 1 || m_dir.separateFolders) {
         // single file or in separate folder
         mediaelch::file::sortFilenameList(files);
-        auto* movie = new Movie(files);
-        movie->setInSeparateFolder(m_inSeparateFolders);
+        auto* movie = new Movie(files, nullptr);
+        movie->setInSeparateFolder(m_dir.separateFolders);
         movie->setFileLastModified(m_lastModifications.value(files.at(0)));
         movie->setDiscType(discType);
-        movie->setLabel(Manager::instance()->database()->getLabel(movie->files()));
+
+        // Note: "Label" is set in storeAndAddToDatabase()
+
         movie->setChanged(false);
         movie->controller()->loadData(Manager::instance()->mediaCenterInterface());
         if (discType == DiscType::Single) {
@@ -236,21 +271,21 @@ QVector<Movie*> MovieDirectorySearcher::createMovie(QStringList files)
                 QStringList{"*.sub", "*.srt", "*.smi", "*.ssa"}, QDir::Files | QDir::NoDotAndDotDot);
             for (const QFileInfo& subFi : subFiles) {
                 QString subFileName = subFi.fileName().mid(mFi.completeBaseName().length() + 1);
-                QStringList parts = subFileName.split(QRegExp(R"(\s+|\-+|\.+)"));
+                QStringList parts = subFileName.split(QRegularExpression(R"(\s+|\-+|\.+)"));
                 if (parts.isEmpty()) {
                     continue;
                 }
                 parts.takeLast();
 
-                QStringList subFiles = QStringList() << subFi.fileName();
+                QStringList subSubFiles = QStringList() << subFi.fileName();
                 if (QString::compare(subFi.suffix(), "sub", Qt::CaseInsensitive) == 0) {
                     QFileInfo subIdxFi(subFi.absolutePath() + "/" + subFi.completeBaseName() + ".idx");
                     if (subIdxFi.exists()) {
-                        subFiles << subIdxFi.fileName();
+                        subSubFiles << subIdxFi.fileName();
                     }
                 }
                 auto* subtitle = new Subtitle(movie);
-                subtitle->setFiles(subFiles);
+                subtitle->setFiles(subSubFiles);
                 if (parts.contains("forced", Qt::CaseInsensitive)) {
                     subtitle->setForced(true);
                     parts.removeAll("forced");
@@ -263,9 +298,18 @@ QVector<Movie*> MovieDirectorySearcher::createMovie(QStringList files)
             }
         }
 
-        // This method is called in parallel. Move it to the main object's thread.
+        // As this method is called in parallel, we may be in another thread.
         movie->moveToThread(thread());
-        movies << movie;
+
+        QMutexLocker lock(&m_mutex);
+        m_movies.append(movie);
+        lock.unlock();
+
+        emit progress(this, ++m_processed, m_approxTotal);
+        if (m_movies.size() % 40 == 0) {
+            // TODO: Use SignalThrottler
+            emit progressText(this, movie->name());
+        }
 
     } else {
         QMap<QString, QStringList> stacked;
@@ -294,37 +338,102 @@ QVector<Movie*> MovieDirectorySearcher::createMovie(QStringList files)
             }
             QStringList stackedFiles = it.value();
             stackedFiles.sort();
-            auto* movie = new Movie(stackedFiles);
-            movie->setInSeparateFolder(m_inSeparateFolders);
+            auto* movie = new Movie(stackedFiles, nullptr);
+            movie->setInSeparateFolder(m_dir.separateFolders);
             movie->setFileLastModified(m_lastModifications.value(it.value().at(0)));
             movie->controller()->loadData(Manager::instance()->mediaCenterInterface());
-            movie->setLabel(Manager::instance()->database()->getLabel(movie->files()));
-            // This method is called in parallel. Move it to the main object's thread.
+
+            // As this method is called in parallel, we may be in another thread.
             movie->moveToThread(thread());
-            movies << movie;
+
+            QMutexLocker lock(&m_mutex);
+            m_movies.append(movie);
+            lock.unlock();
+
+            emit progress(this, ++m_processed, m_approxTotal);
+            if (m_movies.size() % 40 == 0) {
+                // TODO: Use SignalThrottler
+                emit progressText(this, movie->name());
+            }
         }
     }
-    return movies;
 }
 
-void MovieDirectorySearcher::postProcessMovie(Movie* movie)
+void MovieDiskLoader::storeAndAddToDatabase()
 {
-    m_movies.push_back(movie);
-    emit movieProcessed(movie);
-}
-
-QStringList MovieDirectorySearcher::getFiles(QString path)
-{
-    const auto& filters = Settings::instance()->advanced()->movieFilters();
-    QStringList files;
-
-    const QStringList filteredFiles = filters.files(QDir(path));
-    for (const QString& file : filteredFiles) {
-        m_lastModifications.insert(
-            QDir::toNativeSeparators(path + "/" + file), QFileInfo(path + QDir::separator() + file).lastModified());
-        files.append(file);
+    if (isAborted()) {
+        return;
     }
-    return files;
+
+    emit progress(this, 0, 0);
+    emit progressText(this, tr("Storing movies in database..."));
+
+    m_db->transaction();
+    for (Movie* movie : asConst(m_movies)) {
+        // See also: Use https://stackoverflow.com/a/47473949/1603627
+        // We do this in just one thread.
+        movie->setLabel(m_db->getLabel(movie->files()));
+        m_db->addMovie(movie, DirectoryPath(m_dir.path));
+        m_store->addMovie(movie);
+    }
+    m_db->commit();
+    m_movies.clear();
+}
+
+void MovieDatabaseLoader::start()
+{
+    qCInfo(c_movie) << "[Movie] Loading entries from database for directory:"
+                    << QDir::toNativeSeparators(m_dir.path.path());
+
+    emit progress(this, 0, 0);
+    emit progressText(this, "");
+
+    QVector<Movie*> movies;
+    {
+        std::unique_ptr<Database> db(Database::newConnection(this));
+        movies = db->moviesInDirectory(DirectoryPath(m_dir.path), this);
+    }
+
+    if (movies.count() <= 0 || isAborted()) {
+        emit finished(this);
+        return;
+    }
+
+    // Note, this takes less than a few seconds. No need to check whether we're aborted or not.
+    QtConcurrent::blockingMap(movies,
+        [](Movie* movie) { //
+            movie->controller()->loadData(Manager::instance()->mediaCenterInterface(), false, false);
+        });
+
+    if (isAborted()) {
+        emit finished(this);
+        return;
+    }
+
+    emit progress(this, 1, 1);
+    emit progressText(this, "");
+
+    m_store->addMovies(movies);
+
+    emit finished(this);
+}
+
+void MovieDatabaseLoader::abort()
+{
+    m_aborted.store(true);
+}
+
+QThread* createAutoDeleteThreadWithMovieLoader(MovieLoader* worker, QObject* threadParent)
+{
+    QThread* thread = new QThread(threadParent);
+    Q_ASSERT(thread != nullptr);
+    worker->moveToThread(thread);
+
+    // Startup & delete setup
+    QObject::connect(thread, &QThread::started, worker, &MovieLoader::start);
+    QObject::connect(worker, &MovieLoader::finished, thread, &QThread::quit);
+    QObject::connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+    return thread;
 }
 
 } // namespace mediaelch

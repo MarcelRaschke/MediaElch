@@ -1,6 +1,7 @@
 #include "AdultDvdEmpireApi.h"
 
 #include "globals/Meta.h"
+#include "log/Log.h"
 #include "network/NetworkRequest.h"
 
 namespace mediaelch {
@@ -15,9 +16,10 @@ void AdultDvdEmpireApi::sendGetRequest(const QUrl& url, AdultDvdEmpireApi::ApiCa
     if (m_cache.hasValidElement(url, Locale::English)) {
         // Do not immediately run the callback because classes higher up may
         // set up a Qt connection while the network request is running.
-        QTimer::singleShot(0, [cb = std::move(callback), element = m_cache.getElement(url, Locale::English)]() { //
-            cb(element, {});
-        });
+        QTimer::singleShot(
+            0, this, [cb = std::move(callback), element = m_cache.getElement(url, Locale::English)]() { //
+                cb(element, {});
+            });
         return;
     }
 
@@ -36,7 +38,8 @@ void AdultDvdEmpireApi::sendGetRequest(const QUrl& url, AdultDvdEmpireApi::ApiCa
             data = QString::fromUtf8(reply->readAll());
 
         } else {
-            qWarning() << "[AdultDvdEmpireApi] Network Error:" << reply->errorString() << "for URL" << reply->url();
+            qCWarning(generic) << "[AdultDvdEmpireApi] Network Error:" << reply->errorString() << "for URL"
+                               << reply->url();
         }
 
         if (!data.isEmpty()) {

@@ -1,5 +1,6 @@
 #include "scrapers/tv_show/imdb/ImdbTvShowParser.h"
 
+#include "log/Log.h"
 #include "scrapers/ScraperInterface.h"
 #include "tv_shows/TvShow.h"
 
@@ -38,7 +39,7 @@ void ImdbTvShowParser::parseInfos(const QString& html)
     // Rating value is stored as a string in IMDb's JSON.
     rating.rating = ratingObj.value("ratingValue").toString().toDouble();
     if (rating.rating != 0.0 || rating.voteCount != 0) {
-        m_show.ratings().push_back(rating);
+        m_show.ratings().setOrAddRating(rating);
     }
 
     // -------------------------------------
@@ -77,7 +78,7 @@ QJsonDocument ImdbTvShowParser::extractMetaJson(const QString& html)
     if (!match.hasMatch()) {
         m_error.error = ScraperError::Type::InternalError;
         m_error.message = tr("Could not extract JSON details from IMDb page!");
-        qWarning() << "[ImdbTvShowParser] Could not extract JSON details from IMDb page!";
+        qCWarning(generic) << "[ImdbTvShowParser] Could not extract JSON details from IMDb page!";
         return {};
     }
 
@@ -87,13 +88,13 @@ QJsonDocument ImdbTvShowParser::extractMetaJson(const QString& html)
     if (parseError.error != QJsonParseError::NoError) {
         m_error.error = ScraperError::Type::InternalError;
         m_error.message = tr("Could not parse JSON from IMDb page!");
-        qWarning() << "[ImdbTvShowParser] Could not parse IMDb json:" << parseError.errorString() //
-                   << "at offset" << parseError.offset;
+        qCWarning(generic) << "[ImdbTvShowParser] Could not parse IMDb json:" << parseError.errorString() //
+                           << "at offset" << parseError.offset;
 
     } else if (!parsedJson.isObject()) {
         m_error.error = ScraperError::Type::InternalError;
         m_error.message = tr("Expected parsed IMDb JSON to be an object!");
-        qWarning() << "[ImdbTvShowParser] IMDb json is not an object!";
+        qCWarning(generic) << "[ImdbTvShowParser] IMDb json is not an object!";
     }
 
     return parsedJson;

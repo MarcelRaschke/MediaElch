@@ -2,7 +2,6 @@
 #include "globals/Globals.h"
 
 #include <QApplication>
-#include <QDebug>
 #include <QDir>
 #include <algorithm>
 #include <utility>
@@ -11,6 +10,7 @@
 #include "globals/Globals.h"
 #include "globals/Helper.h"
 #include "globals/Manager.h"
+#include "log/Log.h"
 #include "media_centers/MediaCenterInterface.h"
 #include "scrapers/tv_show/ShowMerger.h"
 #include "scrapers/tv_show/TvScraper.h"
@@ -59,7 +59,7 @@ void TvShow::clear()
 void TvShow::clear(QSet<ShowScraperInfo> infos)
 {
     if (infos.contains(ShowScraperInfo::Actors)) {
-        m_actors.clear();
+        m_actors.removeAll();
     }
     if (infos.contains(ShowScraperInfo::Banner)) {
         m_banners.clear();
@@ -206,8 +206,8 @@ bool TvShow::loadData(MediaCenterInterface* mediaCenterInterface, bool reloadFro
     }();
 
     if (!infoLoaded) {
-        NameFormatter nameFormatter(Settings::instance()->excludeWords());
-        setTitle(nameFormatter.formatName(dir().dirName()));
+        NameFormatter::setExcludeWords(Settings::instance()->excludeWords());
+        setTitle(NameFormatter::formatName(dir().dirName()));
     }
     m_infoLoaded = infoLoaded;
     m_infoFromNfoLoaded = infoLoaded && reloadFromNfo;
@@ -266,7 +266,7 @@ void TvShow::scrapeData(mediaelch::scraper::TvScraper* scraper,
 
     const auto loadEpisodes = [this, updateType, scraper, seasonScrapeConfig, showDetails]() {
         const bool loadNew = isNewEpisodeUpdateType(updateType);
-        const auto onEpisodeDone = [this, loadNew, showDetails](scraper::SeasonScrapeJob* job) {
+        const auto onSeasonsDone = [this, loadNew, showDetails](scraper::SeasonScrapeJob* job) {
             const auto& scrapedEpisodes = job->episodes();
 
             for (TvShowEpisode* episode : scrapedEpisodes) {
@@ -294,8 +294,8 @@ void TvShow::scrapeData(mediaelch::scraper::TvScraper* scraper,
             job->deleteLater();
         };
         auto* scrapeJob = scraper->loadSeasons(seasonScrapeConfig);
-        connect(scrapeJob, &scraper::SeasonScrapeJob::sigFinished, this, onEpisodeDone);
-        scrapeJob->execute();
+        connect(scrapeJob, &scraper::SeasonScrapeJob::sigFinished, this, onSeasonsDone);
+        scrapeJob->start();
     };
 
     const auto onShowLoaded = [this, updateType, loadEpisodes](scraper::ShowScrapeJob* job) {
@@ -323,7 +323,7 @@ void TvShow::scrapeData(mediaelch::scraper::TvScraper* scraper,
         // First load TV show and then episodes.
         auto* scrapeJob = scraper->loadShow(showScrapeConfig);
         connect(scrapeJob, &scraper::ShowScrapeJob::sigFinished, this, onShowLoaded);
-        scrapeJob->execute();
+        scrapeJob->start();
 
     } else if (isEpisodeUpdateType(updateType)) {
         // Only update episodes
@@ -340,7 +340,7 @@ void TvShow::clearImages()
     m_seasonImages.clear();
     m_hasImageChanged.clear();
     m_hasSeasonImageChanged.clear();
-    for (auto& actor : m_actors) {
+    for (auto& actor : m_actors.actors()) {
         actor->image = QByteArray();
     }
     m_extraFanartImagesToAdd.clear();
@@ -478,12 +478,12 @@ QString TvShow::overview() const
     return m_overview;
 }
 
-QVector<Rating>& TvShow::ratings()
+Ratings& TvShow::ratings()
 {
     return m_ratings;
 }
 
-const QVector<Rating>& TvShow::ratings() const
+const Ratings& TvShow::ratings() const
 {
     return m_ratings;
 }
@@ -524,38 +524,27 @@ QString TvShow::episodeGuideUrl() const
     return m_episodeGuideUrl;
 }
 
-/**
- * \brief Constructs a list of all certifications used in child episodes
- * \return List of certifications
- */
-QVector<Certification> TvShow::certifications() const
+QSet<Certification> TvShow::episodeCertifications() const
 {
-    QVector<Certification> certifications;
+    QSet<Certification> certifications;
+
     for (TvShowEpisode* episode : m_episodes) {
-        if (!certifications.contains(episode->certification()) && episode->certification().isValid()) {
-            certifications.append(episode->certification());
+        if (episode->certification().isValid()) {
+            certifications.insert(episode->certification());
         }
     }
 
     return certifications;
 }
 
-QVector<const Actor*> TvShow::actors() const
+const Actors& TvShow::actors() const
 {
-    QVector<const Actor*> actorPtrs;
-    for (const auto& actor : m_actors) {
-        actorPtrs.push_back(actor.get());
-    }
-    return actorPtrs;
+    return m_actors;
 }
 
-QVector<Actor*> TvShow::actors()
+Actors& TvShow::actors()
 {
-    QVector<Actor*> actorPtrs;
-    for (const auto& actor : m_actors) {
-        actorPtrs.push_back(actor.get());
-    }
-    return actorPtrs;
+    return m_actors;
 }
 
 QVector<Poster> TvShow::posters() const
@@ -921,14 +910,9 @@ void TvShow::setEpisodeGuideUrl(QString url)
     setChanged(true);
 }
 
-/// \brief Adds an actor
-/// \see TvShow::actors
 void TvShow::addActor(Actor actor)
 {
-    if (actor.order == 0 && !m_actors.empty()) {
-        actor.order = m_actors.back()->order + 1;
-    }
-    m_actors.push_back(std::make_unique<Actor>(actor));
+    m_actors.addActor(actor);
     setChanged(true);
 }
 
@@ -1074,7 +1058,7 @@ void TvShow::setChanged(bool changed)
 void TvShow::setModelItem(TvShowModelItem* item)
 {
     if (item == nullptr) {
-        qCritical() << "[TvShow] Tried to set nullptr model item";
+        qCCritical(generic) << "[TvShow] Tried to set nullptr model item";
         return;
     }
     m_modelItem = item;
@@ -1099,12 +1083,7 @@ void TvShow::setDownloadsInProgress(bool inProgress)
  */
 void TvShow::removeActor(Actor* actor)
 {
-    for (int i = 0, n = m_actors.size(); i < n; ++i) {
-        if (m_actors[i].get() == actor) {
-            m_actors.erase(m_actors.begin() + i);
-            break;
-        }
-    }
+    m_actors.removeActor(actor);
     setChanged(true);
 }
 
@@ -1346,6 +1325,13 @@ const QMap<SeasonNumber, QString>& TvShow::seasonNameMappings() const
 void TvShow::setSeasonName(SeasonNumber season, const QString& name)
 {
     m_seasonNameMappings.insert(season, name);
+    setChanged(true);
+}
+
+void TvShow::clearSeasonName(SeasonNumber season)
+{
+    m_seasonNameMappings.remove(season);
+    setChanged(true);
 }
 
 int TvShow::top250() const
@@ -1429,7 +1415,7 @@ void TvShow::fillMissingEpisodes()
     QVector<TvShowEpisode*> episodes = Manager::instance()->database()->showsEpisodes(this);
     for (TvShowEpisode* episode : episodes) {
         if (episode == nullptr) {
-            qCritical() << "[TvShow] Episode loaded from database is a nullptr";
+            qCCritical(generic) << "[TvShow] Episode loaded from database is a nullptr";
             continue;
         }
 
@@ -1497,7 +1483,7 @@ QDebug operator<<(QDebug dbg, const TvShow& show)
     for (const QString& genre : genres) {
         out.append(QString("  Genre:         ").append(genre)).append(nl);
     }
-    for (const Actor* actor : show.actors()) {
+    for (const Actor* actor : show.actors().actors()) {
         out.append(QStringLiteral("  Actor:         ").append(nl));
         out.append(QStringLiteral("    Name:  ").append(actor->name)).append(nl);
         out.append(QStringLiteral("    Role:  ").append(actor->role)).append(nl);

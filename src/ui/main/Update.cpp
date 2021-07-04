@@ -41,11 +41,11 @@ void Update::onCheckFinished()
 {
     auto* reply = dynamic_cast<QNetworkReply*>(QObject::sender());
     if (reply == nullptr) {
-        qCritical() << "[Updater] Dynamic Cast Failed";
+        qCCritical(generic) << "[Updater] Dynamic Cast Failed";
     }
     reply->deleteLater();
     if (reply->error() != QNetworkReply::NoError) {
-        qWarning() << "[Updater] Network Error:" << reply->errorString();
+        qCWarning(generic) << "[Updater] Network Error:" << reply->errorString();
         return;
     }
 
@@ -97,16 +97,16 @@ bool Update::checkIfNewVersion(QString xmlString, QString& version, QString& dow
 
     const auto extractVersion = [&]() {
         while (xml.readNextStartElement()) {
-            if (xml.name() == "version") {
+            if (xml.name() == QLatin1String("version")) {
                 versionInfo = mediaelch::VersionInfo(xml.readElementText());
 
-            } else if (xml.name() == "name") {
+            } else if (xml.name() == QLatin1String("name")) {
                 versionName = xml.readElementText();
 
-            } else if (xml.name() == "released") {
+            } else if (xml.name() == QLatin1String("released")) {
                 released = xml.readElementText();
 
-            } else if (xml.name() == "downloadUrl") {
+            } else if (xml.name() == QLatin1String("downloadUrl")) {
                 QString system = xml.attributes().value("system").toString();
                 if (system == os) {
                     downloadUrlOs = xml.readElementText();
@@ -118,7 +118,7 @@ bool Update::checkIfNewVersion(QString xmlString, QString& version, QString& dow
     };
 
     while (xml.readNextStartElement()) {
-        if (xml.name() == "latestVersion") {
+        if (xml.name() == QLatin1String("latestVersion")) {
             extractVersion();
         }
     }

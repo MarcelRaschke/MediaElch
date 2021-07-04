@@ -18,7 +18,7 @@ TvMazeEpisodeScrapeJob::TvMazeEpisodeScrapeJob(TvMazeApi& api, Config config, QO
 {
 }
 
-void TvMazeEpisodeScrapeJob::execute()
+void TvMazeEpisodeScrapeJob::start()
 {
     if (config().identifier.hasEpisodeIdentifier()) {
         loadEpisode(TvMazeId(config().identifier.episodeIdentifier));
@@ -32,7 +32,7 @@ void TvMazeEpisodeScrapeJob::execute()
 void TvMazeEpisodeScrapeJob::loadAllEpisodes(const TvMazeId& showId)
 {
     if (!showId.isValid()) {
-        qWarning() << "[TvMazeEpisodeScrapeJob] Invalid TVmaze ID for TV show, cannot scrape episode!";
+        qCWarning(generic) << "[TvMazeEpisodeScrapeJob] Invalid TVmaze ID for TV show, cannot scrape episode!";
         m_error.error = ScraperError::Type::ConfigError;
         m_error.message = tr("TVmaze show ID are valid! Cannot load requested episode.");
         emit sigFinished(this);
@@ -57,14 +57,14 @@ void TvMazeEpisodeScrapeJob::loadAllEpisodes(const TvMazeId& showId)
 void TvMazeEpisodeScrapeJob::loadEpisode(const TvMazeId& episodeId)
 {
     if (!episodeId.isValid()) {
-        qWarning() << "[TvMazeEpisodeScrapeJob] Invalid TVmaze ID, cannot scrape episode!";
+        qCWarning(generic) << "[TvMazeEpisodeScrapeJob] Invalid TVmaze ID, cannot scrape episode!";
         m_error.error = ScraperError::Type::ConfigError;
         m_error.message = tr("TVmaze ID is invalid! Cannot load requested episode.");
         emit sigFinished(this);
         return;
     }
 
-    qInfo() << "[TvMazeEpisodeScrapeJob] Loading episode with TVmaze ID" << episodeId.toString();
+    qCInfo(generic) << "[TvMazeEpisodeScrapeJob] Loading episode with TVmaze ID" << episodeId.toString();
     m_api.loadEpisode(episodeId, [this](QJsonDocument json, ScraperError error) {
         if (error.hasError()) {
             m_error = error;

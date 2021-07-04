@@ -24,7 +24,7 @@ CustomSeasonScrapeJob::CustomSeasonScrapeJob(CustomTvScraperConfig customConfig,
 {
 }
 
-void CustomSeasonScrapeJob::execute()
+void CustomSeasonScrapeJob::start()
 {
     // Because the custom TV scraper always starts with TMDb, we have to load the show identifiers
     // from TMDb before starting to load episodes.
@@ -35,7 +35,7 @@ void CustomSeasonScrapeJob::execute()
 
     auto* tmdbJob = m_customConfig.tmdbTv->loadShow(tmdbConfig);
     connect(tmdbJob, &TmdbTvShowScrapeJob::sigFinished, this, &CustomSeasonScrapeJob::onTmdbShowLoaded);
-    tmdbJob->execute();
+    tmdbJob->start();
 }
 
 void CustomSeasonScrapeJob::onTmdbShowLoaded(ShowScrapeJob* job)
@@ -84,7 +84,7 @@ void CustomSeasonScrapeJob::loadWithScraper(const QString& scraperId, const Show
 
     TvScraper* scraper = m_customConfig.scraperForId(scraperId);
     if (scraper == nullptr) {
-        qCritical() << "[CustomSeasonScrapeJob] Invalid scraper ID for custom tv scraper:" << scraperId;
+        qCCritical(generic) << "[CustomSeasonScrapeJob] Invalid scraper ID for custom tv scraper:" << scraperId;
         decreaseCounterAndCheckIfFinished();
         return;
     }
@@ -99,7 +99,7 @@ void CustomSeasonScrapeJob::loadWithScraper(const QString& scraperId, const Show
         job->deleteLater();
         decreaseCounterAndCheckIfFinished();
     });
-    scrapeJob->execute();
+    scrapeJob->start();
 }
 
 void CustomSeasonScrapeJob::decreaseCounterAndCheckIfFinished()
@@ -131,7 +131,7 @@ Locale CustomSeasonScrapeJob::localeFor(const QString& scraperId) const
     ScraperSettings* settings = Settings::instance()->scraperSettings(scraperId);
 
     if (scraper == nullptr) {
-        qCritical() << "[CustomSeasonScrapeJob] Scraper not supported:" << scraperId;
+        qCCritical(generic) << "[CustomSeasonScrapeJob] Scraper not supported:" << scraperId;
         return mediaelch::Locale::English;
     }
     if (settings == nullptr) {

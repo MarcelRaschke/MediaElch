@@ -1,5 +1,6 @@
 #pragma once
 
+#include "data/Actor.h"
 #include "data/Certification.h"
 #include "data/ImdbId.h"
 #include "data/Locale.h"
@@ -7,7 +8,6 @@
 #include "data/StreamDetails.h"
 #include "data/TmdbId.h"
 #include "file/Path.h"
-#include "globals/Actor.h"
 #include "globals/Globals.h"
 #include "globals/ScraperInfos.h"
 #include "scrapers/tv_show/ShowIdentifier.h"
@@ -55,8 +55,8 @@ public:
     /// \brief Episode title with prepended "SXXEXX "
     QString completeEpisodeName() const;
 
-    QVector<Rating>& ratings();
-    const QVector<Rating>& ratings() const;
+    Ratings& ratings();
+    const Ratings& ratings() const;
     double userRating() const;
     int top250() const;
     SeasonNumber seasonNumber() const;
@@ -131,8 +131,8 @@ public:
     void removeDirector(QString* director);
     void removeTag(QString tag);
 
-    QVector<const Actor*> actors() const;
-    QVector<Actor*> actors();
+    const Actors& actors() const;
+    Actors& actors();
     void addActor(Actor actor);
     void removeActor(Actor* actor);
 
@@ -173,7 +173,7 @@ private:
     TvShow* m_show = nullptr;
     QString m_title;
     QString m_showTitle;
-    QVector<Rating> m_ratings;
+    Ratings m_ratings;
     double m_userRating = 0.0;
     int m_imdbTop250 = 0;
     TmdbId m_tmdbId;
@@ -210,7 +210,7 @@ private:
     QSet<EpisodeScraperInfo> m_infosToLoad;
     QVector<ImageType> m_imagesToRemove;
     bool m_isDummy = false;
-    std::vector<std::unique_ptr<Actor>> m_actors;
+    Actors m_actors;
     bool m_wantThumbnailDownload = false;
 };
 

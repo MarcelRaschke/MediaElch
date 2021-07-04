@@ -8,16 +8,17 @@
 #include "globals/ImageDialog.h"
 #include "globals/ImagePreviewDialog.h"
 #include "globals/Manager.h"
+#include "log/Log.h"
 #include "media_centers/MediaCenterInterface.h"
 #include "scrapers/movie/MovieScraper.h"
 #include "settings/Settings.h"
 #include "tv_shows/TvShowUpdater.h"
 #include "ui/concerts/ConcertSearch.h"
 #include "ui/export/CsvExportDialog.h"
+#include "ui/main/AboutDialog.h"
 #include "ui/main/QuickOpen.h"
 #include "ui/main/Update.h"
 #include "ui/media_centers/KodiSync.h"
-#include "ui/movies/MovieMultiScrapeDialog.h"
 #include "ui/movies/MovieSearch.h"
 #include "ui/music/MusicMultiScrapeDialog.h"
 #include "ui/music/MusicSearch.h"
@@ -25,7 +26,6 @@
 #include "ui/notifications/Notificator.h"
 
 #include <QCheckBox>
-#include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
 #include <QMessageBox>
@@ -42,13 +42,12 @@ MainWindow* MainWindow::m_instance = nullptr;
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    m_aboutDialog = new AboutDialog(this);
 #ifdef Q_OS_MACOS
     auto* macMenuBar = new QMenuBar();
     QMenu* menu = macMenuBar->addMenu("File");
     QAction* mAbout = menu->addAction("About");
     mAbout->setMenuRole(QAction::AboutRole);
-    connect(mAbout, &QAction::triggered, m_aboutDialog, &AboutDialog::exec);
+    connect(mAbout, &QAction::triggered, this, &MainWindow::showAboutDialog);
 
     QMenu* help = macMenuBar->addMenu("Help");
     const auto addHelpUrl = [help](const QString& str, const QString& url) {
@@ -74,7 +73,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     MainWindow::m_instance = this;
     QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
 
-    qInfo() << "MediaElch version" << QApplication::applicationVersion() << "starting up";
+    qCInfo(generic) << "MediaElch version" << QApplication::applicationVersion() << "starting up";
 
     QMap<MainActions, bool> allActions;
     allActions.insert(MainActions::Search, false);
@@ -140,8 +139,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         }
 #endif
     }
-    // Size for Screenshots
-    resize(1200, 676);
 
     const auto onMenuFromSender = [this]() {
         auto* button = dynamic_cast<QToolButton*>(QObject::sender());
@@ -269,11 +266,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 #ifdef MEDIAELCH_UPDATER
     if (Settings::instance()->checkForUpdates()) {
-        qInfo() << "Searching for updates";
+        qCInfo(generic) << "Searching for updates";
         Update::instance()->checkForUpdate();
     }
 #else
-    qInfo() << "Updater is disabled; MediaElch will not check for updates!";
+    qCInfo(generic) << "Updater is disabled; MediaElch will not check for updates!";
 #endif
 }
 
@@ -320,7 +317,7 @@ void MainWindow::setupToolbar()
     connect(ui->navbar, &Navbar::sigSave,      this,             &MainWindow::onActionSave);
     connect(ui->navbar, &Navbar::sigSaveAll,   this,             &MainWindow::onActionSaveAll);
     connect(ui->navbar, &Navbar::sigReload,    this,             &MainWindow::onActionReload);
-    connect(ui->navbar, &Navbar::sigAbout,     m_aboutDialog,    &AboutDialog::exec);
+    connect(ui->navbar, &Navbar::sigAbout,     this,             &MainWindow::showAboutDialog);
     connect(ui->navbar, &Navbar::sigSettings,  m_settingsWindow, &SettingsWindow::show);
     connect(ui->navbar, &Navbar::sigLike,      m_supportDialog,  &QDialog::exec);
     connect(ui->navbar, &Navbar::sigSync,      this,             &MainWindow::onActionXbmc);
@@ -333,9 +330,7 @@ void MainWindow::setupToolbar()
         exportDialog->deleteLater();
     });
 
-    // TODO: There is currently no GUI-way to do this.
-    QShortcut* shortcut = new QShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_E, this);
-    QObject::connect(shortcut, &QShortcut::activated, this, [this]() {
+    connect(ui->navbar, &Navbar::sigCsvExport, this, [this]() {
         auto* csvExportDialog = new CsvExportDialog(*m_settings, this);
         csvExportDialog->exec();
         csvExportDialog->deleteLater();
@@ -349,7 +344,7 @@ void MainWindow::setupToolbar()
     auto* commandModelAction = new QAction("Test", this);
     commandModelAction->setIcon(QIcon::fromTheme(QStringLiteral("quickopen")));
     commandModelAction->setText(tr("&Quick Open"));
-    commandModelAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
+    commandModelAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
     connect(commandModelAction, &QAction::triggered, this, &MainWindow::onCommandBarOpen);
     addAction(commandModelAction);
 }
@@ -361,7 +356,7 @@ void MainWindow::setupToolbar()
  */
 void MainWindow::progressStarted(QString msg, int id)
 {
-    qDebug() << "Entered, msg=" << msg << "id=" << id;
+    qCDebug(generic) << "Entered, msg=" << msg << "id=" << id;
     NotificationBox::instance()->showProgressBar(msg, id);
 }
 
@@ -401,8 +396,9 @@ void MainWindow::onActionSearch()
         }
 
     } else if (current == MainWidgets::TvShows) {
-        if (ui->tvShowFilesWidget->selectedEpisodes(false).count() + ui->tvShowFilesWidget->selectedShows().count()
-            > 1) {
+        const qsizetype itemsSelected = ui->tvShowFilesWidget->selectedEpisodes(false).count() + //
+                                        ui->tvShowFilesWidget->selectedShows().count();
+        if (itemsSelected > 1) {
             ui->tvShowFilesWidget->multiScrape();
         } else {
             QTimer::singleShot(0, ui->tvShowWidget, &TvShowWidget::onStartScraperSearch);
@@ -426,7 +422,7 @@ void MainWindow::onActionSearch()
  */
 void MainWindow::onActionSave()
 {
-    qDebug() << "Entered, currentIndex=" << ui->stackedWidget->currentIndex();
+    qCDebug(generic) << "Entered, currentIndex=" << ui->stackedWidget->currentIndex();
 
     switch (currentTab()) {
     case MainWidgets::Movies: ui->movieWidget->saveInformation(); break;
@@ -441,6 +437,12 @@ void MainWindow::onActionSave()
     }
 
     setNewMarks();
+}
+
+void MainWindow::showAboutDialog()
+{
+    auto* aboutDialog = new AboutDialog(this);
+    aboutDialog->open();
 }
 
 void MainWindow::onActionSaveAll()
@@ -593,7 +595,6 @@ void MainWindow::onSetSaveEnabled(bool enabled, MainWidgets widget)
  */
 void MainWindow::onSetSearchEnabled(bool enabled, MainWidgets widget)
 {
-    qDebug() << "[MainWindow] Search field:" << (enabled ? "enabled" : "disabled");
     m_actions[widget][MainActions::Search] = enabled;
 
     if (widget != currentTab()) {
@@ -782,7 +783,7 @@ MainWidgets MainWindow::currentTab() const
     if (currentWidget == ui->duplicatesPage) {
         return MainWidgets::Duplicates;
     }
-    qCritical() << "[MainWindow] Unknown tab is selected! Index:" << ui->stackedWidget->currentIndex();
+    qCCritical(generic) << "[MainWindow] Unknown tab is selected! Index:" << ui->stackedWidget->currentIndex();
     return MainWidgets::Movies;
 }
 
@@ -853,7 +854,7 @@ void MainWindow::onMenu(QToolButton* button)
         // Duplicates
         widget = MainWidgets::Duplicates;
         break;
-    default: qWarning() << "Unhandled page in main window." << page; break;
+    default: qCWarning(generic) << "Unhandled page in main window." << page; break;
     }
 
     ui->navbar->setActionSearchEnabled(m_actions[widget][MainActions::Search]);

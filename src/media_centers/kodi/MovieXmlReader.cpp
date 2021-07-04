@@ -1,5 +1,7 @@
 #include "media_centers/kodi/MovieXmlReader.h"
 
+#include "log/Log.h"
+#include "media_centers/kodi/KodiXmlWriter.h"
 #include "movies/Movie.h"
 
 #include <QDate>
@@ -26,7 +28,7 @@ MovieXmlReader::MovieXmlReader(Movie& movie) : m_movie{movie}
 void MovieXmlReader::parseNfoDom(QDomDocument domDoc)
 {
     if (domDoc.elementsByTagName("movie").isEmpty()) {
-        qWarning() << "[MovieXmlReader] No <movie> tag in the document";
+        qCWarning(generic) << "[MovieXmlReader] No <movie> tag in the document";
         return;
     }
     QDomElement movieElement = domDoc.elementsByTagName("movie").at(0).toElement();
@@ -239,7 +241,7 @@ void MovieXmlReader::movieRatingV17(const QDomElement& element)
         rating.rating = ratingElement.elementsByTagName("value").at(0).toElement().text().replace(",", ".").toDouble();
         rating.voteCount =
             ratingElement.elementsByTagName("votes").at(0).toElement().text().replace(",", "").replace(".", "").toInt();
-        m_movie.ratings().push_back(rating);
+        m_movie.ratings().setOrAddRating(rating);
         m_movie.setChanged(true);
     }
 }
@@ -250,7 +252,7 @@ void MovieXmlReader::movieRatingV16(const QDomElement& element)
     QString value = element.text();
     if (!value.isEmpty()) {
         if (m_movie.ratings().isEmpty()) {
-            m_movie.ratings().push_back(Rating{});
+            m_movie.ratings().setOrAddRating(Rating{});
         }
         m_movie.ratings().first().rating = value.replace(",", ".").toDouble();
         m_movie.setChanged(true);
@@ -263,7 +265,7 @@ void MovieXmlReader::movieVoteCountV16(const QDomElement& element)
     QString value = element.text();
     if (!value.isEmpty()) {
         if (m_movie.ratings().isEmpty()) {
-            m_movie.ratings().push_back(Rating{});
+            m_movie.ratings().setOrAddRating(Rating{});
         }
         m_movie.ratings().first().voteCount = value.replace(",", ".").replace(".", "").toInt();
         m_movie.setChanged(true);

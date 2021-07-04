@@ -1,12 +1,16 @@
 add_library(
   mediaelch_data OBJECT
+  Actor.cpp
+  ActorModel.cpp
   Certification.cpp
   Database.cpp
   ImageCache.cpp
   ImdbId.cpp
   Locale.cpp
   MediaInfoFile.cpp
+  MediaStatusColumn.cpp
   Rating.cpp
+  RatingModel.cpp
   ResumeTime.cpp
   Storage.cpp
   StreamDetails.cpp
@@ -15,7 +19,10 @@ add_library(
 )
 
 target_link_libraries(
-  mediaelch_data PRIVATE Qt5::Core Qt5::Concurrent Qt5::Widgets Qt5::Multimedia
-                         Qt5::Sql Qt5::Xml
+  mediaelch_data
+  PRIVATE
+    Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Concurrent
+    Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Multimedia
+    Qt${QT_VERSION_MAJOR}::Sql Qt${QT_VERSION_MAJOR}::Xml
 )
 mediaelch_post_target_defaults(mediaelch_data)

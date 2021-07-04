@@ -2,12 +2,12 @@
 
 #include <QCryptographicHash>
 #include <QDateTime>
-#include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 
 #include "globals/Globals.h"
 #include "globals/Helper.h"
+#include "log/Log.h"
 #include "settings/Settings.h"
 
 ImageCache::ImageCache(QObject* parent) : QObject(parent)
@@ -26,7 +26,7 @@ ImageCache::ImageCache(QObject* parent) : QObject(parent)
     if (exists) {
         m_cacheDir = location;
     }
-    qDebug() << "[ImageCache] Using cache dir:" << m_cacheDir;
+    qCDebug(generic) << "[ImageCache] Using cache dir:" << m_cacheDir;
 
     m_forceCache = Settings::instance()->advanced()->forceCache();
 }
@@ -131,11 +131,12 @@ QSize ImageCache::imageSize(mediaelch::FilePath path)
     return {parts.at(3).toInt(), parts.at(4).toInt()};
 }
 
-unsigned ImageCache::getLastModified(const mediaelch::FilePath& fileName)
+qint64 ImageCache::getLastModified(const mediaelch::FilePath& fileName)
 {
-    unsigned now = QDateTime::currentDateTime().toTime_t();
+    // TODO: Use toSecsSinceEpoch() when Qt 5.8 is required.
+    qint64 now = QDateTime::currentDateTime().toMSecsSinceEpoch() / 1000;
     if (!m_lastModifiedTimes.contains(fileName) || m_lastModifiedTimes.value(fileName).first() < now - 10) {
-        unsigned lastMod = QFileInfo(fileName.toString()).lastModified().toTime_t();
+        qint64 lastMod = QFileInfo(fileName.toString()).lastModified().toMSecsSinceEpoch() / 1000;
         m_lastModifiedTimes.insert(fileName, {now, lastMod});
     }
     return m_lastModifiedTimes.value(fileName).last();

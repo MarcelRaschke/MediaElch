@@ -1,5 +1,6 @@
 #include "scrapers/tv_show/tmdb/TmdbTvShowScrapeJob.h"
 
+#include "log/Log.h"
 #include "scrapers/tmdb/TmdbApi.h"
 #include "tv_shows/TvShow.h"
 
@@ -13,13 +14,13 @@ TmdbTvShowScrapeJob::TmdbTvShowScrapeJob(TmdbApi& api, ShowScrapeJob::Config _co
 {
 }
 
-void TmdbTvShowScrapeJob::execute()
+void TmdbTvShowScrapeJob::start()
 {
     if (!m_id.isValid()) {
-        qWarning() << "[TmdbTv] Provided TMDb id is invalid:" << config().identifier;
+        qCWarning(generic) << "[TmdbTv] Provided TMDb id is invalid:" << config().identifier;
         m_error.error = ScraperError::Type::ConfigError;
         m_error.message = tr("Show is missing a TMDb id");
-        QTimer::singleShot(0, [this]() { emit sigFinished(this); });
+        QTimer::singleShot(0, this, [this]() { emit sigFinished(this); });
         return;
     }
     loadTvShow();

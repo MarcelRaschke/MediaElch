@@ -1,8 +1,8 @@
 #include "ImdbApi.h"
 
 #include "Version.h"
-#include "globals/JsonRequest.h"
 #include "globals/Meta.h"
+#include "log/Log.h"
 #include "network/NetworkRequest.h"
 
 #include <QJsonDocument>
@@ -33,7 +33,7 @@ void ImdbApi::sendGetRequest(const Locale& locale, const QUrl& url, ImdbApi::Api
     if (m_cache.hasValidElement(url, locale)) {
         // Do not immediately run the callback because classes higher up may
         // set up a Qt connection while the network request is running.
-        QTimer::singleShot(0, [cb = std::move(callback), element = m_cache.getElement(url, locale)]() { //
+        QTimer::singleShot(0, this, [cb = std::move(callback), element = m_cache.getElement(url, locale)]() { //
             cb(element, {});
         });
         return;
@@ -54,7 +54,7 @@ void ImdbApi::sendGetRequest(const Locale& locale, const QUrl& url, ImdbApi::Api
                 m_cache.addElement(reply->url(), locale, html);
             }
         } else {
-            qWarning() << "[ImdbTv][Api] Network Error:" << reply->errorString() << "for URL" << reply->url();
+            qCWarning(generic) << "[ImdbTv][Api] Network Error:" << reply->errorString() << "for URL" << reply->url();
         }
 
         ScraperError error = makeScraperError(html, *reply, {});

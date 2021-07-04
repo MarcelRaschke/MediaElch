@@ -16,9 +16,10 @@ void OfdbApi::sendGetRequest(const QUrl& url, OfdbApi::ApiCallback callback)
     if (m_cache.hasValidElement(url, Locale::English)) {
         // Do not immediately run the callback because classes higher up may
         // set up a Qt connection while the network request is running.
-        QTimer::singleShot(0, [cb = std::move(callback), element = m_cache.getElement(url, Locale::English)]() { //
-            cb(element, {});
-        });
+        QTimer::singleShot(
+            0, this, [cb = std::move(callback), element = m_cache.getElement(url, Locale::English)]() { //
+                cb(element, {});
+            });
         return;
     }
 
@@ -31,9 +32,6 @@ void OfdbApi::sendGetRequest(const QUrl& url, OfdbApi::ApiCallback callback)
         QString data;
         if (reply->error() == QNetworkReply::NoError) {
             data = QString::fromUtf8(reply->readAll());
-
-        } else {
-            qWarning() << "[OfdbApi] Network Error:" << reply->errorString() << "for URL" << reply->url();
         }
 
         if (!data.isEmpty()) {
@@ -68,8 +66,8 @@ QUrl OfdbApi::makeMovieSearchUrl(const QString& searchStr) const
 
 QUrl OfdbApi::makeMovieUrl(const QString& id) const
 {
-    // TODO QString encodedSearch = helper::toLatin1PercentEncoding(searchStr);
-    return makeApiUrl(QStringLiteral("/search/%1").arg(id), {});
+    QString encodedSearch = helper::toLatin1PercentEncoding(id);
+    return makeApiUrl(QStringLiteral("/movie/%1").arg(encodedSearch), {});
 }
 
 } // namespace scraper

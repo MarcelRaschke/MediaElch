@@ -1,6 +1,13 @@
 #pragma once
 
 #include <QDebug>
+#include <QLoggingCategory>
+
+// There is currently only one logging category.
+// We plan on adding more put to make the switch from qCDebug(generic) to qCDebug() easier,
+// we create a common category that can be used by all modules.
+Q_DECLARE_LOGGING_CATEGORY(generic)
+Q_DECLARE_LOGGING_CATEGORY(c_movie)
 
 namespace mediaelch {
 

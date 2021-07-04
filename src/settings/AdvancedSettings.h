@@ -3,6 +3,7 @@
 #include "file/FileFilter.h"
 #include "globals/Globals.h"
 #include "image/ThumbnailDimensions.h"
+#include "log/Log.h"
 
 #include <QDir>
 #include <QFile>
@@ -58,7 +59,7 @@ private:
         case ExcludeType::File: return "file";
         case ExcludeType::Folder: return "folder";
         }
-        qCritical() << "[ExcludeType] Unhandled switch/case";
+        qCCritical(generic) << "[ExcludeType] Unhandled switch/case";
         return "";
     }
 
@@ -102,6 +103,10 @@ public:
     bool isFileExcluded(QString file) const;
     bool isFolderExcluded(QString dir) const;
 
+    /// \brief Returns true if the user has provided a custom advancedsettings.xml
+    ///        "false" if default values are used.
+    bool isUserDefined() const;
+
     friend class AdvancedSettingsXmlReader;
     friend QDebug operator<<(QDebug dbg, const AdvancedSettings& settings);
 
@@ -131,6 +136,7 @@ private:
     int m_bookletCut = 2;
     bool m_writeThumbUrlsToNfo = true;
     bool m_useFirstStudioOnly = false;
+    bool m_userDefined = false;
 };
 
 QDebug operator<<(QDebug dbg, const AdvancedSettings& settings);

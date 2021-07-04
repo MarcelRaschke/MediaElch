@@ -1,6 +1,5 @@
 #include "FanartTv.h"
 
-#include <QDebug>
 #include <QGridLayout>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -10,6 +9,7 @@
 
 #include "data/Storage.h"
 #include "globals/Manager.h"
+#include "log/Log.h"
 #include "network/NetworkRequest.h"
 #include "scrapers/movie/tmdb/TmdbMovie.h"
 #include "scrapers/tv_show/thetvdb/TheTvDb.h"
@@ -125,7 +125,6 @@ FanartTv::FanartTv(QObject* parent) : ImageProvider(parent)
 
     m_apiKey = "842f7a5d1cc7396f142b8dd47c4ba42b";
     m_tmdb = new TmdbMovie(this);
-    connect(m_tmdb, &TmdbMovie::searchDone, this, &FanartTv::onSearchMovieFinished);
 }
 
 const ImageProvider::ScraperMeta& FanartTv::meta() const
@@ -151,8 +150,15 @@ mediaelch::network::NetworkManager* FanartTv::network()
 void FanartTv::searchMovie(QString searchStr, int limit)
 {
     m_searchResultLimit = limit;
-    // TODO: Set TMDb language
-    m_tmdb->search(searchStr);
+
+    mediaelch::scraper::MovieSearchJob::Config config;
+    config.query = searchStr;
+    config.locale = m_tmdb->meta().defaultLocale; // FIXME: Language dropdown
+    config.includeAdult = Settings::instance()->showAdultScrapers();
+
+    auto* searchJob = m_tmdb->search(config);
+    connect(searchJob, &mediaelch::scraper::MovieSearchJob::sigFinished, this, &FanartTv::onSearchMovieFinished);
+    searchJob->start();
 }
 
 /**
@@ -169,16 +175,17 @@ void FanartTv::searchConcert(QString searchStr, int limit)
 /**
  * \brief Called when the search result was downloaded
  *        Emits "sigSearchDone" if there are no more pages in the result set
- * \param results List of results from scraper
- * \see TMDb::parseSearch
  */
-void FanartTv::onSearchMovieFinished(QVector<ScraperSearchResult> results, ScraperError error)
+void FanartTv::onSearchMovieFinished(mediaelch::scraper::MovieSearchJob* searchJob)
 {
+    auto dls = makeDeleteLaterScope(searchJob);
+    QVector<ScraperSearchResult> results;
     if (m_searchResultLimit == 0) {
-        emit sigSearchDone(results, error);
+        results = toOldScraperSearchResult(searchJob->results());
     } else {
-        emit sigSearchDone(results.mid(0, m_searchResultLimit), error);
+        results = toOldScraperSearchResult(searchJob->results().mid(0, m_searchResultLimit));
     }
+    emit sigSearchDone(results, searchJob->error());
 }
 
 /**
@@ -298,7 +305,7 @@ void FanartTv::loadMovieData(TmdbId tmdbId, ImageType type)
     QUrl url = QStringLiteral("https://webservice.fanart.tv/v3/movies/%1?%2").arg(tmdbId.toString(), keyParameter());
     QNetworkRequest request = mediaelch::network::jsonRequestWithDefaults(url);
 
-    qDebug() << "[FanartTv] Load movie data:" << url;
+    qCDebug(generic) << "[FanartTv] Load movie data:" << url;
 
     QNetworkReply* reply = network()->get(request);
     reply->setProperty("infoToLoad", static_cast<int>(type));
@@ -310,8 +317,8 @@ void FanartTv::loadMovieData(TmdbId tmdbId, QVector<ImageType> types, Movie* mov
     QUrl url = QStringLiteral("https://webservice.fanart.tv/v3/movies/%1?%2").arg(tmdbId.toString(), keyParameter());
     QNetworkRequest request = mediaelch::network::jsonRequestWithDefaults(url);
 
-    qDebug() << "[FanartTv] Load movie data with image types:"
-             << url.toString(QUrl::RemoveQuery); // query not relevant as it only contains the API key
+    qCDebug(generic) << "[FanartTv] Load movie data with image types:"
+                     << url.toString(QUrl::RemoveQuery); // query not relevant as it only contains the API key
 
     QNetworkReply* reply = network()->get(request);
     reply->setProperty("storage", Storage::toVariant(reply, movie));
@@ -324,7 +331,7 @@ void FanartTv::loadConcertData(TmdbId tmdbId, QVector<ImageType> types, Concert*
     QUrl url = QStringLiteral("https://webservice.fanart.tv/v3/movies/%1?%2").arg(tmdbId.toString(), keyParameter());
     QNetworkRequest request = mediaelch::network::jsonRequestWithDefaults(url);
 
-    qDebug() << "[FanartTv] Load concert data with image types:" << url;
+    qCDebug(generic) << "[FanartTv] Load concert data with image types:" << url;
 
     QNetworkReply* reply = network()->get(request);
     reply->setProperty("infosToLoad", Storage::toVariant(reply, types));
@@ -433,7 +440,7 @@ QVector<Poster> FanartTv::parseMovieData(QString json, ImageType type)
     const auto parsedJson = QJsonDocument::fromJson(json.toUtf8(), &parseError).object();
 
     if (parseError.error != QJsonParseError::NoError) {
-        qWarning() << "Error parsing fanart movie json " << parseError.errorString();
+        qCWarning(generic) << "Error parsing fanart movie json " << parseError.errorString();
         return posters;
     }
 
@@ -493,7 +500,7 @@ void FanartTv::searchTvShow(QString searchStr, mediaelch::Locale locale, int lim
     ShowSearchJob::Config config{searchStr, locale, false};
     auto* searchJob = tvdb->search(config);
     connect(searchJob, &ShowSearchJob::sigFinished, this, &FanartTv::onSearchTvShowFinished, Qt::UniqueConnection);
-    searchJob->execute();
+    searchJob->start();
 }
 
 void FanartTv::onSearchTvShowFinished(ShowSearchJob* searchJob)
@@ -730,7 +737,7 @@ QVector<Poster> FanartTv::parseTvShowData(QString json, ImageType type, SeasonNu
     const auto parsedJson = QJsonDocument::fromJson(json.toUtf8(), &parseError).object();
 
     if (parseError.error != QJsonParseError::NoError) {
-        qWarning() << "Error parsing fanart TV show json " << parseError.errorString();
+        qCWarning(generic) << "Error parsing fanart TV show json " << parseError.errorString();
         return posters;
     }
 

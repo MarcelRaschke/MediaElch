@@ -1,5 +1,6 @@
 #include "scrapers/tv_show/thetvdb/TheTvDb.h"
 
+#include "log/Log.h"
 #include "scrapers/tv_show/thetvdb/TheTvDbEpisodeScrapeJob.h"
 #include "scrapers/tv_show/thetvdb/TheTvDbSeasonScrapeJob.h"
 #include "scrapers/tv_show/thetvdb/TheTvDbShowScrapeJob.h"
@@ -102,28 +103,28 @@ bool TheTvDb::isInitialized() const
 
 ShowSearchJob* TheTvDb::search(ShowSearchJob::Config config)
 {
-    qInfo() << "[TheTvDb] Search for:" << config.query;
+    qCInfo(generic) << "[TheTvDb] Search for:" << config.query;
     auto* searchJob = new TheTvDbShowSearchJob(m_api, std::move(config));
     return searchJob;
 }
 
 ShowScrapeJob* TheTvDb::loadShow(ShowScrapeJob::Config config)
 {
-    qInfo() << "[TheTvDb] Load TV show with id:" << config.identifier;
+    qCInfo(generic) << "[TheTvDb] Load TV show with id:" << config.identifier;
     auto* loader = new TheTvDbShowScrapeJob(m_api, config, this);
     return loader;
 }
 
 SeasonScrapeJob* TheTvDb::loadSeasons(SeasonScrapeJob::Config config)
 {
-    qInfo() << "[TheTvDb] Load season with show id:" << config.showIdentifier;
+    qCInfo(generic) << "[TheTvDb] Load season with show id:" << config.showIdentifier;
     auto* loader = new TheTvDbSeasonScrapeJob(m_api, config, this);
     return loader;
 }
 
 EpisodeScrapeJob* TheTvDb::loadEpisode(EpisodeScrapeJob::Config config)
 {
-    qDebug() << "[TheTvDb] Load single episode of TV show with id:" << config.identifier;
+    qCDebug(generic) << "[TheTvDb] Load single episode of TV show with id:" << config.identifier;
     auto* loader = new TheTvDbEpisodeScrapeJob(m_api, config, this);
     return loader;
 }

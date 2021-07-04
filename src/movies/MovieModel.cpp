@@ -1,11 +1,12 @@
 #include "MovieModel.h"
 
-#include <QPainter>
-#include <numeric>
-
+#include "data/MediaStatusColumn.h"
 #include "globals/Globals.h"
 #include "globals/Helper.h"
 #include "globals/Manager.h"
+
+#include <QPainter>
+#include <numeric>
 
 MovieModel::MovieModel(QObject* parent) :
 #ifndef Q_OS_WIN
@@ -93,16 +94,19 @@ int MovieModel::columnCount(const QModelIndex& parent) const
  */
 QVariant MovieModel::data(const QModelIndex& index, int role) const
 {
-    if (index.row() < 0 || index.row() > m_movies.count()) {
+    if (index.row() < 0 || index.row() >= m_movies.count()) {
         return QVariant();
     }
     if (role == Qt::UserRole) {
         return index.row();
     }
+    if (!index.isValid()) {
+        return QVariant(); // root
+    }
 
     Movie* movie = m_movies[index.row()];
 
-    if (role == Qt::UserRole + 22) {
+    if (role == Roles::MoviePointerRole) {
         return QVariant::fromValue(movie);
     }
 
@@ -160,48 +164,73 @@ QVariant MovieModel::data(const QModelIndex& index, int role) const
         }
     } else if (role == Qt::DecorationRole) {
         QString icon;
+        MediaStatusState color = MediaStatusState::RED;
 
         switch (MovieModel::columnToMediaStatus(index.column())) {
-        case MediaStatusColumn::Actors: icon = (movie->actors().isEmpty()) ? "actors/red" : "actors/green"; break;
-        case MediaStatusColumn::Trailer: icon = (movie->trailer().isEmpty()) ? "trailer/red" : "trailer/green"; break;
+        case MediaStatusColumn::Actors:
+            color = (!movie->actors().hasActors()) ? MediaStatusState::RED : MediaStatusState::GREEN;
+            icon = "edit-image-face-show";
+            break;
+        case MediaStatusColumn::Trailer:
+            color = (movie->trailer().isEmpty()) ? MediaStatusState::RED : MediaStatusState::GREEN;
+            icon = "filmgrain";
+            break;
         case MediaStatusColumn::LocalTrailer:
-            icon = (movie->hasLocalTrailer()) ? "trailer/green" : "trailer/red";
+            color = (!movie->hasLocalTrailer()) ? MediaStatusState::RED : MediaStatusState::GREEN;
+            icon = "filmgrain";
+            break;
+        case MediaStatusColumn::Subtitles:
+            color = (movie->streamDetailsLoaded() && movie->streamDetails()->hasSubtitles()) ? MediaStatusState::GREEN
+                                                                                             : MediaStatusState::RED;
+            icon = "add-subtitle";
+            break;
+        case MediaStatusColumn::Tags:
+            color = (movie->tags().isEmpty()) ? MediaStatusState::RED : MediaStatusState::GREEN;
+            icon = "tag";
             break;
         case MediaStatusColumn::Poster:
-            icon = (movie->hasImage(ImageType::MoviePoster)) ? "poster/green" : "poster/red";
+            color = (!movie->hasImage(ImageType::MoviePoster)) ? MediaStatusState::RED : MediaStatusState::GREEN;
+            icon = "viewimage";
             break;
         case MediaStatusColumn::Fanart:
-            icon = (movie->hasImage(ImageType::MovieBackdrop)) ? "fanart/green" : "fanart/red";
+            color = (!movie->hasImage(ImageType::MovieBackdrop)) ? MediaStatusState::RED : MediaStatusState::GREEN;
+            icon = "tool_imageeffects";
             break;
         case MediaStatusColumn::ExtraArts:
             if (movie->hasImage(ImageType::MovieCdArt) && movie->hasImage(ImageType::MovieClearArt)
                 && movie->hasImage(ImageType::MovieLogo) && movie->hasImage(ImageType::MovieBanner)
                 && movie->hasImage(ImageType::MovieThumb)) {
-                icon = "extraArts/green";
+                color = MediaStatusState::GREEN;
             } else if (movie->hasImage(ImageType::MovieCdArt) || movie->hasImage(ImageType::MovieClearArt)
                        || movie->hasImage(ImageType::MovieLogo) || movie->hasImage(ImageType::MovieBanner)
                        || movie->hasImage(ImageType::MovieThumb)) {
-                icon = "extraArts/yellow";
+                color = MediaStatusState::YELLOW;
             } else {
-                icon = "extraArts/red";
+                color = MediaStatusState::RED;
             }
+            icon = "tools-media-optical-burn-image";
             break;
         case MediaStatusColumn::StreamDetails:
-            icon = (movie->streamDetailsLoaded()) ? "streamDetails/green" : "streamDetails/red";
+            color = (!movie->streamDetailsLoaded()) ? MediaStatusState::RED : MediaStatusState::GREEN;
+            icon = "snap-page";
             break;
         case MediaStatusColumn::ExtraFanarts:
-            icon = (movie->constImages().hasExtraFanarts()) ? "extraFanarts/green" : "extraFanarts/red";
+            color = (!movie->constImages().hasExtraFanarts()) ? MediaStatusState::RED : MediaStatusState::GREEN;
+            icon = "insert-image";
             break;
-        case MediaStatusColumn::Id: icon = movie->hasValidImdbId() ? "id/green" : "id/red"; break;
+        case MediaStatusColumn::Id:
+            color = (!movie->hasValidImdbId()) ? MediaStatusState::RED : MediaStatusState::GREEN;
+            icon = "globe";
+            break;
         default: break;
         }
 
         if (!icon.isEmpty()) {
-            static QHash<QString, QIcon> icons;
-            if (!icons.contains(icon)) {
-                icons.insert(icon, QIcon(":mediaStatus/" + icon));
+            static QHash<QPair<QString, MediaStatusState>, QIcon> icons;
+            if (!icons.contains({icon, color})) {
+                icons.insert({icon, color}, iconWithMediaStatusColor(icon, color));
             }
-            return icons.value(icon);
+            return icons.value({icon, color});
         }
 
     } else if (role == Qt::ToolTipRole) {
@@ -274,6 +303,8 @@ int MovieModel::mediaStatusToColumn(MediaStatusColumn column)
     case MediaStatusColumn::Trailer: return 6;
     case MediaStatusColumn::LocalTrailer: return 7;
     case MediaStatusColumn::Id: return 1;
+    case MediaStatusColumn::Subtitles: return 10;
+    case MediaStatusColumn::Tags: return 11;
     case MediaStatusColumn::Unknown: return -1;
     }
     return -1;
@@ -301,6 +332,8 @@ QString MovieModel::mediaStatusToText(MediaStatusColumn column)
     case MediaStatusColumn::StreamDetails: return tr("Stream Details");
     case MediaStatusColumn::Trailer: return tr("Trailer");
     case MediaStatusColumn::LocalTrailer: return tr("Local Trailer");
+    case MediaStatusColumn::Subtitles: return tr("Subtitles");
+    case MediaStatusColumn::Tags: return tr("Tags");
     case MediaStatusColumn::Id: return tr("IMDb ID");
     case MediaStatusColumn::Unknown: return {};
     }

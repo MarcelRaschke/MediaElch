@@ -1,10 +1,10 @@
 #include "MovieFilesOrganizer.h"
 #include "file/NameFormatter.h"
-#include "movies/file_searcher/MovieFileSearcher.h"
+#include "log/Log.h"
+#include "movies/file_searcher/MovieDirScan.h"
 #include "settings/Settings.h"
 
 #include <QApplication>
-#include <QDebug>
 #include <QDir>
 #include <QMessageBox>
 
@@ -26,7 +26,7 @@ void MovieFilesOrganizer::moveToDirs(mediaelch::DirectoryPath dir)
     }
 
     QVector<QStringList> contents;
-    auto* fileSearcher = new mediaelch::MovieFileSearcher(this);
+    auto* fileSearcher = new mediaelch::MovieDirScan(this);
     fileSearcher->scanDir(path, path, contents, false, true);
     fileSearcher->deleteLater();
 
@@ -34,12 +34,12 @@ void MovieFilesOrganizer::moveToDirs(mediaelch::DirectoryPath dir)
     QString dirName = path.right(path.length() - pos - 1);
     QString fileName;
 
-    NameFormatter nameFormatter(Settings::instance()->excludeWords());
+    NameFormatter::setExcludeWords(Settings::instance()->excludeWords());
 
-    for (const QStringList& movie : contents) {
+    for (const QStringList& movie : asConst(contents)) {
         const int movieIndex = movie.at(0).lastIndexOf(QDir::separator());
         if (!(movie.at(0).left(movieIndex).endsWith(dirName))) {
-            qDebug() << "[MovieFilesOrganizer] skipping " << movie.at(0);
+            qCDebug(generic) << "[MovieFilesOrganizer] skipping " << movie.at(0);
             continue;
         }
 
@@ -49,9 +49,9 @@ void MovieFilesOrganizer::moveToDirs(mediaelch::DirectoryPath dir)
 
         QString newFolder;
         if (movie.length() == 1) {
-            newFolder = path + QDir::separator() + nameFormatter.formatName(fileName);
+            newFolder = path + QDir::separator() + NameFormatter::formatName(fileName);
         } else if (movie.length() > 1) {
-            newFolder = path + QDir::separator() + nameFormatter.formatName(nameFormatter.removeParts(fileName));
+            newFolder = path + QDir::separator() + NameFormatter::formatName(NameFormatter::removeParts(fileName));
         } else {
             continue;
         }
@@ -64,7 +64,7 @@ void MovieFilesOrganizer::moveToDirs(mediaelch::DirectoryPath dir)
             if (!dir2.rename(file,
                     newFolder + QDir::separator()
                         + file.right(file.length() - file.lastIndexOf(QDir::separator()) - 1))) {
-                qWarning() << "Moving " << file << "to " << newFolder << " failed.";
+                qCWarning(generic) << "Moving " << file << "to " << newFolder << " failed.";
             }
         }
     }

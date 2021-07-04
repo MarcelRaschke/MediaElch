@@ -1,5 +1,6 @@
 #include "scrapers/tv_show/tvmaze/TvMaze.h"
 
+#include "log/Log.h"
 #include "scrapers/tv_show/tvmaze/TvMazeEpisodeScrapeJob.h"
 #include "scrapers/tv_show/tvmaze/TvMazeSeasonScrapeJob.h"
 #include "scrapers/tv_show/tvmaze/TvMazeShowScrapeJob.h"
@@ -64,28 +65,28 @@ bool TvMaze::isInitialized() const
 
 ShowSearchJob* TvMaze::search(ShowSearchJob::Config config)
 {
-    qInfo() << "[TvMaze] Search for:" << config.query;
+    qCInfo(generic) << "[TvMaze] Search for:" << config.query;
     auto* searchJob = new TvMazeShowSearchJob(m_api, std::move(config));
     return searchJob;
 }
 
 ShowScrapeJob* TvMaze::loadShow(ShowScrapeJob::Config config)
 {
-    qInfo() << "[TvMaze] Load TV show with id:" << config.identifier;
+    qCInfo(generic) << "[TvMaze] Load TV show with id:" << config.identifier;
     auto* loader = new TvMazeShowScrapeJob(m_api, config, this);
     return loader;
 }
 
 SeasonScrapeJob* TvMaze::loadSeasons(SeasonScrapeJob::Config config)
 {
-    qInfo() << "[TvMaze] Load season with show id:" << config.showIdentifier;
+    qCInfo(generic) << "[TvMaze] Load season with show id:" << config.showIdentifier;
     auto* loader = new TvMazeSeasonScrapeJob(m_api, config, this);
     return loader;
 }
 
 EpisodeScrapeJob* TvMaze::loadEpisode(EpisodeScrapeJob::Config config)
 {
-    qDebug() << "[TvMaze] Load single episode of TV show with id:" << config.identifier;
+    qCDebug(generic) << "[TvMaze] Load single episode of TV show with id:" << config.identifier;
     auto* loader = new TvMazeEpisodeScrapeJob(m_api, config, this);
     return loader;
 }

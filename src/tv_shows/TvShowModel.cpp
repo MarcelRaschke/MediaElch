@@ -1,11 +1,13 @@
-#include <QDebug>
+#include "tv_shows/TvShowModel.h"
+
 #include <QPainter>
 #include <QtGui>
 
+#include "data/MediaStatusColumn.h"
 #include "globals/Globals.h"
 #include "globals/Helper.h"
 #include "globals/Manager.h"
-#include "tv_shows/TvShowModel.h"
+#include "log/Log.h"
 #include "tv_shows/model/EpisodeModelItem.h"
 #include "tv_shows/model/SeasonModelItem.h"
 #include "tv_shows/model/TvShowModelItem.h"
@@ -25,22 +27,36 @@ TvShowModel::TvShowModel(QObject* parent) :
     m_icons.insert(TvShowRoles::HasCharacterArt, {});
     m_icons.insert(TvShowRoles::HasBanner, {});
 
-    m_icons[TvShowRoles::HasPoster].insert(false, QIcon(":mediaStatus/poster/red"));
-    m_icons[TvShowRoles::HasPoster].insert(true, QIcon(":mediaStatus/poster/green"));
-    m_icons[TvShowRoles::HasFanart].insert(false, QIcon(":mediaStatus/fanart/red"));
-    m_icons[TvShowRoles::HasFanart].insert(true, QIcon(":mediaStatus/fanart/green"));
-    m_icons[TvShowRoles::HasExtraFanart].insert(false, QIcon(":mediaStatus/extraFanarts/red"));
-    m_icons[TvShowRoles::HasExtraFanart].insert(true, QIcon(":mediaStatus/extraFanarts/green"));
-    m_icons[TvShowRoles::HasThumb].insert(false, QIcon(":mediaStatus/thumb/red"));
-    m_icons[TvShowRoles::HasThumb].insert(true, QIcon(":mediaStatus/thumb/green"));
-    m_icons[TvShowRoles::HasLogo].insert(false, QIcon(":mediaStatus/logo/red"));
-    m_icons[TvShowRoles::HasLogo].insert(true, QIcon(":mediaStatus/logo/green"));
-    m_icons[TvShowRoles::HasClearArt].insert(false, QIcon(":mediaStatus/clearart/red"));
-    m_icons[TvShowRoles::HasClearArt].insert(true, QIcon(":mediaStatus/clearart/green"));
-    m_icons[TvShowRoles::HasCharacterArt].insert(false, QIcon(":mediaStatus/actors/red"));
-    m_icons[TvShowRoles::HasCharacterArt].insert(true, QIcon(":mediaStatus/actors/green"));
-    m_icons[TvShowRoles::HasBanner].insert(false, QIcon(":mediaStatus/banner/red"));
-    m_icons[TvShowRoles::HasBanner].insert(true, QIcon(":mediaStatus/banner/green"));
+    m_icons[TvShowRoles::HasPoster].insert(false, iconWithMediaStatusColor("viewimage", MediaStatusState::RED));
+    m_icons[TvShowRoles::HasPoster].insert(true, iconWithMediaStatusColor("viewimage", MediaStatusState::GREEN));
+
+    m_icons[TvShowRoles::HasFanart].insert(false, iconWithMediaStatusColor("tool_imageeffects", MediaStatusState::RED));
+    m_icons[TvShowRoles::HasFanart].insert(
+        true, iconWithMediaStatusColor("tool_imageeffects", MediaStatusState::GREEN));
+
+    m_icons[TvShowRoles::HasExtraFanart].insert(
+        false, iconWithMediaStatusColor("media-album-cover", MediaStatusState::RED));
+    m_icons[TvShowRoles::HasExtraFanart].insert(
+        true, iconWithMediaStatusColor("media-album-cover", MediaStatusState::GREEN));
+
+    m_icons[TvShowRoles::HasThumb].insert(false, iconWithMediaStatusColor("viewimage", MediaStatusState::RED));
+    m_icons[TvShowRoles::HasThumb].insert(true, iconWithMediaStatusColor("viewimage", MediaStatusState::GREEN));
+
+    m_icons[TvShowRoles::HasLogo].insert(false, iconWithMediaStatusColor("filmgrain", MediaStatusState::RED));
+    m_icons[TvShowRoles::HasLogo].insert(true, iconWithMediaStatusColor("filmgrain", MediaStatusState::GREEN));
+
+    m_icons[TvShowRoles::HasClearArt].insert(
+        false, iconWithMediaStatusColor("tools-media-optical-burn-image", MediaStatusState::RED));
+    m_icons[TvShowRoles::HasClearArt].insert(
+        true, iconWithMediaStatusColor("tools-media-optical-burn-image", MediaStatusState::GREEN));
+
+    m_icons[TvShowRoles::HasCharacterArt].insert(
+        false, iconWithMediaStatusColor("edit-image-face-show", MediaStatusState::RED));
+    m_icons[TvShowRoles::HasCharacterArt].insert(
+        true, iconWithMediaStatusColor("edit-image-face-show", MediaStatusState::GREEN));
+
+    m_icons[TvShowRoles::HasBanner].insert(false, iconWithMediaStatusColor("insert-image", MediaStatusState::RED));
+    m_icons[TvShowRoles::HasBanner].insert(true, iconWithMediaStatusColor("insert-image", MediaStatusState::GREEN));
 }
 
 int TvShowModel::columnCount(const QModelIndex& parent) const
@@ -89,6 +105,8 @@ QVariant TvShowModel::data(const QModelIndex& index, int role) const
         }
         return QVariant();
     }
+
+    // column => 0
 
     if (role == Qt::DisplayRole) {
         return helper::appendArticle(item.data(0).toString());
@@ -299,9 +317,11 @@ int TvShowModel::rowCount(const QModelIndex& parent) const
 void TvShowModel::clear()
 {
     const auto size = m_rootItem.shows().size();
-    beginRemoveRows(QModelIndex(), 0, size - 1);
-    m_rootItem.removeChildren(0, size);
-    endRemoveRows();
+    if (size > 0) {
+        beginRemoveRows(QModelIndex(), 0, size - 1);
+        m_rootItem.removeChildren(0, size);
+        endRemoveRows();
+    }
 }
 
 void TvShowModel::onSigChanged(TvShowModelItem* showItem, SeasonModelItem* seasonItem, EpisodeModelItem* episodeItem)
@@ -315,6 +335,12 @@ void TvShowModel::onSigChanged(TvShowModelItem* showItem, SeasonModelItem* seaso
 void TvShowModel::onShowChanged(TvShow* show)
 {
     const QModelIndex modelIndex = index(show->modelItem()->indexInParent(), 0);
+
+    // Season names may have changed
+    const int count = rowCount(modelIndex);
+    emit dataChanged(index(0, 0, modelIndex), index(count - 1, 0, modelIndex));
+
+    // Show itself may have changed
     emit dataChanged(modelIndex, modelIndex);
 }
 

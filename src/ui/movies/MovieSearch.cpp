@@ -3,7 +3,7 @@
 
 #include "scrapers/movie/MovieScraper.h"
 
-#include <QDebug>
+#include "log/Log.h"
 
 MovieSearch::MovieSearch(QWidget* parent) : QDialog(parent), ui(new Ui::MovieSearch)
 {
@@ -31,7 +31,7 @@ MovieSearch::~MovieSearch()
  */
 int MovieSearch::execWithSearch(QString searchString, ImdbId id, TmdbId tmdbId)
 {
-    qDebug() << "[MovieSearch] Open window";
+    qCDebug(generic) << "[MovieSearch] Open window";
     QSize newSize;
     newSize.setHeight(parentWidget()->size().height() - 200);
     newSize.setWidth(qMin(600, parentWidget()->size().width() - 400));
@@ -70,7 +70,7 @@ QSet<MovieScraperInfo> MovieSearch::infosToLoad()
     return ui->movieSearchWidget->infosToLoad();
 }
 
-QHash<mediaelch::scraper::MovieScraper*, QString> MovieSearch::customScraperIds()
+QHash<mediaelch::scraper::MovieScraper*, mediaelch::scraper::MovieIdentifier> MovieSearch::customScraperIds()
 {
     return ui->movieSearchWidget->customScraperIds();
 }

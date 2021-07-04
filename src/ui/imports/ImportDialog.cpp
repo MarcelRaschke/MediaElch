@@ -123,8 +123,8 @@ int ImportDialog::execMovie(QString searchString)
     m_filesToMove.clear();
     ui->stackedWidget->setCurrentIndex(0);
 
-    NameFormatter nameFormatter(Settings::instance()->excludeWords());
-    ui->movieSearchWidget->search(nameFormatter.formatName(searchString), id, TmdbId::NoId);
+    NameFormatter::setExcludeWords(Settings::instance()->excludeWords());
+    ui->movieSearchWidget->search(NameFormatter::formatName(searchString), id, TmdbId::NoId);
 
     ui->placeholders->setType(Renamer::RenameType::Movies);
     ui->chkSeasonDirectories->setVisible(false);
@@ -151,7 +151,7 @@ int ImportDialog::execTvShow(QString searchString, TvShow* tvShow)
     int index = -1;
     const QVector<SettingsDir>& dirs = Settings::instance()->directorySettings().tvShowDirectories();
     for (int i = 0, n = dirs.count(); i < n; ++i) {
-        if (tvShow->dir().isParentFolderOf(dirs.at(i).path)) {
+        if (tvShow->dir().isParentFolderOf(mediaelch::DirectoryPath(dirs.at(i).path))) {
             if (index == -1 || dirs.at(index).path.path().length() < dirs.at(i).path.path().length()) {
                 index = i;
             }
@@ -187,8 +187,8 @@ int ImportDialog::execConcert(QString searchString)
     m_filesToMove.clear();
     ui->stackedWidget->setCurrentIndex(2);
 
-    NameFormatter nameFormatter(Settings::instance()->excludeWords());
-    ui->concertSearchWidget->search(nameFormatter.formatName(searchString));
+    NameFormatter::setExcludeWords(Settings::instance()->excludeWords());
+    ui->concertSearchWidget->search(NameFormatter::formatName(searchString));
 
     ui->placeholders->setType(Renamer::RenameType::Concerts);
     ui->chkSeasonDirectories->setVisible(false);
@@ -257,13 +257,13 @@ void ImportDialog::onMovieChosen()
 {
     using namespace mediaelch::scraper;
 
-    QHash<MovieScraper*, QString> ids;
+    QHash<MovieScraper*, mediaelch::scraper::MovieIdentifier> ids;
     QSet<MovieScraperInfo> infosToLoad;
     if (ui->movieSearchWidget->scraperId() == CustomMovieScraper::ID) {
         ids = ui->movieSearchWidget->customScraperIds();
         infosToLoad = Settings::instance()->scraperInfos<MovieScraperInfo>(CustomMovieScraper::ID);
     } else {
-        ids.insert(0, ui->movieSearchWidget->scraperMovieId());
+        ids.insert(nullptr, MovieIdentifier(ui->movieSearchWidget->scraperMovieId()));
         infosToLoad = ui->movieSearchWidget->infosToLoad();
     }
 
@@ -431,7 +431,7 @@ void ImportDialog::onEpisodeLoadDone(TvShowEpisode* episode)
 
 void ImportDialog::onEpisodeDownloadFinished(DownloadManagerElement elem)
 {
-    qDebug() << "got image";
+    qCDebug(generic) << "got image";
     if (m_episode == nullptr) {
         return;
     }
@@ -663,7 +663,7 @@ void ImportDialog::onMovingFilesFinished()
         m_movie->controller()->loadStreamDetailsFromFile();
         m_movie->controller()->saveData(Manager::instance()->mediaCenterInterface());
         m_movie->controller()->loadData(Manager::instance()->mediaCenterInterface());
-        Manager::instance()->database()->add(m_movie, importDir());
+        Manager::instance()->database()->addMovie(m_movie, mediaelch::DirectoryPath(importDir()));
         Manager::instance()->database()->commit();
         Manager::instance()->movieModel()->addMovie(m_movie);
         m_movie = nullptr;
@@ -678,7 +678,7 @@ void ImportDialog::onMovingFilesFinished()
         m_show->addEpisode(m_episode);
         m_episode->saveData(Manager::instance()->mediaCenterInterfaceTvShow());
         m_episode->loadData(Manager::instance()->mediaCenterInterfaceTvShow(), true, false);
-        Manager::instance()->database()->add(m_episode, importDir(), m_show->databaseId());
+        Manager::instance()->database()->add(m_episode, mediaelch::DirectoryPath(importDir()), m_show->databaseId());
 
         if (m_show->showMissingEpisodes()) {
             m_show->fillMissingEpisodes();
@@ -699,7 +699,7 @@ void ImportDialog::onMovingFilesFinished()
         m_concert->controller()->loadStreamDetailsFromFile();
         m_concert->controller()->saveData(Manager::instance()->mediaCenterInterface());
         m_concert->controller()->loadData(Manager::instance()->mediaCenterInterface());
-        Manager::instance()->database()->add(m_concert, importDir());
+        Manager::instance()->database()->add(m_concert, mediaelch::DirectoryPath(importDir()));
         Manager::instance()->database()->commit();
         Manager::instance()->concertModel()->addConcert(m_concert);
         m_concert = nullptr;

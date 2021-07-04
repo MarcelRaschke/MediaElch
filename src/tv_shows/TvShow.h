@@ -1,10 +1,10 @@
 #pragma once
 
+#include "data/Actor.h"
 #include "data/Locale.h"
 #include "data/Rating.h"
 #include "data/TmdbId.h"
 #include "file/Path.h"
-#include "globals/Actor.h"
 #include "globals/Globals.h"
 #include "globals/Poster.h"
 #include "scrapers/tv_show/ShowIdentifier.h"
@@ -54,8 +54,8 @@ public:
     QString sortTitle() const;
 
     mediaelch::DirectoryPath dir() const;
-    QVector<Rating>& ratings();
-    const QVector<Rating>& ratings() const;
+    Ratings& ratings();
+    const Ratings& ratings() const;
     double userRating() const;
     int top250() const;
     QDate firstAired() const;
@@ -70,9 +70,12 @@ public:
     ImdbId imdbId() const;
     TvMazeId tvmazeId() const;
     QString episodeGuideUrl() const;
-    QVector<Certification> certifications() const;
-    QVector<const Actor*> actors() const;
-    QVector<Actor*> actors();
+    /// \brief Returns all certifications for the TV show's episodes.
+    QSet<Certification> episodeCertifications() const;
+
+    const Actors& actors() const;
+    Actors& actors();
+
     QVector<Poster> posters() const;
     QVector<Poster> backdrops() const;
     QVector<Poster> banners() const;
@@ -207,6 +210,7 @@ public:
 
     const QMap<SeasonNumber, QString>& seasonNameMappings() const;
     void setSeasonName(SeasonNumber season, const QString& name);
+    void clearSeasonName(SeasonNumber season);
 
 signals:
     /// \todo Remove in future versions. TV show should not know about its scrapers.
@@ -220,7 +224,7 @@ private:
     QString m_showTitle;
     QString m_originalTitle;
     QString m_sortTitle;
-    QVector<Rating> m_ratings;
+    Ratings m_ratings;
     double m_userRating = 0.0;
     int m_imdbTop250 = 0;
     QDate m_firstAired;
@@ -235,7 +239,7 @@ private:
     ImdbId m_imdbId;
     TvMazeId m_tvmazeId;
     QString m_episodeGuideUrl;
-    std::vector<std::unique_ptr<Actor>> m_actors;
+    Actors m_actors;
     QVector<Poster> m_posters;
     QVector<Poster> m_backdrops;
     QVector<Poster> m_banners;

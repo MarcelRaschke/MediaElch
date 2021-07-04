@@ -4,6 +4,10 @@
 
 #include <QMessageBox>
 
+Q_LOGGING_CATEGORY(generic, "generic")
+Q_LOGGING_CATEGORY(c_movie, "movie")
+
+
 static QFile data;
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)

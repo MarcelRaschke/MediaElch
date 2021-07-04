@@ -4,6 +4,7 @@ target_sources(
   mediaelch_unit
   PRIVATE
     main.cpp
+    testModels.cpp
     data/testImdbId.cpp
     data/testLocale.cpp
     data/testTmdbId.cpp
@@ -23,6 +24,7 @@ target_sources(
 
 target_link_libraries(
   mediaelch_unit PRIVATE libmediaelch libmediaelch_testhelpers
+                         Qt${QT_VERSION_MAJOR}::Test
 )
 
 generate_coverage_report(mediaelch_unit)

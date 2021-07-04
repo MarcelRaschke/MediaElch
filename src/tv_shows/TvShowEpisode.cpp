@@ -16,10 +16,6 @@
 #include <QTime>
 #include <utility>
 
-/**
- * \brief TvShowEpisode::TvShowEpisode
- * \param files Files of the episode
- */
 TvShowEpisode::TvShowEpisode(const mediaelch::FileList& files, QObject* parent) :
     QObject(parent),
     m_season{SeasonNumber::NoSeason},
@@ -61,9 +57,6 @@ void TvShowEpisode::setShow(TvShow* show)
     setParent(show);
 }
 
-/**
- * \brief Clears the episodes data
- */
 void TvShowEpisode::clear()
 {
     m_imdbId = {};
@@ -123,7 +116,7 @@ void TvShowEpisode::clear(const QSet<EpisodeScraperInfo>& infos)
         m_imagesToRemove.removeOne(ImageType::TvShowEpisodeThumb);
     }
     if (infos.contains(EpisodeScraperInfo::Actors)) {
-        m_actors.clear();
+        m_actors.removeAll();
     }
 
     m_hasChanged = false;
@@ -142,7 +135,7 @@ QSet<EpisodeScraperInfo> TvShowEpisode::infosToLoad()
 bool TvShowEpisode::loadData(MediaCenterInterface* mediaCenterInterface, bool reloadFromNfo, bool forceReload)
 {
     if (mediaCenterInterface == nullptr) {
-        qWarning() << "Passed an empty (null) mediaCenterInterface to loadData";
+        qCWarning(generic) << "Passed an empty (null) mediaCenterInterface to loadData";
         return false;
     }
 
@@ -185,7 +178,7 @@ bool TvShowEpisode::saveData(MediaCenterInterface* mediaCenterInterface)
         loadStreamDetailsFromFile();
     }
     bool saved = mediaCenterInterface->saveTvShowEpisode(this);
-    qDebug() << "Saving episode" << (saved ? "successful" : "not successful");
+    qCDebug(generic) << "Saving episode" << (saved ? "successful" : "not successful");
     if (!m_infoLoaded) {
         m_infoLoaded = saved;
     }
@@ -204,7 +197,8 @@ void TvShowEpisode::scrapeData(mediaelch::scraper::TvScraper* scraper,
     using namespace mediaelch;
     using namespace mediaelch::scraper;
 
-    qInfo() << "[TvShow] Load episode with show id" << showIdentifier << "using scraper" << scraper->meta().name;
+    qCInfo(generic) << "[TvShow] Load episode with show id" << showIdentifier << "using scraper"
+                    << scraper->meta().name;
     m_infosToLoad = infosToLoad;
 
     EpisodeIdentifier identifier(showIdentifier.str(), seasonNumber(), episodeNumber(), order);
@@ -223,7 +217,7 @@ void TvShowEpisode::scrapeData(mediaelch::scraper::TvScraper* scraper,
         job->deleteLater();
         emit sigLoaded(this);
     });
-    scrapeJob->execute();
+    scrapeJob->start();
 }
 
 /**
@@ -287,12 +281,12 @@ QString TvShowEpisode::showTitle() const
     return QString();
 }
 
-QVector<Rating>& TvShowEpisode::ratings()
+Ratings& TvShowEpisode::ratings()
 {
     return m_ratings;
 }
 
-const QVector<Rating>& TvShowEpisode::ratings() const
+const Ratings& TvShowEpisode::ratings() const
 {
     return m_ratings;
 }
@@ -910,41 +904,25 @@ bool TvShowEpisode::wantThumbnailDownload() const
     return m_wantThumbnailDownload;
 }
 
-QVector<const Actor*> TvShowEpisode::actors() const
+const Actors& TvShowEpisode::actors() const
 {
-    QVector<const Actor*> actorPtrs;
-    for (const auto& actor : m_actors) {
-        actorPtrs.push_back(actor.get());
-    }
-    return actorPtrs;
+    return m_actors;
 }
 
-QVector<Actor*> TvShowEpisode::actors()
+Actors& TvShowEpisode::actors()
 {
-    QVector<Actor*> actorPtrs;
-    for (const auto& actor : m_actors) {
-        actorPtrs.push_back(actor.get());
-    }
-    return actorPtrs;
+    return m_actors;
 }
 
 void TvShowEpisode::addActor(Actor actor)
 {
-    if (actor.order == 0 && !m_actors.empty()) {
-        actor.order = m_actors.back()->order + 1;
-    }
-    m_actors.push_back(std::make_unique<Actor>(actor));
+    m_actors.addActor(actor);
     setChanged(true);
 }
 
 void TvShowEpisode::removeActor(Actor* actor)
 {
-    for (size_t i = 0, n = m_actors.size(); i < n; ++i) {
-        if (m_actors[i].get() == actor) {
-            m_actors.erase(m_actors.begin() + i);
-            break;
-        }
-    }
+    m_actors.removeActor(actor);
     setChanged(true);
 }
 

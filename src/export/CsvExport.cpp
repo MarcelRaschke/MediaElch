@@ -1,13 +1,14 @@
 #include "export/CsvExport.h"
 
 #include "concerts/Concert.h"
+#include "data/Rating.h"
 #include "movies/Movie.h"
 #include "music/Album.h"
 #include "music/Artist.h"
 #include "tv_shows/TvShow.h"
 #include "tv_shows/TvShowEpisode.h"
 
-static QString ratingsToString(const QVector<Rating>& ratings)
+static QString ratingsToString(const Ratings& ratings)
 {
     QStringList out;
     for (const Rating& rating : ratings) {
@@ -24,10 +25,10 @@ static QString ratingsToString(const QVector<Rating>& ratings)
     return out.join(", ");
 }
 
-static QString actorsToString(const QVector<Actor*>& actors)
+static QString actorsToString(const Actors& actors)
 {
     QStringList out;
-    for (const Actor* actor : actors) {
+    for (const Actor* actor : actors.actors()) {
         if (!actor->role.isEmpty()) {
             out << QStringLiteral("%1 (%2)").arg(actor->name, actor->role);
         } else {
@@ -668,9 +669,19 @@ void CsvExport::addRow(const QMap<QString, QString>& values)
 
 void CsvExport::writeEscaped(const QString& text)
 {
-    if (!text.contains(m_separator) && !text.contains("\n")) {
+    // See https://owasp.org/www-community/attacks/CSV_Injection
+    // Microsoft Excel and other tools are... bad with user provided data.  If a field starts with '=', it's
+    // interpreted as code.  So we prepend it with a '.
+    bool startsWithForbiddenCharacter = text.startsWith("=") || text.startsWith("@") || text.startsWith("\t")
+                                        || text.startsWith("\r") || text.startsWith("+") || text.startsWith("-");
+
+    if (!text.contains(m_separator) && !text.contains("\n") && !startsWithForbiddenCharacter) {
         m_out << text;
         return;
+    }
+
+    if (startsWithForbiddenCharacter) {
+        m_out << "'";
     }
 
     m_out << (QString(text)

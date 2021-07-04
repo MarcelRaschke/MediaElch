@@ -1,6 +1,7 @@
 #include "EpisodeXmlReader.h"
 
 #include "globals/Globals.h"
+#include "log/Log.h"
 #include "tv_shows/TvShowEpisode.h"
 
 #include <QDate>
@@ -43,6 +44,12 @@ void EpisodeXmlReader::parseNfoDom(QDomElement episodeDetails)
         QDomElement element = uniqueIds.at(i).toElement();
         QString type = element.attribute("type");
         QString value = element.text().trimmed();
+
+        if (value.isEmpty()) {
+            // Silently skip empty values; we wouldn't get any benefit from them
+            continue;
+        }
+
         if (type == "imdb") {
             m_episode.setImdbId(ImdbId(value));
         } else if (type == "tvdb") {
@@ -52,7 +59,7 @@ void EpisodeXmlReader::parseNfoDom(QDomElement episodeDetails)
         } else if (type == "tvmaze") {
             m_episode.setTvMazeId(TvMazeId(value));
         } else {
-            qWarning() << "[EpisodeXmlReader] Unsupported unique id type:" << type;
+            qCWarning(generic) << "[EpisodeXmlReader] Unsupported unique id type:" << type << "with value" << value;
         }
     }
 
@@ -107,7 +114,7 @@ void EpisodeXmlReader::parseNfoDom(QDomElement episodeDetails)
                                    .replace(",", "")
                                    .replace(".", "")
                                    .toInt();
-            m_episode.ratings().push_back(rating);
+            m_episode.ratings().setOrAddRating(rating);
             m_episode.setChanged(true);
         }
 
@@ -128,8 +135,9 @@ void EpisodeXmlReader::parseNfoDom(QDomElement episodeDetails)
                                        .replace(".", "")
                                        .toInt();
             }
+            // Note: We clear exiting ratings because there can only be one v16 rating tag.
             m_episode.ratings().clear();
-            m_episode.ratings().push_back(rating);
+            m_episode.ratings().setOrAddRating(rating);
             m_episode.setChanged(true);
         }
     }

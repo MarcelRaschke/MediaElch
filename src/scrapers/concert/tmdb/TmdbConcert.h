@@ -9,6 +9,7 @@
 #include <QLocale>
 #include <QNetworkReply>
 #include <QObject>
+#include <QPointer>
 #include <QWidget>
 
 namespace mediaelch {
@@ -19,7 +20,7 @@ class TmdbConcert : public ConcertScraper
     Q_OBJECT
 public:
     explicit TmdbConcert(QObject* parent = nullptr);
-    ~TmdbConcert() override = default;
+    ~TmdbConcert() override;
 
     static constexpr const char* ID = "TmdbConcert";
 
@@ -53,7 +54,7 @@ private:
     QLocale m_locale;
     QString m_language2;
     QString m_baseUrl;
-    QWidget* m_widget;
+    QPointer<QWidget> m_widget;
     QComboBox* m_box;
 
     void setup();

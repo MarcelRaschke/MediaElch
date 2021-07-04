@@ -1,5 +1,6 @@
 #include "scrapers/tv_show/imdb/ImdbTvSeasonScrapeJob.h"
 
+#include "log/Log.h"
 #include "scrapers/imdb/ImdbApi.h"
 #include "scrapers/tv_show/imdb/ImdbTvSeasonParser.h"
 #include "tv_shows/TvShowEpisode.h"
@@ -15,13 +16,13 @@ ImdbTvSeasonScrapeJob::ImdbTvSeasonScrapeJob(ImdbApi& api, SeasonScrapeJob::Conf
 {
 }
 
-void ImdbTvSeasonScrapeJob::execute()
+void ImdbTvSeasonScrapeJob::start()
 {
     if (!m_showId.isValid()) {
-        qWarning() << "[ImdbTv] Provided IMDb id is invalid:" << config().showIdentifier;
+        qCWarning(generic) << "[ImdbTv] Provided IMDb id is invalid:" << config().showIdentifier;
         m_error.error = ScraperError::Type::ConfigError;
         m_error.message = tr("Show is missing an IMDb id");
-        QTimer::singleShot(0, [this]() { emit sigFinished(this); });
+        QTimer::singleShot(0, this, [this]() { emit sigFinished(this); });
         return;
     }
 
@@ -62,8 +63,8 @@ void ImdbTvSeasonScrapeJob::loadEpisodes(QMap<SeasonNumber, QMap<EpisodeNumber, 
     episode->setEpisode(nextEpisode);
     episode->setImdbId(nextEpisodeId);
 
-    qInfo() << "[ImdbTvSeasonScrapeJob] Start loading season" << nextSeason.toInt() << "episode" << nextEpisode.toInt()
-            << "of show" << config().showIdentifier.str();
+    qCInfo(generic) << "[ImdbTvSeasonScrapeJob] Start loading season" << nextSeason.toInt() << "episode"
+                    << nextEpisode.toInt() << "of show" << config().showIdentifier.str();
 
     m_api.loadEpisode(config().locale, nextEpisodeId, [this, episode, episodeIds](QString html, ScraperError error) {
         if (error.hasError()) {

@@ -19,6 +19,7 @@ PROJECT_PATH="$(me_readlink ../../)"
 DISTROS=(
 	"ubuntu-18.04"
 	"ubuntu-20.04"
+	"ubuntu-21.04"
 	"opensuse-leap-42.3"
 	"opensuse-leap-15"
 	"opensuse-tumbleweed"
@@ -57,7 +58,7 @@ if [ ! -f "${DOCKERFILE}" ]; then
 fi
 
 print_important "Building ${IMAGE} from ${DOCKERFILE} if necessary."
-docker build -t "${IMAGE}" -f "${DOCKERFILE}" .
+docker build --pull -t "${IMAGE}" -f "${DOCKERFILE}" .
 
 # We use the first part of the distro to distinguish between build scripts
 build_sh="build-$(echo ${DIST} | cut -f1 -d-).sh"

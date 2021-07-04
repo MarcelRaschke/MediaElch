@@ -12,6 +12,7 @@
 #include <QComboBox>
 #include <QMutex>
 #include <QObject>
+#include <QPointer>
 #include <QWidget>
 
 namespace mediaelch {
@@ -22,21 +23,28 @@ class UniversalMusicScraper : public MusicScraper
     Q_OBJECT
 public:
     explicit UniversalMusicScraper(QObject* parent = nullptr);
+    ~UniversalMusicScraper() override;
     static constexpr const char* ID = "UniversalMusicScraper";
 
     QString name() const override;
     QString identifier() const override;
-    void searchAlbum(QString artistName, QString searchStr) override;
+    QSet<MusicScraperInfo> scraperSupports() override;
+
+    /// \brief Searches for an album using MusicBrainz
+    /// \details If artist name is empty, only the albumSearchStr is used.
+    ///          Otherwise the artist will be used for the result as well.
+    void searchAlbum(QString artistName, QString albumSearchStr) override;
     void searchArtist(QString searchStr) override;
-    void loadData(MusicBrainzId mbId, Artist* artist, QSet<MusicScraperInfo> infos) override;
-    void loadData(MusicBrainzId mbAlbumId,
+
+    void loadArtist(MusicBrainzId mbId, Artist* artist, QSet<MusicScraperInfo> infos) override;
+    void loadAlbum(MusicBrainzId mbAlbumId,
         MusicBrainzId mbReleaseGroupId,
         Album* album,
         QSet<MusicScraperInfo> infos) override;
+
     bool hasSettings() const override;
     void loadSettings(ScraperSettings& settings) override;
     void saveSettings(ScraperSettings& settings) override;
-    QSet<MusicScraperInfo> scraperSupports() override;
     QWidget* settingsWidget() override;
 
 public:
@@ -63,7 +71,7 @@ private:
     mediaelch::network::NetworkManager m_network;
     QString m_language;
     QString m_prefer;
-    QWidget* m_widget;
+    QPointer<QWidget> m_widget;
     QComboBox* m_box;
     QComboBox* m_preferBox;
     QMap<Artist*, QVector<DownloadElement>> m_artistDownloads;

@@ -3,9 +3,9 @@
 #
 
 Name:           MediaElch
-Version:        2.8.6
+Version:        2.8.13
 Release:        1%{?dist}
-License:        LGPL-2.1+
+License:        LGPL-3.0-only
 Summary:        A Media Manager for Kodi
 URL:            https://github.com/Komet/MediaElch
 Group:          Productivity/Multimedia/Other
@@ -18,6 +18,7 @@ BuildRequires:  gcc7-c++
 BuildRequires:  libqt5-qtbase-devel
 BuildRequires:  libQt5Multimedia-devel
 BuildRequires:  libqt5-qttools-devel
+BuildRequires:  libqt5-qtsvg-devel
 BuildRequires:  libmediainfo-devel
 BuildRequires:  libpulse-devel
 
@@ -49,5 +50,6 @@ make install
 %{_bindir}/%{name}
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/pixmaps/%{name}.png
+%{_datadir}/metainfo/com.kvibes.MediaElch.metainfo.xml
 
 %changelog

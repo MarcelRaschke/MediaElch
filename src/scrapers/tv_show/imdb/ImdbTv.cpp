@@ -1,5 +1,6 @@
 #include "scrapers/tv_show/imdb/ImdbTv.h"
 
+#include "log/Log.h"
 #include "scrapers/tv_show/imdb/ImdbTvEpisodeScrapeJob.h"
 #include "scrapers/tv_show/imdb/ImdbTvSeasonScrapeJob.h"
 #include "scrapers/tv_show/imdb/ImdbTvShowScrapeJob.h"
@@ -56,7 +57,7 @@ const TvScraper::ScraperMeta& ImdbTv::meta() const
 
 void ImdbTv::initialize()
 {
-    QTimer::singleShot(0, [this]() { emit initialized(true, this); });
+    QTimer::singleShot(0, this, [this]() { emit initialized(true, this); });
 }
 
 bool ImdbTv::isInitialized() const
@@ -66,25 +67,25 @@ bool ImdbTv::isInitialized() const
 
 ShowSearchJob* ImdbTv::search(ShowSearchJob::Config config)
 {
-    qInfo() << "[ImdbTv] Search for:" << config.query;
+    qCInfo(generic) << "[ImdbTv] Search for:" << config.query;
     return new ImdbTvShowSearchJob(m_api, config, this);
 }
 
 ShowScrapeJob* ImdbTv::loadShow(ShowScrapeJob::Config config)
 {
-    qInfo() << "[ImdbTv] Load TV show with id:" << config.identifier;
+    qCInfo(generic) << "[ImdbTv] Load TV show with id:" << config.identifier;
     return new ImdbTvShowScrapeJob(m_api, config, this);
 }
 
 SeasonScrapeJob* ImdbTv::loadSeasons(SeasonScrapeJob::Config config)
 {
-    qInfo() << "[ImdbTv] Load season with show id:" << config.showIdentifier;
+    qCInfo(generic) << "[ImdbTv] Load season with show id:" << config.showIdentifier;
     return new ImdbTvSeasonScrapeJob(m_api, config, this);
 }
 
 EpisodeScrapeJob* ImdbTv::loadEpisode(EpisodeScrapeJob::Config config)
 {
-    qDebug() << "[ImdbTv] Load single episode of TV show with id:" << config.identifier;
+    qCDebug(generic) << "[ImdbTv] Load single episode of TV show with id:" << config.identifier;
     return new ImdbTvEpisodeScrapeJob(m_api, config, this);
 }
 

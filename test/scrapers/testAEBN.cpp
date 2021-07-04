@@ -1,14 +1,23 @@
 #include "test/test_helpers.h"
 
 #include "scrapers/movie/aebn/AEBN.h"
+#include "scrapers/movie/aebn/AebnSearchJob.h"
+#include "test/mocks/settings/MockScraperSettings.h"
+#include "test/scrapers/testScraperHelpers.h"
 
 #include <chrono>
 
 using namespace std::chrono_literals;
 using namespace mediaelch::scraper;
 
+static AebnApi& getAebnApi()
+{
+    static auto api = std::make_unique<AebnApi>();
+    return *api;
+}
+
 /// \brief Loads movie data synchronously
-static void loadAebnMoviesSync(AEBN& scraper, QHash<MovieScraper*, QString> ids, Movie& movie)
+static void loadAebnMoviesSync(AEBN& scraper, QHash<MovieScraper*, MovieIdentifier> ids, Movie& movie)
 {
     const auto infos = scraper.meta().supportedDetails;
     loadDataSync(scraper, ids, movie, infos);
@@ -16,24 +25,30 @@ static void loadAebnMoviesSync(AEBN& scraper, QHash<MovieScraper*, QString> ids,
 
 TEST_CASE("AEBN returns valid search results", "[AEBN][search]")
 {
-    AEBN AEBN;
-
     SECTION("Search by movie name returns correct results")
     {
-        const auto scraperResults = searchScraperSync(AEBN, "Magic Mike XXXL");
+        MovieSearchJob::Config config{"Magic Mike XXXL", mediaelch::Locale::English, true};
+        auto* searchJob = new AebnSearchJob(getAebnApi(), config, "straight");
+        const auto scraperResults = searchMovieScraperSync(searchJob).first;
+
         REQUIRE(scraperResults.length() >= 1);
-        CHECK(scraperResults[0].name == "Magic Mike XXXL: A Hardcore Parody");
+        CHECK(scraperResults[0].title == "Magic Mike XXXL: A Hardcore Parody");
+        CHECK(scraperResults[0].identifier.str() == "188623");
     }
 }
 
 TEST_CASE("AEBN scrapes correct movie details", "[AEBN][load_data]")
 {
     AEBN aebn;
+    MockScraperSettings settings(aebn.meta().identifier);
+    settings.key_bool_map["Genre"] = "101"; // straight
+    aebn.loadSettings(settings);
+
 
     SECTION("Movie has correct details")
     {
         Movie m(QStringList{}); // Movie without files
-        loadAebnMoviesSync(aebn, {{nullptr, "188623"}}, m);
+        loadAebnMoviesSync(aebn, {{nullptr, MovieIdentifier("188623")}}, m);
 
         REQUIRE_THAT(m.name(), StartsWith("Magic Mike XXXL"));
         CHECK(m.imdbId() == ImdbId::NoId);
@@ -54,7 +69,7 @@ TEST_CASE("AEBN scrapes correct movie details", "[AEBN][load_data]")
         REQUIRE(!studios.empty());
         CHECK(studios[0] == "Wicked Pictures");
 
-        const auto actors = m.actors();
+        const auto actors = m.actors().actors();
         REQUIRE(actors.size() == 19);
         CHECK(actors[0]->name == "Misty Stone");
         CHECK(actors[1]->name == "Asa Akira");
@@ -63,7 +78,7 @@ TEST_CASE("AEBN scrapes correct movie details", "[AEBN][load_data]")
     SECTION("Movie has correct set")
     {
         Movie m(QStringList{}); // Movie without files
-        loadAebnMoviesSync(aebn, {{nullptr, "159236"}}, m);
+        loadAebnMoviesSync(aebn, {{nullptr, MovieIdentifier("159236")}}, m);
         CHECK(m.name() == "M Is For Mischief 3");
         CHECK(m.set().name == "M Is For Mischief");
     }

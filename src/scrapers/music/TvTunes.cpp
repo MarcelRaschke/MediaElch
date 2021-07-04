@@ -2,9 +2,10 @@
 
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include "globals/Helper.h"
+#include "log/Log.h"
 #include "network/NetworkRequest.h"
 
 namespace mediaelch {
@@ -16,7 +17,7 @@ TvTunes::TvTunes(QObject* parent) : QObject(parent)
 
 void TvTunes::search(QString searchStr)
 {
-    qInfo() << "[TvTunes] Search for show:" << searchStr;
+    qCInfo(generic) << "[TvTunes] Search for show:" << searchStr;
 
     searchStr = searchStr.replace(" ", "+");
     searchStr = helper::urlEncode(searchStr);
@@ -38,7 +39,7 @@ void TvTunes::onSearchFinished()
     reply->deleteLater();
     QVector<ScraperSearchResult> results;
     if (reply->error() != QNetworkReply::NoError) {
-        qWarning() << "[TvTunes] Network Error:" << reply->errorString();
+        qCWarning(generic) << "[TvTunes] Network Error:" << reply->errorString();
         emit sigSearchDone(results);
         return;
     }
@@ -54,17 +55,20 @@ QVector<ScraperSearchResult> TvTunes::parseSearch(QString html)
 {
     QVector<ScraperSearchResult> results;
 
-    QRegExp rx;
-    rx.setMinimal(true);
-
+    QRegularExpression rx;
+    rx.setPatternOptions(QRegularExpression::InvertedGreedinessOption | QRegularExpression::DotMatchesEverythingOption);
     rx.setPattern("<div class=\"jp\\-title\">.*<ul>.*<li><a href=\"([^\"]*)\">([^<]*)</a></li>");
-    int pos = 0;
-    while ((pos = rx.indexIn(html, pos)) != -1) {
+
+    QRegularExpressionMatchIterator matches = rx.globalMatch(html);
+
+    while (matches.hasNext()) {
+        QRegularExpressionMatch match = matches.next();
+
         ScraperSearchResult result;
-        result.id = QString("https://www.televisiontunes.com%1").arg(rx.cap(1));
-        result.name = rx.cap(2);
+        result.id = QString("https://www.televisiontunes.com%1").arg(match.captured(1));
+        result.name = match.captured(2);
         results.append(result);
-        pos += rx.matchedLength();
+
         // Limit the result set to about 50 items.
         if (results.size() >= 50) {
             break;
@@ -98,10 +102,12 @@ void TvTunes::onDownloadUrlFinished()
         ScraperSearchResult res;
         res.name = reply->property("name").toString();
 
-        QRegExp rx("<a id=\"download_song\" href=\"([^\"]*)\">");
-        rx.setMinimal(true);
-        if (rx.indexIn(msg) != -1) {
-            res.id = QString("https://www.televisiontunes.com%1").arg(rx.cap(1));
+        QRegularExpression rx("<a id=\"download_song\" href=\"([^\"]*)\">",
+            QRegularExpression::InvertedGreedinessOption | QRegularExpression::DotMatchesEverythingOption);
+
+        QRegularExpressionMatch match = rx.match(msg);
+        if (match.hasMatch()) {
+            res.id = QStringLiteral("https://www.televisiontunes.com%1").arg(match.captured(1));
             m_results.append(res);
         }
     }

@@ -46,6 +46,40 @@
         <file>img/placeholders/logo.png</file>
         <file>img/placeholders/thumb.png</file>
         <file>img/photo.png</file>
+
+        <file>icons/actions/16/add-subtitle.svg</file>
+        <file>icons/actions/16/edit-image-face-show.svg</file>
+        <file>icons/actions/16/filmgrain.svg</file>
+        <file>icons/actions/16/globe.svg</file>
+        <file>icons/actions/16/insert-image.svg</file>
+        <file>icons/actions/16/media-album-cover.svg</file>
+        <file>icons/actions/16/snap-page.svg</file>
+        <file>icons/actions/16/tag.svg</file>
+        <file>icons/actions/16/tool_imageeffects.svg</file>
+        <file>icons/actions/16/tools-media-optical-burn-image.svg</file>
+        <file>icons/actions/16/viewimage.svg</file>
+
+        <file>icons/actions/22/add-subtitle.svg</file>
+        <file>icons/actions/22/edit-image-face-show.svg</file>
+        <file>icons/actions/22/filmgrain.svg</file>
+        <file>icons/actions/22/globe.svg</file>
+        <file>icons/actions/22/insert-image.svg</file>
+        <file>icons/actions/22/media-album-cover.svg</file>
+        <file>icons/actions/22/snap-page.svg</file>
+        <file>icons/actions/22/tag.svg</file>
+        <file>icons/actions/22/tool_imageeffects.svg</file>
+        <file>icons/actions/22/tools-media-optical-burn-image.svg</file>
+        <file>icons/actions/22/viewimage.svg</file>
+
+        <file>navbar/edit-download.svg</file>
+        <file>navbar/document-open.svg</file>
+        <file>navbar/document-save.svg</file>
+        <file>navbar/document-save-all.svg</file>
+        <file>navbar/document-export.svg</file>
+        <file>navbar/vcs-merge.svg</file>
+        <file>navbar/help-about.svg</file>
+        <file>navbar/configure.svg</file>
+        <file>navbar/folder-sync.svg</file>
     </qresource>
     <qresource prefix="/media">
         <file alias="aspect/1.31">img/mediaFlags/aspect/1.33.png</file>
@@ -141,43 +175,5 @@
         <file alias="audio/dtshdhra">img/mediaFlags/audio/dtshdhra.png</file>
         <file alias="audio/dtshdx">img/mediaFlags/audio/dtshdx.png</file>
         <file alias="audio/dolbyatmos">img/mediaFlags/audio/dolbyatmos.png</file>
-    </qresource>
-    <qresource prefix="/mediaStatus">
-        <file alias="actors/green">img/mediaStatus/actors_green.png</file>
-        <file alias="actors/red">img/mediaStatus/actors_red.png</file>
-        <file alias="extraArts/green">img/mediaStatus/extraarts_green.png</file>
-        <file alias="extraArts/red">img/mediaStatus/extraarts_red.png</file>
-        <file alias="extraArts/yellow">img/mediaStatus/extraarts_yellow.png</file>
-        <file alias="fanart/green">img/mediaStatus/fanart_green.png</file>
-        <file alias="fanart/red">img/mediaStatus/fanart_red.png</file>
-        <file alias="poster/green">img/mediaStatus/poster_green.png</file>
-        <file alias="poster/red">img/mediaStatus/poster_red.png</file>
-        <file alias="trailer/green">img/mediaStatus/trailers_green.png</file>
-        <file alias="trailer/red">img/mediaStatus/trailers_red.png</file>
-        <file alias="extraFanarts/green">img/mediaStatus/extrafanarts_green.png</file>
-        <file alias="extraFanarts/red">img/mediaStatus/extrafanarts_red.png</file>
-        <file alias="streamDetails/green">img/mediaStatus/streamdetails_green.png</file>
-        <file alias="streamDetails/red">img/mediaStatus/streamdetails_red.png</file>
-        <file alias="id/green">img/mediaStatus/id_green.png</file>
-        <file alias="id/red">img/mediaStatus/id_red.png</file>
-        <file alias="banner/green">img/mediaStatus/banner_green.png</file>
-        <file alias="banner/red">img/mediaStatus/banner_red.png</file>
-        <file alias="clearart/green">img/mediaStatus/clearart_green.png</file>
-        <file alias="clearart/red">img/mediaStatus/clearart_red.png</file>
-        <file alias="logo/green">img/mediaStatus/logo_green.png</file>
-        <file alias="logo/red">img/mediaStatus/logo_red.png</file>
-        <file alias="thumb/green">img/mediaStatus/thumb_green.png</file>
-        <file alias="thumb/red">img/mediaStatus/thumb_red.png</file>
-    </qresource>
-    <qresource prefix="/menu">
-        <file alias="about">img/menu/about.png</file>
-        <file alias="export">img/menu/export.png</file>
-        <file alias="reload">img/menu/reload.png</file>
-        <file alias="rename">img/menu/rename.png</file>
-        <file alias="save">img/menu/save.png</file>
-        <file alias="saveall">img/menu/saveall.png</file>
-        <file alias="scrape">img/menu/scrape.png</file>
-        <file alias="settings">img/menu/settings.png</file>
-        <file alias="sync">img/menu/sync.png</file>
     </qresource>
 </RCC>

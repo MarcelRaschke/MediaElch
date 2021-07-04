@@ -8,7 +8,6 @@
 #include "movies/Movie.h"
 #include "movies/MovieModel.h"
 #include "movies/MovieProxyModel.h"
-#include "movies/file_searcher/MovieFileSearcher.h"
 #include "ui/movies/MovieMultiScrapeDialog.h"
 #include "ui/small_widgets/AlphabeticalList.h"
 #include "ui/small_widgets/LoadingStreamDetails.h"
@@ -40,17 +39,15 @@ MovieFilesWidget::MovieFilesWidget(QWidget* parent) : QWidget(parent), ui(new Ui
     m_movieProxyModel->setDynamicSortFilter(true);
     ui->files->setModel(m_movieProxyModel);
     for (int i = 1, n = ui->files->model()->columnCount(); i < n; ++i) {
-        ui->files->setColumnWidth(i, 24);
+        // Note: Minimum section size is changed to 22 in the UI file!
+        ui->files->setColumnWidth(i, 20);
         ui->files->setColumnHidden(i, true);
     }
     ui->files->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-#ifdef Q_OS_WIN
-    ui->files->setIconSize(QSize(12, 12));
-#else
     ui->files->setIconSize(QSize(16, 16));
-#endif
 
-    for (const MediaStatusColumn& column : Settings::instance()->mediaStatusColumns()) {
+    const auto& mediaStatusColumns = Settings::instance()->mediaStatusColumns();
+    for (const MediaStatusColumn& column : mediaStatusColumns) {
         ui->files->setColumnHidden(MovieModel::mediaStatusToColumn(column), false);
     }
 
@@ -86,6 +83,7 @@ MovieFilesWidget::MovieFilesWidget(QWidget* parent) : QWidget(parent), ui(new Ui
     auto* actionUnmarkForSync = new QAction(tr("Remove from Synchronization Queue"), this);
     auto* actionOpenFolder = new QAction(tr("Open Movie Folder"), this);
     auto* actionOpenNfo = new QAction(tr("Open NFO File"), this);
+    auto* actionPlay = new QAction(tr("Play movie"), this);
 
     m_contextMenu = new QMenu(ui->files);
     m_contextMenu->addAction(actionMultiScrape);
@@ -100,6 +98,7 @@ MovieFilesWidget::MovieFilesWidget(QWidget* parent) : QWidget(parent), ui(new Ui
     m_contextMenu->addSeparator();
     m_contextMenu->addAction(actionOpenFolder);
     m_contextMenu->addAction(actionOpenNfo);
+    m_contextMenu->addAction(actionPlay);
     m_contextMenu->addSeparator();
     m_contextMenu->addMenu(labelsMenu);
     m_contextMenu->addMenu(mediaStatusColumnsMenu);
@@ -113,6 +112,10 @@ MovieFilesWidget::MovieFilesWidget(QWidget* parent) : QWidget(parent), ui(new Ui
     connect(actionUnmarkForSync,     &QAction::triggered, this, &MovieFilesWidget::unmarkForSync);
     connect(actionOpenFolder,        &QAction::triggered, this, &MovieFilesWidget::openFolder);
     connect(actionOpenNfo,           &QAction::triggered, this, &MovieFilesWidget::openNfoFile);
+    connect(actionPlay, &QAction::triggered, this, [this]() {
+        m_contextMenu->close();
+        playMovie(ui->files->currentIndex());
+    });
 
     connect(ui->files,                   &QWidget::customContextMenuRequested, this, &MovieFilesWidget::showContextMenu);
     connect(ui->files->selectionModel(), &QItemSelectionModel::currentChanged, this, &MovieFilesWidget::itemActivated);
@@ -309,7 +312,7 @@ void MovieFilesWidget::openNfoFile()
 void MovieFilesWidget::itemActivated(QModelIndex index, QModelIndex previous)
 {
     if (!index.isValid()) {
-        qDebug() << "[MovieFilesWidget] Index is invalid";
+        qCDebug(generic) << "[MovieFilesWidget] Index is invalid";
         m_lastMovie = nullptr;
         emit noMovieSelected();
         return;
@@ -428,7 +431,11 @@ QVector<Movie*> MovieFilesWidget::selectedMovies()
     return movies;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void MovieFilesWidget::enterEvent(QEvent* event)
+#else
+void MovieFilesWidget::enterEvent(QEnterEvent* event)
+#endif
 {
     Q_UNUSED(event);
     m_mouseIsIn = true;

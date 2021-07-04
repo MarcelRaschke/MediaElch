@@ -2,12 +2,12 @@
 #include "ui_TvShowFilesWidget.h"
 
 #include <QCheckBox>
-#include <QDebug>
 #include <QDesktopServices>
 #include <QMessageBox>
 
 #include "globals/Globals.h"
 #include "globals/Manager.h"
+#include "log/Log.h"
 #include "tv_shows/TvShowUpdater.h"
 #include "tv_shows/model/EpisodeModelItem.h"
 #include "tv_shows/model/SeasonModelItem.h"
@@ -37,7 +37,7 @@ TvShowFilesWidget::TvShowFilesWidget(QWidget* parent) :
     ui->files->setModel(m_tvShowProxyModel);
     ui->files->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->files->header()->setSectionResizeMode(0, QHeaderView::Stretch);
-    ui->files->setIconSize(QSize(12, 12));
+    ui->files->setIconSize(QSize(16, 16));
 
 #ifdef Q_OS_WIN
     ui->files->setAnimated(false);
@@ -88,6 +88,7 @@ void TvShowFilesWidget::showContextMenu(QPoint point)
 
     if (rows.count() != 1) {
         m_actionShowMissingEpisodes->setEnabled(false);
+        m_actionPlay->setEnabled(false);
 
     } else {
         const QModelIndex index = m_tvShowProxyModel->mapToSource(rows.at(0));
@@ -104,6 +105,8 @@ void TvShowFilesWidget::showContextMenu(QPoint point)
             m_actionShowMissingEpisodes->setEnabled(false);
             m_actionHideSpecialsInMissingEpisodes->setEnabled(false);
         }
+
+        m_actionPlay->setEnabled(item.type() == TvShowType::Episode);
     }
 
     QPoint globalPoint = ui->files->mapToGlobal(point);
@@ -380,7 +383,7 @@ void TvShowFilesWidget::openFolder()
                 return fi.absolutePath();
             }
         }
-        qCritical() << "[TvShowFilesWidget] Unhandled case";
+        qCCritical(generic) << "[TvShowFilesWidget] Unhandled case";
         return QString{};
     }();
 
@@ -406,6 +409,13 @@ void TvShowFilesWidget::openNfo()
         auto* showModel = dynamic_cast<TvShowModelItem*>(&item);
         if (showModel != nullptr) {
             file = Manager::instance()->mediaCenterInterface()->nfoFilePath(showModel->tvShow());
+        }
+
+    } else if (item.type() == TvShowType::Season) {
+        // Season meta data are stored in the TV show's NFO file.
+        auto* model = dynamic_cast<SeasonModelItem*>(&item);
+        if (model != nullptr) {
+            file = Manager::instance()->mediaCenterInterface()->nfoFilePath(model->tvShow());
         }
 
     } else if (item.type() == TvShowType::Episode) {
@@ -492,7 +502,7 @@ void TvShowFilesWidget::setFilter(const QVector<Filter*>& filters, QString text)
 /// \brief Renews the model (necessary after searching for TV shows)
 void TvShowFilesWidget::renewModel(bool force)
 {
-    qDebug() << "[TvShowFilesWidget] Renewing model | Forced:" << force;
+    qCDebug(generic) << "[TvShowFilesWidget] Renewing model | Forced:" << force;
 
     if (!force) {
         // When not forced, just update the view.
@@ -530,7 +540,7 @@ void TvShowFilesWidget::onItemSelected(const QModelIndex& current, const QModelI
         return;
     }
 
-    qDebug() << "[TvShowFilesWidget] Selected item at row" << current.row() << "and column" << current.column();
+    qCDebug(generic) << "[TvShowFilesWidget] Selected item at row" << current.row() << "and column" << current.column();
 
     const QModelIndex sourceIndex = m_tvShowProxyModel->mapToSource(current);
     m_lastItem = &Manager::instance()->tvShowModel()->getItem(sourceIndex);
@@ -541,7 +551,7 @@ void TvShowFilesWidget::onItemSelected(const QModelIndex& current, const QModelI
 void TvShowFilesWidget::emitLastSelection()
 {
     if (m_lastItem == nullptr) {
-        qWarning() << "[TvShowFilesWidget] Can't emit last selection without selected item!";
+        qCWarning(generic) << "[TvShowFilesWidget] Can't emit last selection without selected item!";
         return;
     }
     const auto showType = m_lastItem->type();
@@ -642,8 +652,14 @@ void TvShowFilesWidget::updateStatusLabel()
 {
     const int rowCount = m_tvShowProxyModel->rowCount();
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 12, 0)
     if (m_tvShowProxyModel->filterRegExp().pattern().isEmpty()
         || m_tvShowProxyModel->filterRegExp().pattern() == "**") {
+#else
+    if (m_tvShowProxyModel->filterRegularExpression().pattern().isEmpty()
+        || m_tvShowProxyModel->filterRegularExpression().pattern() == "**") {
+#endif
+
         int episodeCount = 0;
         for (const auto* show : Manager::instance()->tvShowModel()->tvShows()) {
             episodeCount += show->episodeCount();
@@ -686,12 +702,12 @@ void TvShowFilesWidget::multiScrape()
     QVector<TvShowEpisode*> episodes = selectedEpisodes(false);
 
     if (shows.isEmpty() && episodes.isEmpty()) {
-        qDebug() << "[TvShowFilesWidget] Multi Scrape: Nothing selected";
+        qCDebug(generic) << "[TvShowFilesWidget] Multi Scrape: Nothing selected";
         return;
     }
 
-    qDebug() << "[TvShowFilesWidget] Multi Scrape: Selected" << shows.count() << "shows and" << episodes.count()
-             << "episodes";
+    qCDebug(generic) << "[TvShowFilesWidget] Multi Scrape: Selected" << shows.count() << "shows and" << episodes.count()
+                     << "episodes";
     if (shows.count() + episodes.count() == 1) {
         emit sigStartSearch();
         return;
@@ -743,6 +759,7 @@ void TvShowFilesWidget::setupContextMenu()
     auto* actionUnmarkForSync     = new QAction(tr("Remove from Synchronization Queue"), this);
     auto* actionOpenFolder        = new QAction(tr("Open TV Show Folder"),               this);
     auto* actionOpenNfo           = new QAction(tr("Open NFO File"),                     this);
+    m_actionPlay                  = new QAction(tr("Play episode"),                      this);
 
     connect(actionMultiScrape,       &QAction::triggered, this, &TvShowFilesWidget::multiScrape);
     connect(actionScanForEpisodes,   &QAction::triggered, this, &TvShowFilesWidget::scanForEpisodes);
@@ -753,6 +770,10 @@ void TvShowFilesWidget::setupContextMenu()
     connect(actionUnmarkForSync,     &QAction::triggered, this, &TvShowFilesWidget::unmarkForSync);
     connect(actionOpenFolder,        &QAction::triggered, this, &TvShowFilesWidget::openFolder);
     connect(actionOpenNfo,           &QAction::triggered, this, &TvShowFilesWidget::openNfo);
+    connect(m_actionPlay,            &QAction::triggered, this, [this]() {
+        m_contextMenu->close();
+        playEpisode(ui->files->currentIndex());
+    });
     // clang-format on
 
     m_actionShowMissingEpisodes = new QAction(tr("Show missing episodes"), this);
@@ -782,6 +803,7 @@ void TvShowFilesWidget::setupContextMenu()
     m_contextMenu->addSeparator();
     m_contextMenu->addAction(actionOpenFolder);
     m_contextMenu->addAction(actionOpenNfo);
+    m_contextMenu->addAction(m_actionPlay);
     m_contextMenu->addSeparator();
     m_contextMenu->addAction(m_actionShowMissingEpisodes);
     m_contextMenu->addAction(m_actionHideSpecialsInMissingEpisodes);

@@ -52,14 +52,14 @@ int RenamerDialog::exec()
 
     const QString infoLabel = [&]() {
         switch (m_renameType) {
-        case Renamer::RenameType::All: qWarning() << "Unknown Rename Type All"; return QString("");
+        case Renamer::RenameType::All: qCWarning(generic) << "Unknown Rename Type All"; return QString("");
         case Renamer::RenameType::Concerts: return tr("%n concerts will be renamed", "", m_concerts.count());
         case Renamer::RenameType::Movies: return tr("%n movies will be renamed", "", m_movies.count());
         case Renamer::RenameType::TvShows:
             return tr("%n TV shows and %1", "", m_shows.count())
                 .arg(tr("%n episodes will be renamed", "", m_episodes.count()));
         }
-        qCritical() << "[RenamerDialog] RenamerType: Missing case.";
+        qCCritical(generic) << "[RenamerDialog] RenamerType: Missing case.";
         return QString("");
     }();
     ui->infoLabel->setText(infoLabel);
@@ -73,6 +73,7 @@ int RenamerDialog::exec()
     bool useSeasonDirectories = false;
     Settings::instance()->renamePatterns(m_renameType, fileName, fileNameMulti, directoryName, seasonName);
     Settings::instance()->renamings(m_renameType, renameFiles, renameFolders, useSeasonDirectories);
+
     ui->fileNaming->setText(fileName);
     ui->fileNamingMulti->setText(fileNameMulti);
     ui->directoryNaming->setText(directoryName);
@@ -307,7 +308,7 @@ void RenamerDialog::renameShows(QVector<TvShow*> shows,
             }
             const QString newShowDir = parentDir.absolutePath() + "/" + newFolderName;
             const QString oldShowDir = show->dir().toString();
-            show->setDir(newShowDir);
+            show->setDir(mediaelch::DirectoryPath(newShowDir));
             Manager::instance()->database()->update(show);
             for (TvShowEpisode* episode : show->episodes()) {
                 QStringList files;
@@ -358,7 +359,7 @@ int RenamerDialog::addResultToTable(const QString& oldFileName,
         case Renamer::RenameOperation::Move: return tr("Move");
         case Renamer::RenameOperation::Rename: return tr("Rename");
         }
-        qCritical() << "[RenamerDialog] RenameOperation: Missing case.";
+        qCCritical(generic) << "[RenamerDialog] RenameOperation: Missing case.";
         return QString("");
     }();
 

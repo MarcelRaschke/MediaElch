@@ -7,6 +7,7 @@
 #include "globals/Helper.h"
 #include "globals/ImageDialog.h"
 #include "globals/ImagePreviewDialog.h"
+#include "globals/LocaleStringCompare.h"
 #include "globals/Manager.h"
 #include "globals/MessageIds.h"
 #include "image/ImageCapture.h"
@@ -106,9 +107,10 @@ TvShowWidgetEpisode::TvShowWidgetEpisode(QWidget* parent) :
         elchOverload<int>(&QSpinBox::valueChanged),
         this,
         &TvShowWidgetEpisode::onDisplayEpisodeChange);
-    connect(
-        ui->rating, elchOverload<double>(&QDoubleSpinBox::valueChanged), this, &TvShowWidgetEpisode::onRatingChange);
-    connect(ui->votes, elchOverload<int>(&QSpinBox::valueChanged), this, &TvShowWidgetEpisode::onVotesChange);
+    connect(ui->ratings, &RatingsWidget::ratingsChanged, this, [this]() {
+        m_episode->setChanged(true);
+        ui->buttonRevert->setVisible(true);
+    });
     connect(ui->top250, elchOverload<int>(&QSpinBox::valueChanged), this, &TvShowWidgetEpisode::onTop250Change);
     connect(ui->certification, &QComboBox::editTextChanged, this, &TvShowWidgetEpisode::onCertificationChange);
     connect(ui->firstAired, &QDateTimeEdit::dateChanged, this, &TvShowWidgetEpisode::onFirstAiredChange);
@@ -233,13 +235,7 @@ void TvShowWidgetEpisode::onClear()
     ui->displayEpisode->clear();
     ui->displayEpisode->blockSignals(blocked);
 
-    blocked = ui->rating->blockSignals(true);
-    ui->rating->clear();
-    ui->rating->blockSignals(blocked);
-
-    blocked = ui->votes->blockSignals(true);
-    ui->votes->clear();
-    ui->votes->blockSignals(blocked);
+    ui->ratings->clear();
 
     blocked = ui->top250->blockSignals(true);
     ui->top250->clear();
@@ -330,7 +326,7 @@ void TvShowWidgetEpisode::onSetEnabled(bool enabled)
  */
 void TvShowWidgetEpisode::setEpisode(TvShowEpisode* episode)
 {
-    qDebug() << "Entered, episode=" << episode->title();
+    qCDebug(generic) << "Entered, episode=" << episode->title();
     m_episode = episode;
     if (!episode->streamDetailsLoaded() && Settings::instance()->autoLoadStreamDetails() && !episode->isDummy()) {
         // Loading stream details als marks the episode as changed...
@@ -352,7 +348,7 @@ void TvShowWidgetEpisode::setEpisode(TvShowEpisode* episode)
 void TvShowWidgetEpisode::updateEpisodeInfo()
 {
     if (m_episode == nullptr) {
-        qWarning() << "My episode is invalid";
+        qCWarning(generic) << "My episode is invalid";
         return;
     }
 
@@ -360,8 +356,6 @@ void TvShowWidgetEpisode::updateEpisodeInfo()
     ui->episode->blockSignals(true);
     ui->displaySeason->blockSignals(true);
     ui->displayEpisode->blockSignals(true);
-    ui->rating->blockSignals(true);
-    ui->votes->blockSignals(true);
     ui->top250->blockSignals(true);
     ui->certification->blockSignals(true);
     ui->firstAired->blockSignals(true);
@@ -387,13 +381,7 @@ void TvShowWidgetEpisode::updateEpisodeInfo()
     ui->displaySeason->setValue(m_episode->displaySeason().toInt());
     ui->displayEpisode->setValue(m_episode->displayEpisode().toInt());
 
-    if (!m_episode->ratings().isEmpty()) {
-        ui->rating->setValue(m_episode->ratings().first().rating);
-        ui->votes->setValue(m_episode->ratings().first().voteCount);
-    } else {
-        ui->rating->setValue(0.0);
-        ui->votes->setValue(0.0);
-    }
+    ui->ratings->setRatings(&(m_episode->ratings()));
 
     ui->top250->setValue(m_episode->top250());
     ui->firstAired->setDate(m_episode->firstAired());
@@ -433,12 +421,16 @@ void TvShowWidgetEpisode::updateEpisodeInfo()
     ui->actors->blockSignals(false);
 
     if (m_episode->tvShow() != nullptr) {
-        auto certifications = m_episode->tvShow()->certifications();
-        certifications.prepend(Certification::NoCertification);
-        for (const auto& cert : certifications) {
-            ui->certification->addItem(cert.toString());
+        auto certifications = m_episode->tvShow()->episodeCertifications();
+        QStringList certificationsSorted;
+        for (const auto& cert : asConst(certifications)) {
+            certificationsSorted << cert.toString();
         }
-        ui->certification->setCurrentIndex(certifications.indexOf(m_episode->certification()));
+        std::sort(certificationsSorted.begin(), certificationsSorted.end(), LocaleStringCompare());
+        certificationsSorted.prepend(Certification::NoCertification.toString());
+        ui->certification->addItems(certificationsSorted);
+        ui->certification->setCurrentIndex(certificationsSorted.indexOf(m_episode->certification().toString()));
+
     } else {
         ui->certification->addItem(m_episode->certification().toString());
     }
@@ -470,8 +462,6 @@ void TvShowWidgetEpisode::updateEpisodeInfo()
     ui->episode->blockSignals(false);
     ui->displaySeason->blockSignals(false);
     ui->displayEpisode->blockSignals(false);
-    ui->rating->blockSignals(false);
-    ui->votes->blockSignals(false);
     ui->top250->blockSignals(false);
     ui->certification->blockSignals(false);
     ui->firstAired->blockSignals(false);
@@ -610,7 +600,7 @@ void TvShowWidgetEpisode::onReloadStreamDetails()
 void TvShowWidgetEpisode::onSaveInformation()
 {
     if (m_episode == nullptr) {
-        qCritical() << "My episode is invalid";
+        qCCritical(generic) << "My episode is invalid";
         return;
     }
 
@@ -643,7 +633,7 @@ void TvShowWidgetEpisode::onRevertChanges()
 void TvShowWidgetEpisode::onStartScraperSearch()
 {
     if (m_episode == nullptr) {
-        qWarning() << "My episode is invalid";
+        qCWarning(generic) << "My episode is invalid";
         return;
     }
 
@@ -688,7 +678,7 @@ void TvShowWidgetEpisode::onLoadDone()
     NotificationBox::instance()->hideProgressBar(Constants::TvShowScrapeProgressMessageId);
 
     if (m_episode == nullptr) {
-        qWarning() << "My episode is invalid";
+        qCWarning(generic) << "My episode is invalid";
         return;
     }
 
@@ -716,7 +706,7 @@ void TvShowWidgetEpisode::onLoadDone()
 void TvShowWidgetEpisode::onChooseThumbnail()
 {
     if (m_episode == nullptr) {
-        qWarning() << "My episode is invalid";
+        qCWarning(generic) << "My episode is invalid";
         return;
     }
 
@@ -775,12 +765,12 @@ void TvShowWidgetEpisode::onImageDropped(ImageType imageType, QUrl imageUrl)
 void TvShowWidgetEpisode::onPosterDownloadFinished(DownloadManagerElement elem)
 {
     if (elem.imageType == ImageType::TvShowEpisodeThumb) {
-        qDebug() << "Got a backdrop";
+        qCDebug(generic) << "Got a backdrop";
         if (m_episode == elem.episode) {
             ui->thumbnail->setImage(elem.data);
         }
-        ImageCache::instance()->invalidateImages(
-            Manager::instance()->mediaCenterInterface()->imageFileName(elem.episode, ImageType::TvShowEpisodeThumb));
+        ImageCache::instance()->invalidateImages(mediaelch::FilePath(
+            Manager::instance()->mediaCenterInterface()->imageFileName(elem.episode, ImageType::TvShowEpisodeThumb)));
         elem.episode->setThumbnailImage(elem.data);
     }
     if (m_posterDownloadManager->downloadQueueSize() == 0) {
@@ -965,18 +955,6 @@ void TvShowWidgetEpisode::onDisplayEpisodeChange(int value)
     ui->buttonRevert->setVisible(true);
 }
 
-void TvShowWidgetEpisode::onRatingChange(double value)
-{
-    auto& ratings = m_episode->ratings();
-    if (ratings.isEmpty()) {
-        ratings.push_back({});
-    }
-
-    ratings.first().rating = value;
-    m_episode->setChanged(true);
-    ui->buttonRevert->setVisible(true);
-}
-
 /**
  * \brief Marks the episode as changed when the overview has changed
  */
@@ -1119,7 +1097,7 @@ void TvShowWidgetEpisode::onAddActor()
     a.role = tr("Unknown Role");
     m_episode->addActor(a);
 
-    Actor* actor = m_episode->actors().back();
+    Actor* actor = m_episode->actors().actors().back();
 
     ui->actors->blockSignals(true);
     int row = ui->actors->rowCount();
@@ -1196,22 +1174,6 @@ void TvShowWidgetEpisode::onChangeActorImage()
     }
 }
 
-void TvShowWidgetEpisode::onVotesChange(int value)
-{
-    if (m_episode == nullptr) {
-        return;
-    }
-
-    auto& ratings = m_episode->ratings();
-    if (ratings.isEmpty()) {
-        ratings.push_back({});
-    }
-
-    ratings.first().voteCount = value;
-    m_episode->setChanged(true);
-    ui->buttonRevert->setVisible(true);
-}
-
 void TvShowWidgetEpisode::onTop250Change(int value)
 {
     if (m_episode == nullptr) {
@@ -1241,7 +1203,7 @@ void TvShowWidgetEpisode::onCaptureImage(ImageType type)
     img.save(&buffer, "JPG", 85);
 
     ui->thumbnail->setImage(ba);
-    ImageCache::instance()->invalidateImages(
-        Manager::instance()->mediaCenterInterface()->imageFileName(m_episode, ImageType::TvShowEpisodeThumb));
+    ImageCache::instance()->invalidateImages(mediaelch::FilePath(
+        Manager::instance()->mediaCenterInterface()->imageFileName(m_episode, ImageType::TvShowEpisodeThumb)));
     m_episode->setThumbnailImage(ba);
 }

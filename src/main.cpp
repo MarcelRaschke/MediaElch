@@ -4,7 +4,6 @@
 #include <QLibraryInfo>
 #include <QMessageBox>
 #include <QObject>
-#include <QTextCodec>
 #include <QTextStream>
 #include <QTimer>
 #include <QTranslator>
@@ -35,13 +34,13 @@ static void loadStylesheet(QApplication& app, const QString& customStylesheet)
     QFile file(filename);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         if (!customStylesheet.isEmpty()) {
-            qInfo() << "Using custom stylesheet from:" << customStylesheet;
+            qCInfo(generic) << "Using custom stylesheet from:" << customStylesheet;
         }
         app.setStyleSheet(file.readAll());
         file.close();
 
     } else {
-        qCritical() << "The stylesheet could not be openend for reading:" << filename;
+        qCCritical(generic) << "The stylesheet could not be openend for reading:" << filename;
         const QString heading = QObject::tr("Stylesheet could not be opened!");
         const QString body = customStylesheet.isEmpty()
                                  ? QObject::tr("The default stylesheet could not be openend for reading.")
@@ -84,19 +83,25 @@ static void installTranslations(const QLocale& locale)
     if (i18nLoaded) {
         QApplication::installTranslator(&mediaelchTranslator);
     } else {
-        qWarning() << "Could NOT find MediaElch's translations for " << locale;
+        qCWarning(generic) << "Could NOT find MediaElch's translations for " << locale;
     }
 }
 
 int main(int argc, char* argv[])
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    // Default in Qt 6
+    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
+    // TODO: Test on Windows/Linux (not supported on macOS)
+    // QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
+#endif
+
     QApplication app(argc, argv);
     registerAllMetaTypes();
 
     QCoreApplication::setOrganizationName(mediaelch::constants::OrganizationName);
     QCoreApplication::setApplicationName(mediaelch::constants::AppName);
     QCoreApplication::setApplicationVersion(mediaelch::constants::AppVersionFullStr);
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 
     mediaelch::initLoggingPattern();
 

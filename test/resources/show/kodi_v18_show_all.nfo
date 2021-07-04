@@ -10,7 +10,7 @@
     <uniqueid type="tvmaze">428</uniqueid>
     <id>2426</id>
     <ratings>
-        <rating default="true" max="10" name="default">
+        <rating name="default" default="true" max="10">
             <value>8.6</value>
             <votes>88</votes>
         </rating>
@@ -45,6 +45,5 @@
         <name>Stephanie Romanov</name>
         <role>Lilah Morgan</role>
         <order>1</order>
-        <thumb></thumb>
     </actor>
 </tvshow>

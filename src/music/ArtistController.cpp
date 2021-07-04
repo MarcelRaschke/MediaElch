@@ -4,12 +4,12 @@
 #include "globals/DownloadManager.h"
 #include "globals/Helper.h"
 #include "globals/Manager.h"
+#include "log/Log.h"
 #include "media_centers/MediaCenterInterface.h"
 #include "music/Artist.h"
 #include "scrapers/image/FanartTvMusic.h"
 #include "scrapers/music/MusicScraper.h"
 
-#include <QDebug>
 #include <QFileInfo>
 
 ArtistController::ArtistController(Artist* parent) :
@@ -137,7 +137,7 @@ void ArtistController::onDownloadFinished(DownloadManagerElement elem)
         m_artist->addExtraFanart(elem.data);
     } else if (!elem.data.isEmpty()) {
         ImageCache::instance()->invalidateImages(
-            Manager::instance()->mediaCenterInterface()->imageFileName(m_artist, elem.imageType));
+            mediaelch::FilePath(Manager::instance()->mediaCenterInterface()->imageFileName(m_artist, elem.imageType)));
         if (elem.imageType == ImageType::ArtistFanart) {
             helper::resizeBackdrop(elem.data);
         }
@@ -157,7 +157,7 @@ void ArtistController::loadData(MusicBrainzId id,
     QSet<MusicScraperInfo> infos)
 {
     m_infosToLoad = infos;
-    scraperInterface->loadData(id, m_artist, infos);
+    scraperInterface->loadArtist(id, m_artist, infos);
 }
 
 void ArtistController::scraperLoadDone(mediaelch::scraper::MusicScraper* scraper)

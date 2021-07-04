@@ -17,8 +17,10 @@ MovieSettingsWidget::MovieSettingsWidget(QWidget* parent) : QWidget(parent), ui(
     ui->lblPlaceholders->setFont(smallFont);
 #endif
 
-    ui->comboMovieSetArtwork->setItemData(0, static_cast<int>(MovieSetArtworkType::SingleSetFolder));
-    ui->comboMovieSetArtwork->setItemData(1, static_cast<int>(MovieSetArtworkType::SingleArtworkFolder));
+    ui->comboMovieSetArtwork->addItem(
+        tr("Artwork next to movies"), static_cast<int>(MovieSetArtworkType::ArtworkNextToMovies));
+    ui->comboMovieSetArtwork->addItem(
+        tr("Separate artwork directory"), static_cast<int>(MovieSetArtworkType::SeparateArtworkFolder));
 
     connect(ui->comboMovieSetArtwork,
         elchOverload<int>(&QComboBox::currentIndexChanged),
@@ -40,6 +42,18 @@ MovieSettingsWidget::MovieSettingsWidget(QWidget* parent) : QWidget(parent), ui(
     ui->movieThumb->setProperty("dataFileType", static_cast<int>(DataFileType::MovieThumb));
     ui->movieSetPosterFileName->setProperty("dataFileType", static_cast<int>(DataFileType::MovieSetPoster));
     ui->movieSetFanartFileName->setProperty("dataFileType", static_cast<int>(DataFileType::MovieSetBackdrop));
+
+    const QStringList placeholders({"baseFileName"});
+    ui->movieNfo->setPlaceholders(placeholders);
+    ui->moviePoster->setPlaceholders(placeholders);
+    ui->movieBackdrop->setPlaceholders(placeholders);
+    ui->movieCdArt->setPlaceholders(placeholders);
+    ui->movieClearArt->setPlaceholders(placeholders);
+    ui->movieLogo->setPlaceholders(placeholders);
+    ui->movieBanner->setPlaceholders(placeholders);
+    ui->movieThumb->setPlaceholders(placeholders);
+    ui->movieSetPosterFileName->setPlaceholders({"setName"});
+    ui->movieSetFanartFileName->setPlaceholders({"setName"});
 }
 
 MovieSettingsWidget::~MovieSettingsWidget()
@@ -67,13 +81,16 @@ void MovieSettingsWidget::loadSettings()
     ui->movieSetArtworkDir->setText(m_settings->movieSetArtworkDirectory().toNativePathString());
     onComboMovieSetArtworkChanged(ui->comboMovieSetArtwork->currentIndex());
 
-
     for (auto* lineEdit : findChildren<QLineEdit*>()) {
         if (lineEdit->property("dataFileType").isNull()) {
             continue;
         }
-        DataFileType dataFileType = DataFileType(lineEdit->property("dataFileType").toInt());
-        QVector<DataFile> dataFiles = m_settings->dataFiles(dataFileType);
+        bool ok = false;
+        DataFileType dataFileType = DataFileType(lineEdit->property("dataFileType").toInt(&ok));
+        if (!ok) {
+            continue;
+        }
+        const QVector<DataFile> dataFiles = m_settings->dataFiles(dataFileType);
         QStringList filenames;
         for (const DataFile& dataFile : dataFiles) {
             filenames << dataFile.fileName();
@@ -91,7 +108,7 @@ void MovieSettingsWidget::saveSettings()
         }
         int pos = 0;
         DataFileType dataFileType = DataFileType(lineEdit->property("dataFileType").toInt());
-        QStringList filenames = lineEdit->text().split(",", ElchSplitBehavior::SkipEmptyParts);
+        const QStringList filenames = lineEdit->text().split(",", ElchSplitBehavior::SkipEmptyParts);
         for (const QString& filename : filenames) {
             DataFile df(dataFileType, filename.trimmed(), pos++);
             dataFiles << df;
@@ -104,21 +121,26 @@ void MovieSettingsWidget::saveSettings()
     // Movie set artwork
     m_settings->setMovieSetArtworkType(static_cast<MovieSetArtworkType>(
         ui->comboMovieSetArtwork->itemData(ui->comboMovieSetArtwork->currentIndex()).toInt()));
-    m_settings->setMovieSetArtworkDirectory(ui->movieSetArtworkDir->text());
+    m_settings->setMovieSetArtworkDirectory(mediaelch::DirectoryPath(ui->movieSetArtworkDir->text()));
 }
 
 void MovieSettingsWidget::onComboMovieSetArtworkChanged(int comboIndex)
 {
     MovieSetArtworkType value = MovieSetArtworkType(ui->comboMovieSetArtwork->itemData(comboIndex).toInt());
-    ui->btnMovieSetArtworkDir->setEnabled(value == MovieSetArtworkType::SingleArtworkFolder);
-    ui->movieSetArtworkDir->setEnabled(value == MovieSetArtworkType::SingleArtworkFolder);
+    ui->btnMovieSetArtworkDir->setEnabled(value == MovieSetArtworkType::SeparateArtworkFolder);
+    ui->movieSetArtworkDir->setEnabled(value == MovieSetArtworkType::SeparateArtworkFolder);
 
-    if (value == MovieSetArtworkType::SingleArtworkFolder) {
+    switch (value) {
+    case MovieSetArtworkType::ArtworkNextToMovies: {
         ui->movieSetPosterFileName->setText("<setName>-folder.jpg");
         ui->movieSetFanartFileName->setText("<setName>-fanart.jpg");
-    } else if (value == MovieSetArtworkType::SingleSetFolder) {
+        break;
+    }
+    case MovieSetArtworkType::SeparateArtworkFolder: {
         ui->movieSetPosterFileName->setText("folder.jpg");
         ui->movieSetFanartFileName->setText("fanart.jpg");
+        break;
+    }
     }
 }
 

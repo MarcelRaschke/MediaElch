@@ -1,6 +1,7 @@
 #include "TvShowXmlReader.h"
 
 #include "globals/Poster.h"
+#include "log/Log.h"
 #include "tv_shows/TvShow.h"
 
 #include <QDate>
@@ -41,6 +42,12 @@ void TvShowXmlReader::parseNfoDom(QDomDocument domDoc)
         QDomElement element = uniqueIds.at(i).toElement();
         QString type = element.attribute("type");
         QString value = element.text().trimmed();
+
+        if (value.isEmpty()) {
+            // Silently skip empty values; we wouldn't get any benefit from them
+            continue;
+        }
+
         if (type == "imdb") {
             m_show.setImdbId(ImdbId(value));
         } else if (type == "tvdb") {
@@ -49,8 +56,8 @@ void TvShowXmlReader::parseNfoDom(QDomDocument domDoc)
             m_show.setTmdbId(TmdbId(value));
         } else if (type == "tvmaze") {
             m_show.setTvMazeId(TvMazeId(value));
-        } else {
-            qWarning() << "[TvShowXmlReader] Unsupported unique id type:" << type;
+        } else if (type != "mediaelch_fallback") {
+            qCWarning(generic) << "[TvShowXmlReader] Unsupported unique id type:" << type << "with value" << value;
         }
     }
     if (!domDoc.elementsByTagName("title").isEmpty()) {
@@ -104,7 +111,7 @@ void TvShowXmlReader::parseNfoDom(QDomDocument domDoc)
                                    .replace(",", "")
                                    .replace(".", "")
                                    .toInt();
-            m_show.ratings().push_back(rating);
+            m_show.ratings().setOrAddRating(rating);
             m_show.setChanged(true);
         }
 
@@ -126,7 +133,7 @@ void TvShowXmlReader::parseNfoDom(QDomDocument domDoc)
                                        .toInt();
             }
             m_show.ratings().clear();
-            m_show.ratings().push_back(rating);
+            m_show.ratings().setOrAddRating(rating);
             m_show.setChanged(true);
         }
     }

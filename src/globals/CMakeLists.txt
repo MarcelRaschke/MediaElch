@@ -1,6 +1,5 @@
 add_library(
   mediaelch_globals OBJECT
-  Actor.cpp
   ComboDelegate.cpp
   Containers.cpp
   DownloadManager.cpp
@@ -10,7 +9,6 @@ add_library(
   Helper.cpp
   ImageDialog.cpp
   ImagePreviewDialog.cpp
-  JsonRequest.cpp
   Manager.cpp
   MessageIds.cpp
   Meta.cpp
@@ -28,12 +26,12 @@ add_library(
 target_link_libraries(
   mediaelch_globals
   PRIVATE
-    Qt5::Core
-    Qt5::Gui
-    Qt5::Multimedia
-    Qt5::Widgets
-    Qt5::Sql
-    Qt5::Xml
-    Qt5::MultimediaWidgets
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Multimedia
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Sql
+    Qt${QT_VERSION_MAJOR}::Xml
+    Qt${QT_VERSION_MAJOR}::MultimediaWidgets
 )
 mediaelch_post_target_defaults(mediaelch_globals)

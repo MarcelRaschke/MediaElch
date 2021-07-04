@@ -1,6 +1,7 @@
 #include "scrapers/music/TheAudioDb.h"
 
 #include "globals/Meta.h"
+#include "log/Log.h"
 #include "music/Album.h"
 #include "music/Artist.h"
 #include "network/NetworkRequest.h"
@@ -20,7 +21,7 @@ void TheAudioDbApi::sendGetRequest(const Locale& locale, const QUrl& url, TheAud
     if (m_cache.hasValidElement(url, locale)) {
         // Do not immediately run the callback because classes higher up may
         // set up a Qt connection while the network request is running.
-        QTimer::singleShot(0, [cb = std::move(callback), element = m_cache.getElement(url, locale)]() { //
+        QTimer::singleShot(0, this, [cb = std::move(callback), element = m_cache.getElement(url, locale)]() { //
             cb(element, {});
         });
         return;
@@ -38,7 +39,7 @@ void TheAudioDbApi::sendGetRequest(const Locale& locale, const QUrl& url, TheAud
             data = QString::fromUtf8(reply->readAll());
 
         } else {
-            qWarning() << "[MusicBrainz] Network Error:" << reply->errorString() << "for URL" << reply->url();
+            qCWarning(generic) << "[MusicBrainz] Network Error:" << reply->errorString() << "for URL" << reply->url();
         }
 
         if (!data.isEmpty()) {

@@ -5,7 +5,7 @@
 #include <QDate>
 #include <QDebug>
 #include <QDir>
-#include <QImage>
+#include <QImage> // TODO: Remove dependency on Qt::Gui
 #include <QMap>
 #include <QMetaType>
 #include <QString>
@@ -126,10 +126,14 @@ enum class DiscType
     Dvd
 };
 
+/// \brief Enum representing how movie set artwork is stored.
 enum class MovieSetArtworkType : int
 {
-    SingleSetFolder,
-    SingleArtworkFolder
+    /// All movie set artwork is stored _next to_ the movies.
+    /// Requires the filenames to contain the movie title
+    ArtworkNextToMovies = 0,
+    /// All movie sets are stored in a single artwork folder.
+    SeparateArtworkFolder = 1
 };
 
 struct SettingsDir
@@ -137,6 +141,7 @@ struct SettingsDir
     QDir path;
     bool separateFolders = false;
     bool autoReload = false;
+    bool disabled = false;
 };
 
 enum class SettingsDirType : int
@@ -199,7 +204,7 @@ enum class ImageType : int {
     AlbumBooklet         = 38
 };
 
-inline uint qHash(const ImageType& type, uint seed)
+inline ELCH_QHASH_RETURN_TYPE qHash(const ImageType& type, uint seed)
 {
     return qHash(static_cast<int>(type), seed);
 }
@@ -338,23 +343,6 @@ struct ExtraFanart
 {
     QByteArray image;
     QString path;
-};
-
-enum class MediaStatusColumn
-{
-    Id,
-    StreamDetails,
-    Trailer,
-    LocalTrailer,
-    Poster,
-    Fanart,
-    ExtraArts,
-    ExtraFanarts,
-    Actors,
-    Unknown,
-
-    First = Id,
-    Last = Actors
 };
 
 enum class ColorLabel : int

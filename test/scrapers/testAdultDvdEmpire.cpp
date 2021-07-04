@@ -8,7 +8,7 @@ using namespace std::chrono_literals;
 using namespace mediaelch::scraper;
 
 /// @brief Loads movie data synchronously
-void loadAdultDvdEmpireSync(AdultDvdEmpire& scraper, QHash<MovieScraper*, QString> ids, Movie& movie)
+void loadAdultDvdEmpireSync(AdultDvdEmpire& scraper, QHash<MovieScraper*, MovieIdentifier> ids, Movie& movie)
 {
     const auto infos = scraper.meta().supportedDetails;
     loadDataSync(scraper, ids, movie, infos);
@@ -22,7 +22,7 @@ TEST_CASE("AdultDvdEmpire scrapes correct movie details", "[AdultDvdEmpire][load
     SECTION("Movie has correct details")
     {
         Movie m(QStringList{}); // Movie without files
-        loadAdultDvdEmpireSync(hm, {{nullptr, "/1745335/magic-mike-xxxl-porn-movies.html"}}, m);
+        loadAdultDvdEmpireSync(hm, {{nullptr, MovieIdentifier("/1745335/magic-mike-xxxl-porn-movies.html")}}, m);
 
         CHECK_THAT(m.name(), StartsWith("Magic Mike XXXL"));
         CHECK(m.imdbId() == ImdbId::NoId);
@@ -37,7 +37,7 @@ TEST_CASE("AdultDvdEmpire scrapes correct movie details", "[AdultDvdEmpire][load
         CHECK(m.director() == "Brad Armstrong");
 
         const auto genres = m.genres();
-        REQUIRE(genres.size() == 10);
+        REQUIRE(genres.size() >= 10);
         CHECK(genres[0] == "Big Budget");
         CHECK_THAT(genres[1], StartsWith("Big"));
 
@@ -45,7 +45,7 @@ TEST_CASE("AdultDvdEmpire scrapes correct movie details", "[AdultDvdEmpire][load
         REQUIRE(!studios.empty());
         CHECK(studios[0] == "Wicked Pictures");
 
-        const auto actors = m.actors();
+        const auto actors = m.actors().actors();
         REQUIRE(actors.size() > 15);
         bool foundActor = false;
         QString actorThumb;

@@ -19,7 +19,7 @@ Navbar::Navbar(QWidget* parent) : QWidget(parent), ui(new Ui::Navbar)
     ui->btnSave->setShortcut(QKeySequence::Save);
     ui->btnSave->setToolTip(tr("Save (%1)").arg(QKeySequence(QKeySequence::Save).toString(QKeySequence::NativeText)));
 
-    QKeySequence seqSaveAll(Qt::CTRL + Qt::ShiftModifier + Qt::Key_S);
+    QKeySequence seqSaveAll(Qt::CTRL | Qt::SHIFT | Qt::Key_S);
     ui->btnSaveAll->setShortcut(seqSaveAll);
     ui->btnSaveAll->setToolTip(tr("Save All (%1)").arg(seqSaveAll.toString(QKeySequence::NativeText)));
 
@@ -27,9 +27,20 @@ Navbar::Navbar(QWidget* parent) : QWidget(parent), ui(new Ui::Navbar)
     ui->btnReload->setToolTip(
         tr("Reload all files (%1)").arg(QKeySequence(QKeySequence::Refresh).toString(QKeySequence::NativeText)));
 
-    ui->btnExport->setShortcut(Qt::CTRL + Qt::Key_E);
+    QMenu* menu = new QMenu(this);
+
+    auto* exportAction = menu->addAction(tr("Export HTML"));
+    exportAction->setShortcut(Qt::CTRL | Qt::Key_E);
+    exportAction->setIcon(QIcon(":navbar/document-export.svg"));
+
+    auto* exportCsvAction = menu->addAction(tr("Export CSV"));
+    exportCsvAction->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_E);
+    exportAction->setIcon(QIcon(":navbar/document-export.svg"));
+
+    ui->btnExport->setMenu(menu);
+    ui->btnExport->setDefaultAction(exportAction);
     ui->btnExport->setToolTip(
-        tr("Export Database (%1)").arg(QKeySequence(Qt::CTRL + Qt::Key_E).toString(QKeySequence::NativeText)));
+        tr("Export Database (%1)").arg(QKeySequence(Qt::CTRL | Qt::Key_E).toString(QKeySequence::NativeText)));
 
     // clang-format off
     connect(ui->btnSearch,   &QAbstractButton::clicked, this, &Navbar::sigSearch);
@@ -39,7 +50,8 @@ Navbar::Navbar(QWidget* parent) : QWidget(parent), ui(new Ui::Navbar)
     connect(ui->btnRename,   &QAbstractButton::clicked, this, &Navbar::sigRename);
     connect(ui->btnSettings, &QAbstractButton::clicked, this, &Navbar::sigSettings);
     connect(ui->btnSync,     &QAbstractButton::clicked, this, &Navbar::sigSync);
-    connect(ui->btnExport,   &QAbstractButton::clicked, this, &Navbar::sigExport);
+    connect(exportAction,    &QAction::triggered,       this, &Navbar::sigExport);
+    connect(exportCsvAction, &QAction::triggered,       this, &Navbar::sigCsvExport);
     connect(ui->btnAbout,    &QAbstractButton::clicked, this, &Navbar::sigAbout);
     connect(ui->btnDonate,   &QAbstractButton::clicked, this, &Navbar::sigLike);
     // clang-format on
@@ -48,46 +60,6 @@ Navbar::Navbar(QWidget* parent) : QWidget(parent), ui(new Ui::Navbar)
 
     connect(Settings::instance(), &Settings::sigDonated, this, &Navbar::onDonated);
 
-    QVector<QColor> navbarColors;
-    navbarColors << QColor(241, 96, 106, 255);
-    navbarColors << QColor(248, 155, 53, 255);
-    navbarColors << QColor(248, 155, 53, 255);
-    navbarColors << QColor(221, 222, 48, 255);
-    navbarColors << QColor(106, 195, 133, 255);
-    navbarColors << QColor(106, 195, 133, 255);
-    navbarColors << QColor(107, 183, 228, 255);
-    navbarColors << QColor(107, 183, 228, 255);
-    navbarColors << QColor(206, 139, 188, 255);
-
-    QStringList menuIcons = QStringList() << "scrape"
-                                          << "save"
-                                          << "saveall"
-                                          << "rename"
-                                          << "sync"
-                                          << "export"
-                                          << "reload"
-                                          << "settings"
-                                          << "about";
-
-#ifdef Q_OS_MAC
-    int i = 0;
-#endif
-
-    for (QToolButton* btn : ui->widget->findChildren<QToolButton*>()) {
-        if (!btn->property("iconName").isValid()) {
-            continue;
-        }
-#ifndef Q_OS_MAC
-        btn->setIconSize(QSize(32, 32));
-        btn->setIcon(QIcon(":/menu/" + menuIcons.takeFirst()));
-#else
-        btn->setIcon(Manager::instance()->iconFont()->icon(btn->property("iconName").toString(),
-            navbarColors.at(i++ % navbarColors.count()),
-            btn->property("iconPainter").toString(),
-            1.0));
-#endif
-    }
-
     if (helper::devicePixelRatio(this) == 1) {
         auto* effect = new QGraphicsDropShadowEffect(this);
         effect->setColor(QColor(0, 0, 0, 30));
@@ -95,6 +67,7 @@ Navbar::Navbar(QWidget* parent) : QWidget(parent), ui(new Ui::Navbar)
         effect->setBlurRadius(4);
         ui->btnDonate->setGraphicsEffect(effect);
     }
+
     ui->btnDonate->setVisible(!Settings::instance()->donated());
 }
 

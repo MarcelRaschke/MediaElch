@@ -1,5 +1,6 @@
 #include "scrapers/tv_show/tmdb/TmdbTv.h"
 
+#include "log/Log.h"
 #include "scrapers/tv_show/tmdb/TmdbTvEpisodeScrapeJob.h"
 #include "scrapers/tv_show/tmdb/TmdbTvSeasonScrapeJob.h"
 #include "scrapers/tv_show/tmdb/TmdbTvShowScrapeJob.h"
@@ -144,25 +145,25 @@ bool TmdbTv::isInitialized() const
 
 ShowSearchJob* TmdbTv::search(ShowSearchJob::Config config)
 {
-    qInfo() << "[TmdbTv] Search for:" << config.query;
+    qCInfo(generic) << "[TmdbTv] Search for:" << config.query;
     return new TmdbTvShowSearchJob(m_api, config, this);
 }
 
 ShowScrapeJob* TmdbTv::loadShow(ShowScrapeJob::Config config)
 {
-    qInfo() << "[TmdbTv] Load TV show with id:" << config.identifier;
+    qCInfo(generic) << "[TmdbTv] Load TV show with id:" << config.identifier;
     return new TmdbTvShowScrapeJob(m_api, config, this);
 }
 
 SeasonScrapeJob* TmdbTv::loadSeasons(SeasonScrapeJob::Config config)
 {
-    qInfo() << "[TmdbTv] Load season with show id:" << config.showIdentifier;
+    qCInfo(generic) << "[TmdbTv] Load season with show id:" << config.showIdentifier;
     return new TmdbTvSeasonScrapeJob(m_api, config, this);
 }
 
 EpisodeScrapeJob* TmdbTv::loadEpisode(EpisodeScrapeJob::Config config)
 {
-    qDebug() << "[TmdbTv] Load single episode of TV show with id:" << config.identifier;
+    qCDebug(generic) << "[TmdbTv] Load single episode of TV show with id:" << config.identifier;
     return new TmdbTvEpisodeScrapeJob(m_api, config, this);
 }
 

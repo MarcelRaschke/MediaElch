@@ -1,6 +1,7 @@
 #include "data/MediaInfoFile.h"
 
 #include "globals/Helper.h"
+#include "log/Log.h"
 #include "settings/Settings.h"
 
 #include "MediaInfoDLL/MediaInfoDLL.h"
@@ -8,7 +9,6 @@
 #include <ZenLib/Ztring.h>
 #include <ZenLib/ZtringListList.h>
 
-#include <QDebug>
 #include <QRegularExpression>
 #include <QStringList>
 
@@ -28,7 +28,7 @@ MediaInfoFile::MediaInfoFile(const QString& filepath) : m_mediaInfo{std::make_un
     m_mediaInfo->Option(__T("Complete"), __T("1"));
     m_mediaInfo->Open(QString2MI(filepath));
     if (!m_mediaInfo->IsReady()) {
-        qCritical() << "[MediaInfo] Unable to load libmediainfo!";
+        qCCritical(generic) << "[MediaInfo] Unable to load libmediainfo!";
     }
 }
 
@@ -62,17 +62,19 @@ std::chrono::milliseconds MediaInfoFile::duration(int streamIndex) const
 std::size_t MediaInfoFile::videoWidth(int streamIndex) const
 {
     // Width should be an integer but just to be safe, use a floating point number first.
+    // Also, toInt() may return an invalid / unexpected value because Width may be written as 1024.0
     const double widthDouble = getVideo(streamIndex, "Width").toDouble();
     const qint64 width = static_cast<qint64>(widthDouble);
-    return width < 0 ? 0 : width;
+    return width < 0 ? 0 : static_cast<std::size_t>(width);
 }
 
 std::size_t MediaInfoFile::videoHeight(int streamIndex) const
 {
     // Height should be an integer but just to be safe, use a floating point number first.
+    // Also, toInt() may return an invalid / unexpected value because Height may be written as 1024.0
     const double heightDouble = getVideo(streamIndex, "Height").toDouble();
     const qint64 height = static_cast<qint64>(heightDouble);
-    return height < 0 ? 0 : height;
+    return height < 0 ? 0 : static_cast<std::size_t>(height);
 }
 
 double MediaInfoFile::aspectRatio(int streamIndex) const
@@ -317,16 +319,31 @@ QString MediaInfoFile::parseVideoFormat(QString format, QString version) const
 
 QString MediaInfoFile::getGeneral(int streamIndex, const char* parameter) const
 {
-    return MI2QString(m_mediaInfo->Get(MediaInfoDLL::Stream_General, streamIndex, QString2MI(parameter)));
+    if (streamIndex < 0) {
+        qCWarning(generic) << "[MediaInfoFile][General] Negative streamIndex! Invalid value:" << streamIndex;
+        return {};
+    }
+    return MI2QString(
+        m_mediaInfo->Get(MediaInfoDLL::Stream_General, static_cast<size_t>(streamIndex), QString2MI(parameter)));
 }
 
 QString MediaInfoFile::getAudio(int streamIndex, const char* parameter) const
 {
-    return MI2QString(m_mediaInfo->Get(MediaInfoDLL::Stream_Audio, streamIndex, QString2MI(parameter)));
+    if (streamIndex < 0) {
+        qCWarning(generic) << "[MediaInfoFile][Audio] Negative streamIndex! Invalid value:" << streamIndex;
+        return {};
+    }
+    return MI2QString(
+        m_mediaInfo->Get(MediaInfoDLL::Stream_Audio, static_cast<size_t>(streamIndex), QString2MI(parameter)));
 }
 
 QStringList MediaInfoFile::getAudio(int streamIndex, QStringList parameters) const
 {
+    if (streamIndex < 0) {
+        qCWarning(generic) << "[MediaInfoFile][Video] Negative streamIndex! Invalid value:" << streamIndex;
+        return {};
+    }
+
     QStringList result;
     for (const QString& parameter : parameters) {
         QString value = getAudio(streamIndex, parameter.toStdString().data());
@@ -339,10 +356,20 @@ QStringList MediaInfoFile::getAudio(int streamIndex, QStringList parameters) con
 
 QString MediaInfoFile::getVideo(int streamIndex, const char* parameter) const
 {
-    return MI2QString(m_mediaInfo->Get(MediaInfoDLL::Stream_Video, streamIndex, QString2MI(parameter)));
+    if (streamIndex < 0) {
+        qCWarning(generic) << "[MediaInfoFile][Video] Negative streamIndex! Invalid value:" << streamIndex;
+        return {};
+    }
+    return MI2QString(
+        m_mediaInfo->Get(MediaInfoDLL::Stream_Video, static_cast<size_t>(streamIndex), QString2MI(parameter)));
 }
 
 QString MediaInfoFile::getText(int streamIndex, const char* parameter) const
 {
-    return MI2QString(m_mediaInfo->Get(MediaInfoDLL::Stream_Text, streamIndex, QString2MI(parameter)));
+    if (streamIndex < 0) {
+        qCWarning(generic) << "[MediaInfoFile][Text] Negative streamIndex! Invalid value:" << streamIndex;
+        return {};
+    }
+    return MI2QString(
+        m_mediaInfo->Get(MediaInfoDLL::Stream_Text, static_cast<size_t>(streamIndex), QString2MI(parameter)));
 }

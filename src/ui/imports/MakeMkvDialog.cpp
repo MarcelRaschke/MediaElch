@@ -1,15 +1,15 @@
 #include "MakeMkvDialog.h"
 #include "ui_MakeMkvDialog.h"
 
-#include <QDebug>
-#include <QMessageBox>
-#include <QTimer>
-
 #include "globals/Helper.h"
 #include "globals/Manager.h"
+#include "log/Log.h"
 #include "renamer/RenamerDialog.h"
 #include "scrapers/movie/custom/CustomMovieScraper.h"
 #include "ui/notifications/Notificator.h"
+
+#include <QMessageBox>
+#include <QTimer>
 
 MakeMkvDialog::MakeMkvDialog(QWidget* parent) : QDialog(parent), ui(new Ui::MakeMkvDialog)
 {
@@ -228,13 +228,13 @@ void MakeMkvDialog::onMovieChosen()
 {
     using namespace mediaelch::scraper;
 
-    QHash<MovieScraper*, QString> ids;
+    QHash<MovieScraper*, mediaelch::scraper::MovieIdentifier> ids;
     QSet<MovieScraperInfo> infosToLoad;
     if (ui->movieSearchWidget->scraperId() == CustomMovieScraper::ID) {
         ids = ui->movieSearchWidget->customScraperIds();
         infosToLoad = Settings::instance()->scraperInfos<MovieScraperInfo>(CustomMovieScraper::ID);
     } else {
-        ids.insert(nullptr, ui->movieSearchWidget->scraperMovieId());
+        ids.insert(nullptr, mediaelch::scraper::MovieIdentifier(ui->movieSearchWidget->scraperMovieId()));
         infosToLoad = ui->movieSearchWidget->infosToLoad();
     }
 
@@ -333,7 +333,7 @@ void MakeMkvDialog::onDiscBackedUp()
 void MakeMkvDialog::onTrackImported(int trackId)
 {
     mediaelch::FileList files = m_movie->files();
-    files << m_importDir + "/" + m_tracks[trackId];
+    files << mediaelch::FilePath(m_importDir + "/" + m_tracks[trackId]);
     m_movie->setFiles(files);
     m_tracks.remove(trackId);
 
@@ -379,7 +379,7 @@ void MakeMkvDialog::importFinished()
     m_movie->controller()->loadStreamDetailsFromFile();
     m_movie->controller()->saveData(Manager::instance()->mediaCenterInterface());
     m_movie->controller()->loadData(Manager::instance()->mediaCenterInterface());
-    Manager::instance()->database()->add(m_movie, ui->comboImportDir->currentText());
+    Manager::instance()->database()->addMovie(m_movie, mediaelch::DirectoryPath(ui->comboImportDir->currentText()));
     Manager::instance()->database()->commit();
     Manager::instance()->movieModel()->addMovie(m_movie);
     m_movie = nullptr;

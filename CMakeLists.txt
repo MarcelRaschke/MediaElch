@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 3.13.0 FATAL_ERROR)
 
 project(
   mediaelch
-  VERSION 2.8.7
+  VERSION 2.8.13
   DESCRIPTION "Media Manager for Kodi"
   HOMEPAGE_URL "https://mediaelch.github.io/"
 )
@@ -84,14 +84,19 @@ set(LINK_WHAT_YOU_USE ON)
 
 # -----------------------------------------------------------------------------
 # Some defaults for our targets. Currently warnings are enabled and the C++
-# standard is set to C++14. It simplifies handling multiple targets like
-# different libraries without having to repeat all compile-features, etc.
+# standard is set to C++14 (or 17 for Qt6). It simplifies handling multiple
+# targets like different libraries without having to repeat all
+# compile-features, etc.
 function(mediaelch_post_target_defaults target)
   if(NOT TARGET ${target})
     message(WARNING "MediaElch defaults: ${target} is not a target.")
     return()
   endif()
-  target_compile_features(${target} PUBLIC cxx_std_14)
+  if(NOT Qt6_FOUND)
+    target_compile_features(${target} PUBLIC cxx_std_14)
+  else()
+    target_compile_features(${target} PUBLIC cxx_std_17)
+  endif()
   target_include_directories(
     ${target} PUBLIC "${CMAKE_BINARY_DIR}" "${CMAKE_SOURCE_DIR}"
                      "${CMAKE_SOURCE_DIR}/src"
@@ -116,13 +121,24 @@ set(CMAKE_AUTOMOC ON) # Instruct CMake to run moc automatically when needed
 set(CMAKE_AUTOUIC ON) # Create code from a list of Qt designer ui files
 set(CMAKE_AUTORCC ON) # For .qrc files
 
-# Min version required; keep in sync with MediaElch.plist
-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13)
+# Min version required; keep in sync with MediaElch.plist macOS 10.14 is
+# required for some std::variant features required by Qt.
+if(NOT Qt6_FOUND)
+  set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
+else()
+  set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13)
+endif()
 
 # ------------------------------------------------------------------------------
-# Qt5: You may need to set CMAKE_PREFIX_PATH e.g. to ~/Qt/5.11.2/gcc_64/
+# Qt5/6: You may need to set CMAKE_PREFIX_PATH e.g. to ~/Qt/5.11.2/gcc_64/
 find_package(
-  Qt5
+  QT NAMES Qt6 Qt5
+  COMPONENTS Core
+  REQUIRED
+)
+
+find_package(
+  Qt${QT_VERSION_MAJOR} QUIET REQUIRED
   COMPONENTS
     Concurrent
     Core
@@ -135,10 +151,11 @@ find_package(
     Quick
     QuickWidgets
     Sql
+    Svg
     Widgets
     Xml
     LinguistTools
-  REQUIRED
+  OPTIONAL_COMPONENTS Test
 )
 
 # -----------------------------------------------------------------------------
@@ -175,7 +192,12 @@ set(MEDIAELCH_TS_FILES
 set_source_files_properties(
   ${MEDIAELCH_TS_FILES} PROPERTIES OUTPUT_LOCATION "${CMAKE_BINARY_DIR}/i18n"
 )
-qt5_add_translation(MEDIAELCH_QM_FILES ${MEDIAELCH_TS_FILES})
+if(NOT Qt6_FOUND)
+  qt5_add_translation(MEDIAELCH_QM_FILES ${MEDIAELCH_TS_FILES})
+else()
+  qt_add_translation(MEDIAELCH_QM_FILES ${MEDIAELCH_TS_FILES})
+endif()
+
 # Copy the i18n.qrc because all referenced files are resolved relatively to it.
 configure_file(data/i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
 
@@ -184,6 +206,24 @@ configure_file(data/i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
 
 add_subdirectory(docs)
 add_subdirectory(third_party EXCLUDE_FROM_ALL)
+
+if(USE_EXTERN_QUAZIP)
+  find_package(QuaZip-Qt5 QUIET)
+
+  if(TARGET QuaZip::QuaZip)
+    message(STATUS "Using system's QuaZip 1.x library")
+    # We use this alias to still support QuaZip 0.9 which doesn't provide a
+    # CMake config file which means we can't use find_package() on it.
+    add_library(quazip5 ALIAS QuaZip::QuaZip)
+  else()
+    # The system's quazip, e.g. libquazip5-dev on Ubuntu
+    message(
+      STATUS
+        "Using system's QuaZip 0.9 library; expecting quazip5 shared library to exist"
+    )
+  endif()
+endif()
+
 add_subdirectory(src)
 
 add_executable(
@@ -199,14 +239,22 @@ mediaelch_post_target_defaults(mediaelch)
 install(TARGETS mediaelch RUNTIME DESTINATION bin RENAME MediaElch)
 install(FILES data/desktop/MediaElch.desktop DESTINATION share/applications)
 install(FILES data/desktop/MediaElch.png DESTINATION share/pixmaps)
+install(
+  FILES data/desktop/com.kvibes.MediaElch.metainfo.xml
+  DESTINATION share/metainfo
+)
 
 # ------------------------------------------------------------------------------
 # Testing
-include(CTest)
-include(Catch)
-enable_testing() # Per CMake documentation, enable_testing() must be called in
-                 # the root directory.
-add_subdirectory(test)
+if(Qt${QT_VERSION_MAJOR}Test_DIR)
+  include(CTest)
+  include(Catch)
+  enable_testing() # Per CMake documentation, enable_testing() must be called in
+  # the root directory.
+  add_subdirectory(test)
+else()
+  message(WARNING "Could not find Qt::Test => Tests will not be build!")
+endif()
 
 # ------------------------------------------------------------------------------
 # Packaging

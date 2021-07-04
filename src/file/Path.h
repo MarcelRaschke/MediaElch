@@ -1,5 +1,7 @@
 #pragma once
 
+#include "globals/Meta.h"
+
 #include <QDebug>
 #include <QDir>
 #include <QFile>
@@ -21,8 +23,8 @@ class DirectoryPath
 {
 public:
     DirectoryPath() = default;
-    /* implicit */ DirectoryPath(const QString& path) : m_isValid{!path.isEmpty()}, m_dir(QDir(path)) {}
-    /* implicit */ DirectoryPath(QDir path) : m_isValid{true}, m_dir(std::move(path)) {}
+    explicit DirectoryPath(const QString& path) : m_isValid{!path.isEmpty()}, m_dir(QDir(path)) {}
+    explicit DirectoryPath(QDir path) : m_isValid{true}, m_dir(std::move(path)) {}
 
     bool isValid() const { return m_isValid; }
 
@@ -52,7 +54,7 @@ bool operator!=(const DirectoryPath& lhs, const DirectoryPath& rhs);
 
 QDebug operator<<(QDebug debug, const DirectoryPath& dir);
 
-inline uint qHash(const DirectoryPath& key, uint seed)
+inline ELCH_QHASH_RETURN_TYPE qHash(const DirectoryPath& key, uint seed)
 {
     return qHash(key.toString(), seed);
 }
@@ -68,7 +70,7 @@ class FilePath
 {
 public:
     FilePath() = default;
-    /* implicit */ FilePath(const QString& path) : m_isValid{!path.isEmpty()}, m_fileInfo(path) {}
+    explicit FilePath(const QString& path) : m_isValid{!path.isEmpty()}, m_fileInfo(path) {}
     explicit FilePath(QFileInfo filePath) : m_isValid{true}, m_fileInfo(std::move(filePath)) {}
 
     bool isValid() const { return m_isValid; }
@@ -92,7 +94,7 @@ bool operator!=(const FilePath& lhs, const FilePath& rhs);
 
 QDebug operator<<(QDebug debug, const FilePath& dir);
 
-inline uint qHash(const FilePath& key, uint seed)
+inline ELCH_QHASH_RETURN_TYPE qHash(const FilePath& key, uint seed)
 {
     return qHash(key.toString(), seed);
 }
@@ -113,8 +115,8 @@ public:
         }
     }
 
-    int size() const { return m_files.size(); }
-    int count() const { return m_files.count(); }
+    qsizetype size() const { return m_files.size(); }
+    qsizetype count() const { return m_files.count(); }
     bool isEmpty() const { return m_files.isEmpty(); }
 
     void clear() { m_files.clear(); }

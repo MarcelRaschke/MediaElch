@@ -10,9 +10,12 @@ add_library(
   MovieSet.cpp
   file_searcher/MovieFileSearcher.cpp
   file_searcher/MovieDirectorySearcher.cpp
+  file_searcher/MovieDirScan.cpp
 )
 
 target_link_libraries(
-  mediaelch_movies PRIVATE Qt5::Sql Qt5::MultimediaWidgets Qt5::Concurrent
+  mediaelch_movies
+  PRIVATE Qt${QT_VERSION_MAJOR}::Sql Qt${QT_VERSION_MAJOR}::MultimediaWidgets
+          Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Svg
 )
 mediaelch_post_target_defaults(mediaelch_movies)

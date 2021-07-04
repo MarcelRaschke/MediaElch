@@ -13,6 +13,7 @@
 #include <QDesktopServices>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QStandardPaths>
 
 static constexpr char KEY_ALL_DATA_FILES[] = "AllDataFiles";
 static constexpr char KEY_AUTO_LOAD_STREAM_DETAILS[] = "AutoLoadStreamDetails";
@@ -78,10 +79,10 @@ Settings::Settings(QObject* parent) : QObject(parent)
     auto advancedSettingsPair = AdvancedSettingsXmlReader::loadFromDefaultPath();
     m_advancedSettings = std::move(advancedSettingsPair.first);
 
-    qDebug() << m_advancedSettings;
+    qCDebug(generic) << m_advancedSettings;
 
     if (m_advancedSettings.portableMode()) {
-        qDebug() << "[Windows] Using portable mode!";
+        qCDebug(generic) << "[Windows] Using portable mode!";
         m_settings = new QSettings(Settings::applicationDir() + "/MediaElch.ini", QSettings::IniFormat, this);
     } else {
         m_settings = new QSettings(this);
@@ -101,8 +102,8 @@ Settings::Settings(QObject* parent) : QObject(parent)
     m_initialDataFilesFrodo.append(DataFile(DataFileType::MovieLogo, "<baseFileName>-clearlogo.png", 0));
     m_initialDataFilesFrodo.append(DataFile(DataFileType::MovieBanner, "<baseFileName>-banner.jpg", 0));
     m_initialDataFilesFrodo.append(DataFile(DataFileType::MovieThumb, "<baseFileName>-landscape.jpg", 0));
-    m_initialDataFilesFrodo.append(DataFile(DataFileType::MovieSetPoster, "<baseFileName>-poster.jpg", 0));
-    m_initialDataFilesFrodo.append(DataFile(DataFileType::MovieSetBackdrop, "<baseFileName>-fanart.jpg", 0));
+    m_initialDataFilesFrodo.append(DataFile(DataFileType::MovieSetPoster, "<setName>-poster.jpg", 0));
+    m_initialDataFilesFrodo.append(DataFile(DataFileType::MovieSetBackdrop, "<setName>-fanart.jpg", 0));
 
     m_initialDataFilesFrodo.append(DataFile(DataFileType::TvShowNfo, "tvshow.nfo", 0));
     m_initialDataFilesFrodo.append(DataFile(DataFileType::TvShowBackdrop, "fanart.jpg", 0));
@@ -154,7 +155,7 @@ ScraperSettings* Settings::scraperSettings(const QString& id)
 {
     std::string idStd = id.toStdString();
     if (m_scraperSettings.find(idStd) == m_scraperSettings.cend()) {
-        qCritical() << "[TvScraperSettingsWidget] Missing settings entry in settings map!";
+        qCCritical(generic) << "[TvScraperSettingsWidget] Missing settings entry in settings map!";
         return nullptr;
     }
     return m_scraperSettings[idStd].get();
@@ -181,7 +182,7 @@ void Settings::loadSettings()
     m_showAdultScrapers = settings()->value(KEY_SCRAPERS_SHOW_ADULT, false).toBool();
     m_startupSection = settings()->value(KEY_STARTUP_SECTION, "movies").toString();
     m_donated = settings()->value(KEY_DONATED, false).toBool();
-    m_lastImagePath = settings()->value(KEY_LAST_IMAGE_PATH, QDir::homePath()).toString();
+    m_lastImagePath = mediaelch::DirectoryPath(settings()->value(KEY_LAST_IMAGE_PATH, QDir::homePath()).toString());
 
     // Window positions
     m_mainWindowPosition = fixWindowPosition(settings()->value(KEY_MAIN_WINDOW_POSITION).toPoint());
@@ -297,7 +298,8 @@ void Settings::loadSettings()
 
     // Movie set artwork
     m_movieSetArtworkType = MovieSetArtworkType(settings()->value(KEY_MOVIE_SET_ARTWORK_STORING_TYPE, 0).toInt());
-    m_movieSetArtworkDirectory = settings()->value(KEY_MOVIE_SET_ARTWORK_DIRECTORY).toString();
+    m_movieSetArtworkDirectory =
+        mediaelch::DirectoryPath(settings()->value(KEY_MOVIE_SET_ARTWORK_DIRECTORY).toString());
 
     // Media Status Columns
     m_mediaStatusColumns.clear();
@@ -683,7 +685,7 @@ bool Settings::autoLoadStreamDetails() const
 QVector<DataFile> Settings::dataFiles(DataFileType dataType)
 {
     QVector<DataFile> files;
-    for (const DataFile& file : m_dataFiles) {
+    for (const DataFile& file : asConst(m_dataFiles)) {
         if (file.type() == dataType) {
             files.append(file);
         }
@@ -704,7 +706,7 @@ QVector<DataFile> Settings::dataFilesFrodo(DataFileType type)
     }
 
     QVector<DataFile> files;
-    for (const DataFile& file : m_initialDataFilesFrodo) {
+    for (const DataFile& file : asConst(m_initialDataFilesFrodo)) {
         if (file.type() == type) {
             files.append(file);
         }
@@ -1325,25 +1327,26 @@ QString Settings::applicationDir()
 mediaelch::DirectoryPath Settings::databaseDir()
 {
     if (advanced()->portableMode()) {
-        return applicationDir();
+        return mediaelch::DirectoryPath(applicationDir());
     }
-    return QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    return mediaelch::DirectoryPath(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
 }
 
 mediaelch::DirectoryPath Settings::imageCacheDir()
 {
     if (advanced()->portableMode()) {
-        return applicationDir();
+        return mediaelch::DirectoryPath(applicationDir());
     }
-    return QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    return mediaelch::DirectoryPath(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
 }
 
 mediaelch::DirectoryPath Settings::exportTemplatesDir()
 {
     if (advanced()->portableMode()) {
-        return applicationDir() + QDir::separator() + "export_themes";
+        return mediaelch::DirectoryPath(applicationDir() + QDir::separator() + "export_themes");
     }
-    return QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QDir::separator() + "export_themes";
+    return mediaelch::DirectoryPath(
+        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + QDir::separator() + "export_themes");
 }
 
 void Settings::setShowAdultScrapers(bool show)

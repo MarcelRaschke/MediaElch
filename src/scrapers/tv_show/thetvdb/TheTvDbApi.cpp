@@ -1,8 +1,8 @@
 #include "scrapers/tv_show/thetvdb/TheTvDbApi.h"
 
 #include "Version.h"
-#include "globals/JsonRequest.h"
 #include "globals/Meta.h"
+#include "log/Log.h"
 #include "network/NetworkRequest.h"
 
 #include <QJsonDocument>
@@ -22,10 +22,34 @@ TheTvDbApi::TheTvDbApi(QObject* parent) : QObject(parent)
 void TheTvDbApi::initialize()
 {
     const QJsonObject body{{"apikey", "A0BB9A0F6762942B"}};
-    auto* request = new mediaelch::JsonPostRequest(makeFullUrl("/login"), body, this);
-    connect(request, &mediaelch::JsonPostRequest::sigResponse, this, [this, request](QJsonDocument& parsedJson) {
-        qDebug() << "[TheTvDbApi] Received JSON web token";
-        request->deleteLater();
+    QNetworkRequest request = network::jsonRequestWithDefaults(makeFullUrl("/login"));
+
+    QNetworkReply* reply = m_network.postWithWatcher(request, QJsonDocument(body).toJson());
+
+    QObject::connect(reply, &QNetworkReply::finished, this, [reply, this]() {
+        QJsonDocument parsedJson;
+
+        if (reply->error() == QNetworkReply::NoError) {
+            QJsonParseError parseError{};
+            parsedJson = QJsonDocument::fromJson(reply->readAll(), &parseError);
+
+            if (parseError.error != QJsonParseError::NoError) {
+                qCWarning(generic) << "[JsonPostRequest] Error while parsing JSON";
+            }
+
+        } else {
+            qCWarning(generic) << "[JsonPostRequest] Network Error:" << reply->errorString();
+        }
+
+        reply->deleteLater();
+
+        if (parsedJson.isEmpty()) {
+            emit initialized(false);
+            return;
+        }
+
+        qCDebug(generic) << "[TheTvDbApi] Received JSON web token";
+
         ApiToken token(parsedJson.object().value("token").toString());
         if (token.isValid()) {
             m_token = token;
@@ -44,7 +68,7 @@ void TheTvDbApi::sendGetRequest(const Locale& locale, const QUrl& url, TheTvDbAp
     if (m_cache.hasValidElement(url, locale)) {
         // Do not immediately run the callback because classes higher up may
         // set up a Qt connection while the network request is running.
-        QTimer::singleShot(0, [cb = std::move(callback), element = m_cache.getElement(url, locale)]() {
+        QTimer::singleShot(0, this, [cb = std::move(callback), element = m_cache.getElement(url, locale)]() {
             // should not result in a parse error because the cache element is
             // only stored if no error occured at all.
             cb(QJsonDocument::fromJson(element.toUtf8()), {});
@@ -65,7 +89,7 @@ void TheTvDbApi::sendGetRequest(const Locale& locale, const QUrl& url, TheTvDbAp
             data = QString::fromUtf8(reply->readAll());
 
         } else {
-            qWarning() << "[TheTvDbApi] Network Error:" << reply->errorString() << "for URL" << reply->url();
+            qCWarning(generic) << "[TheTvDbApi] Network Error:" << reply->errorString() << "for URL" << reply->url();
         }
 
         QJsonParseError parseError{};
@@ -178,7 +202,7 @@ QUrl TheTvDbApi::getShowUrl(ApiShowDetails type, const TvDbId& id) const
         case ApiShowDetails::ACTORS: return QStringLiteral("/actors");
         case ApiShowDetails::INFOS: return QString{};
         }
-        qWarning() << "[TheTvDbApi] Unknown ApiShowDetails";
+        qCWarning(generic) << "[TheTvDbApi] Unknown ApiShowDetails";
         return QString{};
     }();
 
@@ -194,7 +218,7 @@ QUrl TheTvDbApi::getImagesUrl(ShowScraperInfo type, const TvDbId& id) const
         case ShowScraperInfo::SeasonPoster: return QStringLiteral("season");
         case ShowScraperInfo::SeasonBanner: return QStringLiteral("seasonwide");
         case ShowScraperInfo::Banner: return QStringLiteral("series");
-        default: qWarning() << "[TheTvDbApi] Invalid image type"; return QStringLiteral("invalid");
+        default: qCWarning(generic) << "[TheTvDbApi] Invalid image type"; return QStringLiteral("invalid");
         }
     }();
 
@@ -225,7 +249,7 @@ QString TheTvDbApi::seasonOrderToUrlArg(SeasonOrder order) const
     case SeasonOrder::Dvd: return "dvdSeason";
     case SeasonOrder::Aired: return "airedSeason";
     }
-    qCritical() << "[TheTvDbApi] Unhandled SeasonOrder case!";
+    qCCritical(generic) << "[TheTvDbApi] Unhandled SeasonOrder case!";
     return "airedSeason";
 }
 

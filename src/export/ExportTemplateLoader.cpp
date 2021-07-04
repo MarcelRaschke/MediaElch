@@ -2,21 +2,15 @@
 
 #include <QBuffer>
 #include <QCryptographicHash>
-#include <QDebug>
 #include <QDir>
 #include <QNetworkReply>
 #include <QXmlStreamReader>
 
-#ifndef EXTERN_QUAZIP
-#    include "quazip/quazip/quazip.h"
-#    include "quazip/quazip/quazipfile.h"
-#else
-#    include "quazip5/quazip.h"
-#    include "quazip5/quazipfile.h"
-#endif
+#include "quazip/quazip.h"
+#include "quazip/quazipfile.h"
 
-#include "data/Storage.h"
 #include "globals/VersionInfo.h"
+#include "log/Log.h"
 #include "network/NetworkRequest.h"
 #include "settings/Settings.h"
 
@@ -36,7 +30,7 @@ ExportTemplateLoader* ExportTemplateLoader::instance(QObject* parent)
 
 void ExportTemplateLoader::getRemoteTemplates()
 {
-    qInfo() << "[ExportTemplateLoader] Loading themes list from" << s_themeListUrl;
+    qCInfo(generic) << "[ExportTemplateLoader] Loading themes list from" << s_themeListUrl;
     QNetworkReply* reply = m_network.get(mediaelch::network::requestWithDefaults(QUrl(s_themeListUrl)));
     connect(reply, &QNetworkReply::finished, this, &ExportTemplateLoader::onLoadRemoteTemplatesFinished);
 }
@@ -50,7 +44,7 @@ void ExportTemplateLoader::onLoadRemoteTemplatesFinished()
     reply->deleteLater();
 
     if (reply->error() != QNetworkReply::NoError) {
-        qWarning() << "[ExportTemplateLoader] Network Error" << reply->errorString();
+        qCWarning(generic) << "[ExportTemplateLoader] Network Error" << reply->errorString();
         emit sigTemplatesLoaded(mergeTemplates(m_localTemplates, m_remoteTemplates));
         return;
     }
@@ -58,18 +52,18 @@ void ExportTemplateLoader::onLoadRemoteTemplatesFinished()
     QString msg = QString::fromUtf8(reply->readAll());
     QXmlStreamReader xml(msg);
 
-    if (!xml.readNextStartElement() || xml.name() != "themes") {
-        qWarning() << "[ExportTemplateLoader] export_themes.xml does not have a root <themes> element";
+    if (!xml.readNextStartElement() || xml.name() != QLatin1String("themes")) {
+        qCWarning(generic) << "[ExportTemplateLoader] export_themes.xml does not have a root <themes> element";
         emit sigTemplatesLoaded(mergeTemplates(m_localTemplates, m_remoteTemplates));
         return;
     }
 
     QVector<ExportTemplate*> templates;
     while (xml.readNextStartElement()) {
-        if (xml.name() == "theme") {
+        if (xml.name() == QLatin1String("theme")) {
             templates << parseTemplate(xml);
         } else {
-            qWarning() << "[ExportTemplateLoader] Found unknown XML tag in theme list:" << xml.name();
+            qCWarning(generic) << "[ExportTemplateLoader] Found unknown XML tag in theme list:" << xml.name();
             xml.skipCurrentElement();
         }
     }
@@ -84,7 +78,7 @@ void ExportTemplateLoader::loadLocalTemplates()
     mediaelch::DirectoryPath location = Settings::instance()->exportTemplatesDir();
     QDir storageDir(location.dir());
     if (!storageDir.exists() && !storageDir.mkpath(location.toString())) {
-        qCritical() << "[ExportTemplateLoader] Could not create storage location";
+        qCCritical(generic) << "[ExportTemplateLoader] Could not create storage location";
         return;
     }
 
@@ -97,8 +91,8 @@ void ExportTemplateLoader::loadLocalTemplates()
 
         QFile file(infos.first().absoluteFilePath());
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            qWarning() << "[ExportTemplateLoader] File" << infos.first().absoluteFilePath()
-                       << "could not be opened for reading";
+            qCWarning(generic) << "[ExportTemplateLoader] File" << infos.first().absoluteFilePath()
+                               << "could not be opened for reading";
             continue;
         }
 
@@ -108,7 +102,7 @@ void ExportTemplateLoader::loadLocalTemplates()
         QXmlStreamReader xml(content);
 
         if (!xml.readNextStartElement()) {
-            qWarning() << "[ExportTemplateLoader] Couldn't read XML root element of local template";
+            qCWarning(generic) << "[ExportTemplateLoader] Couldn't read XML root element of local template";
             continue;
         }
 
@@ -124,18 +118,18 @@ ExportTemplate* ExportTemplateLoader::parseTemplate(QXmlStreamReader& xml)
     exportTemplate->setRemote(true);
 
     while (xml.readNextStartElement()) {
-        if (xml.name() == "name") {
+        if (xml.name() == QLatin1String("name")) {
             exportTemplate->setName(xml.readElementText().trimmed());
-        } else if (xml.name() == "identifier") {
+        } else if (xml.name() == QLatin1String("identifier")) {
             exportTemplate->setIdentifier(xml.readElementText().trimmed());
-        } else if (xml.name() == "website") {
+        } else if (xml.name() == QLatin1String("website")) {
             exportTemplate->setWebsite(xml.readElementText().trimmed());
-        } else if (xml.name() == "description") {
+        } else if (xml.name() == QLatin1String("description")) {
             exportTemplate->addDescription(xml.attributes().value("lang").toString(), xml.readElementText());
-        } else if (xml.name() == "author") {
+        } else if (xml.name() == QLatin1String("author")) {
             exportTemplate->setAuthor(xml.readElementText().trimmed());
 
-        } else if (xml.name() == "engine") {
+        } else if (xml.name() == QLatin1String("engine")) {
             // \since v2.6.3
             QString engine = xml.readElementText();
             Q_UNUSED(engine)
@@ -146,29 +140,29 @@ ExportTemplate* ExportTemplateLoader::parseTemplate(QXmlStreamReader& xml)
             exportTemplate->setTemplateEngine(ExportEngine::Simple);
             // }
 
-        } else if (xml.name() == "mediaelch-min") {
+        } else if (xml.name() == QLatin1String("mediaelch-min")) {
             // \since v2.6.3
             exportTemplate->setMediaElchVersionMin(mediaelch::VersionInfo(xml.readElementText()));
 
-        } else if (xml.name() == "mediaelch-max") {
+        } else if (xml.name() == QLatin1String("mediaelch-max")) {
             // \since v2.6.3
             exportTemplate->setMediaElchVersionMax(mediaelch::VersionInfo(xml.readElementText()));
 
-        } else if (xml.name() == "file") {
+        } else if (xml.name() == QLatin1String("file")) {
             exportTemplate->setRemoteFile(xml.readElementText().trimmed());
-        } else if (xml.name() == "checksum") {
-            if (xml.attributes().value("format") != "sha256") {
+        } else if (xml.name() == QLatin1String("checksum")) {
+            if (xml.attributes().value("format") != QLatin1String("sha256")) {
                 // Assume name is set first. If not, its just an empty string.
-                qWarning() << "[ExportTemplateLoader] Unsupported checksum type; default to sha256 for"
-                           << exportTemplate->name();
+                qCWarning(generic) << "[ExportTemplateLoader] Unsupported checksum type; default to sha256 for"
+                                   << exportTemplate->name();
             }
             exportTemplate->setRemoteFileChecksum(xml.readElementText().trimmed());
-        } else if (xml.name() == "version") {
+        } else if (xml.name() == QLatin1String("version")) {
             exportTemplate->setVersion(xml.readElementText());
-        } else if (xml.name() == "supports") {
+        } else if (xml.name() == QLatin1String("supports")) {
             QVector<ExportTemplate::ExportSection> sections;
             while (xml.readNextStartElement()) {
-                if (xml.name() == "section") {
+                if (xml.name() == QLatin1String("section")) {
                     QString section = xml.readElementText();
                     if (section == "movies") {
                         sections << ExportTemplate::ExportSection::Movies;
@@ -193,7 +187,7 @@ ExportTemplate* ExportTemplateLoader::parseTemplate(QXmlStreamReader& xml)
 bool ExportTemplateLoader::validateChecksum(const QByteArray& data, const ExportTemplate& exportTemplate)
 {
     if (exportTemplate.remoteFileChecksum().isEmpty()) {
-        qWarning() << "[ExportTemplateLoader] No checksum found for template" << exportTemplate.name();
+        qCWarning(generic) << "[ExportTemplateLoader] No checksum found for template" << exportTemplate.name();
         return true; // TODO: Expect there to be a checksum
     }
 
@@ -201,23 +195,23 @@ bool ExportTemplateLoader::validateChecksum(const QByteArray& data, const Export
     QString epected = exportTemplate.remoteFileChecksum().toLower();
     QByteArray actual = QCryptographicHash::hash(data, QCryptographicHash::Algorithm::Sha256).toHex();
     if (epected != actual) {
-        qWarning() << "[ExportTemplateLoader] SHA256 check fail for template" << exportTemplate.name()
-                   << " | Expected:" << epected << "but found:" << actual;
+        qCWarning(generic) << "[ExportTemplateLoader] SHA256 check fail for template" << exportTemplate.name()
+                           << " | Expected:" << epected << "but found:" << actual;
         return false;
     }
 
-    qInfo() << "[ExportTemplateLoader] SHA256 check was successful for template:" << exportTemplate.name()
-            << "with checksum:" << actual;
+    qCInfo(generic) << "[ExportTemplateLoader] SHA256 check was successful for template:" << exportTemplate.name()
+                    << "with checksum:" << actual;
 
     return true;
 }
 
 void ExportTemplateLoader::installTemplate(ExportTemplate* exportTemplate)
 {
-    qInfo() << "[ExportTemplateLoader] Downloading theme" << exportTemplate->name() << "from"
-            << exportTemplate->remoteFile();
+    qCInfo(generic) << "[ExportTemplateLoader] Downloading theme" << exportTemplate->name() << "from"
+                    << exportTemplate->remoteFile();
     QNetworkReply* reply = m_network.get(mediaelch::network::requestWithDefaults(QUrl(exportTemplate->remoteFile())));
-    reply->setProperty("storage", Storage::toVariant(reply, exportTemplate));
+    reply->setProperty("storage", QVariant::fromValue(exportTemplate));
     connect(reply, &QNetworkReply::finished, this, &ExportTemplateLoader::onDownloadTemplateFinished);
 }
 
@@ -227,10 +221,10 @@ void ExportTemplateLoader::onDownloadTemplateFinished()
     if (reply == nullptr) {
         return;
     }
-    ExportTemplate* exportTemplate = reply->property("storage").value<Storage*>()->exportTemplate();
+    ExportTemplate* exportTemplate = reply->property("storage").value<ExportTemplate*>();
     reply->deleteLater();
     if (reply->error() != QNetworkReply::NoError) {
-        qWarning() << "[ExportTemplateLoader] Network Error" << reply->errorString();
+        qCWarning(generic) << "[ExportTemplateLoader] Network Error" << reply->errorString();
         emit sigTemplateInstalled(exportTemplate, false);
         return;
     }
@@ -243,7 +237,7 @@ void ExportTemplateLoader::onDownloadTemplateFinished()
 
     QBuffer buffer(&ba);
     if (!unpackTemplate(buffer, exportTemplate)) {
-        qDebug() << "[ExportTemplateLoader] Could not unpack template";
+        qCDebug(generic) << "[ExportTemplateLoader] Could not unpack template";
         emit sigTemplateInstalled(exportTemplate, false);
         return;
     }
@@ -275,29 +269,29 @@ bool ExportTemplateLoader::unpackTemplate(QBuffer& buffer, ExportTemplate* expor
     mediaelch::DirectoryPath location = Settings::instance()->exportTemplatesDir();
     QDir storageDir(location.dir());
     if (!storageDir.exists() && !storageDir.mkpath(location.toString())) {
-        qWarning() << "[ExportTemplateLoader] Could not create storage location";
+        qCWarning(generic) << "[ExportTemplateLoader] Could not create storage location";
         return false;
     }
 
     storageDir.setPath(location.subDir(exportTemplate->identifier()).toString());
     if ((exportTemplate->isInstalled() || storageDir.exists()) && !uninstallTemplate(exportTemplate)) {
-        qWarning() << "[ExportTemplateLoader] Could not uninstall template";
+        qCWarning(generic) << "[ExportTemplateLoader] Could not uninstall template";
         return false;
     }
 
     if (!storageDir.mkpath(storageDir.absolutePath())) {
-        qWarning() << "[ExportTemplateLoader] Could not create storage path";
+        qCWarning(generic) << "[ExportTemplateLoader] Could not create storage path";
         return false;
     }
 
     QuaZip zip(&buffer);
     if (!zip.open(QuaZip::mdUnzip)) {
-        qWarning() << "[ExportTemplateLoader] Zip file could not be opened";
+        qCWarning(generic) << "[ExportTemplateLoader] Zip file could not be opened";
         return false;
     }
 
     if (zip.getEntriesCount() == 0) {
-        qWarning() << "[ExportTemplateLoader] Zip file does not contain any entries!";
+        qCWarning(generic) << "[ExportTemplateLoader] Zip file does not contain any entries!";
         zip.close();
         return false;
     }
@@ -314,8 +308,9 @@ bool ExportTemplateLoader::unpackTemplate(QBuffer& buffer, ExportTemplate* expor
         entries.cbegin(), entries.cend(), [&baseDir](const QString& entry) { return entry.startsWith(baseDir); });
 
     if (isGitHubReleaseFormat) {
-        qInfo() << "[ExportTemplateLoader] One directory inside ZIP. Assuming GitHub Release format. Skip first "
-                   "directory level.";
+        qCInfo(generic)
+            << "[ExportTemplateLoader] One directory inside ZIP. Assuming GitHub Release format. Skip first "
+               "directory level.";
     }
 
     QuaZipFile file(&zip);
@@ -336,7 +331,7 @@ bool ExportTemplateLoader::unpackTemplate(QBuffer& buffer, ExportTemplate* expor
         }
         if (filename.endsWith("/")) {
             if (!storageDir.mkdir(filename)) {
-                qWarning() << "[ExportTemplateLoader] Could not create subdirectory";
+                qCWarning(generic) << "[ExportTemplateLoader] Could not create subdirectory";
                 return false;
             }
             continue;
@@ -352,7 +347,7 @@ bool ExportTemplateLoader::unpackTemplate(QBuffer& buffer, ExportTemplate* expor
         }
     }
     if (zip.getZipError() != UNZ_OK) {
-        qWarning() << "There was an error while uncompressing the file";
+        qCWarning(generic) << "There was an error while uncompressing the file";
         return false;
     }
 
@@ -418,7 +413,7 @@ ExportTemplate* ExportTemplateLoader::getTemplateByIdentifier(QString identifier
     if (identifier.isEmpty()) {
         return nullptr;
     }
-    auto* result = std::find_if(m_localTemplates.begin(), m_localTemplates.end(), [&identifier](auto& exportTemplate) {
+    auto result = std::find_if(m_localTemplates.begin(), m_localTemplates.end(), [&identifier](auto& exportTemplate) {
         return (exportTemplate->identifier() == identifier);
     });
     return (result != m_localTemplates.cend()) ? *result : nullptr;

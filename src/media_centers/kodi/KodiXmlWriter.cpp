@@ -1,6 +1,7 @@
 #include "media_centers/kodi/KodiXmlWriter.h"
 
 #include "Version.h"
+#include "data/Rating.h"
 
 #include <QDateTime>
 
@@ -36,6 +37,49 @@ bool KodiXmlWriter::writeThumbUrlsToNfo() const
 void KodiXmlWriter::setWriteThumbUrlsToNfo(bool writeThumbUrlsToNfo)
 {
     m_writeThumbUrlsToNfo = writeThumbUrlsToNfo;
+}
+
+void KodiXmlWriter::writeActors(QXmlStreamWriter& xml, const Actors& actors)
+{
+    for (const Actor* actor : actors) {
+        xml.writeStartElement("actor");
+
+        xml.writeTextElement("name", actor->name);
+        xml.writeTextElement("role", actor->role);
+        xml.writeTextElement("order", QString::number(actor->order));
+
+        if (writeThumbUrlsToNfo() && !actor->thumb.isEmpty()) {
+            xml.writeTextElement("thumb", actor->thumb);
+        }
+
+        xml.writeEndElement();
+    }
+}
+
+void writeRatings(QXmlStreamWriter& xml, const Ratings& ratings)
+{
+    if (ratings.isEmpty()) {
+        return;
+    }
+
+    xml.writeStartElement("ratings");
+    bool firstRating = true;
+
+    for (const Rating& rating : ratings) {
+        xml.writeStartElement("rating");
+        xml.writeAttribute("name", rating.source);
+        xml.writeAttribute("default", firstRating ? "true" : "false");
+        if (rating.maxRating > 0) {
+            xml.writeAttribute("max", QString::number(rating.maxRating));
+        }
+
+        xml.writeTextElement("value", QString::number(rating.rating));
+        xml.writeTextElement("votes", QString::number(rating.voteCount));
+        xml.writeEndElement();
+
+        firstRating = false;
+    }
+    xml.writeEndElement();
 }
 
 } // namespace kodi

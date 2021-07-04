@@ -7,8 +7,8 @@
 #include <QComboBox>
 #include <QMap>
 #include <QObject>
+#include <QPointer>
 #include <QWidget>
-
 
 namespace mediaelch {
 namespace scraper {
@@ -18,6 +18,7 @@ class AEBN : public MovieScraper
     Q_OBJECT
 public:
     explicit AEBN(QObject* parent = nullptr);
+    ~AEBN() override;
     static constexpr const char* ID = "aebn";
 
     const ScraperMeta& meta() const override;
@@ -25,9 +26,12 @@ public:
     void initialize() override;
     bool isInitialized() const override;
 
+    ELCH_NODISCARD MovieSearchJob* search(MovieSearchJob::Config config) override;
+
 public:
-    void search(QString searchStr) override;
-    void loadData(QHash<MovieScraper*, QString> ids, Movie* movie, QSet<MovieScraperInfo> infos) override;
+    void loadData(QHash<MovieScraper*, mediaelch::scraper::MovieIdentifier> ids,
+        Movie* movie,
+        QSet<MovieScraperInfo> infos) override;
     bool hasSettings() const override;
     void loadSettings(ScraperSettings& settings) override;
     void saveSettings(ScraperSettings& settings) override;
@@ -44,11 +48,10 @@ private:
     mediaelch::network::NetworkManager m_network;
     mediaelch::Locale m_language;
     QString m_genreId;
-    QWidget* m_widget;
+    QPointer<QWidget> m_widget;
     QComboBox* m_box;
     QComboBox* m_genreBox;
 
-    QVector<ScraperSearchResult> parseSearch(QString html);
     void parseAndAssignInfos(QString html, Movie* movie, QSet<MovieScraperInfo> infos, QStringList& actorIds);
     void downloadActors(Movie* movie, QStringList actorIds);
     void parseAndAssignActor(QString html, Movie* movie, QString id);

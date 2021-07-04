@@ -1,11 +1,11 @@
 #include "MusicFilesWidget.h"
 #include "ui_MusicFilesWidget.h"
 
-#include <QDebug>
 #include <QDesktopServices>
 
 #include "MusicMultiScrapeDialog.h"
 #include "globals/Manager.h"
+#include "log/Log.h"
 
 MusicFilesWidget* MusicFilesWidget::m_instance;
 
@@ -139,9 +139,15 @@ void MusicFilesWidget::onItemSelected(QModelIndex index)
 
 void MusicFilesWidget::updateStatusLabel()
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 12, 0)
     if (m_proxyModel->filterRegExp().pattern().isEmpty() || m_proxyModel->filterRegExp().pattern() == "**") {
+#else
+    if (m_proxyModel->filterRegularExpression().pattern().isEmpty()
+        || m_proxyModel->filterRegularExpression().pattern() == "**") {
+#endif
         int albumCount = 0;
-        for (Artist* artist : Manager::instance()->musicModel()->artists()) {
+        const auto artists = Manager::instance()->musicModel()->artists();
+        for (Artist* artist : artists) {
             albumCount += artist->albums().count();
         }
         ui->statusLabel->setText(

@@ -26,18 +26,18 @@ void TvShowFileSearcher::setTvShowDirectories(QVector<SettingsDir> directories)
     m_directories.clear();
     for (auto& dir : directories) {
         if (Settings::instance()->advanced()->isFolderExcluded(dir.path.dirName())) {
-            qWarning() << "[TvShowFileSearcher] TV show directory is excluded by advanced settings! "
-                          "Is this intended? Directory:"
-                       << dir.path.path();
+            qCWarning(generic) << "[TvShowFileSearcher] TV show directory is excluded by advanced settings! "
+                                  "Is this intended? Directory:"
+                               << dir.path.path();
             continue;
         }
 
         if (!dir.path.isReadable()) {
-            qDebug() << "[TvShowFileSearcher] TV show directory is not readable, skipping:" << dir.path.path();
+            qCDebug(generic) << "[TvShowFileSearcher] TV show directory is not readable, skipping:" << dir.path.path();
             continue;
         }
 
-        qDebug() << "[TvShowFileSearcher] Adding TV show directory" << dir.path.path();
+        qCDebug(generic) << "[TvShowFileSearcher] Adding TV show directory" << dir.path.path();
         m_directories.append(dir);
     }
 }
@@ -45,7 +45,7 @@ void TvShowFileSearcher::setTvShowDirectories(QVector<SettingsDir> directories)
 /// \brief Starts the scan process
 void TvShowFileSearcher::reload(bool force)
 {
-    qInfo() << "[TvShowFileSearcher] Reload TV shows, clear database:" << force;
+    qCInfo(generic) << "[TvShowFileSearcher] Reload TV shows, clear database:" << force;
     m_aborted = false;
 
     clearOldTvShows(force);
@@ -70,7 +70,7 @@ void TvShowFileSearcher::reload(bool force)
         }
     }
 
-    qDebug() << "[TvShowFileSearcher] Searching for TV shows done";
+    qCDebug(generic) << "[TvShowFileSearcher] Searching for TV shows done";
     if (!m_aborted) {
         emit tvShowsLoaded();
     }
@@ -100,7 +100,7 @@ void TvShowFileSearcher::reloadEpisodes(const mediaelch::DirectoryPath& showDir)
     }
 
     // get path
-    QString path;
+    mediaelch::DirectoryPath path;
     int index = -1;
     for (int i = 0, n = m_directories.count(); i < n; ++i) {
         if (m_aborted) {
@@ -114,7 +114,7 @@ void TvShowFileSearcher::reloadEpisodes(const mediaelch::DirectoryPath& showDir)
         }
     }
     if (index != -1) {
-        path = m_directories[index].path.path();
+        path = mediaelch::DirectoryPath(m_directories[index].path);
     }
 
     // search for contents
@@ -250,7 +250,7 @@ void TvShowFileSearcher::scanTvShowDir(const mediaelch::DirectoryPath& startPath
     }
     files.sort();
 
-    QRegExp rx("((part|cd)[\\s_]*)(\\d+)", Qt::CaseInsensitive);
+    QRegularExpression rx("((?:part|cd)[\\s_]*)(\\d+)", QRegularExpression::CaseInsensitiveOption);
     for (int i = 0, n = files.size(); i < n; i++) {
         if (m_aborted) {
             return;
@@ -264,10 +264,11 @@ void TvShowFileSearcher::scanTvShowDir(const mediaelch::DirectoryPath& startPath
 
         tvShowFiles << (path.toString() + '/' + file);
 
-        int pos = rx.indexIn(file);
+        QRegularExpressionMatch match = rx.match(file);
+        int pos = match.capturedStart(0);
         if (pos != -1) {
-            QString left = file.left(pos) + rx.cap(1);
-            QString right = file.mid(pos + rx.cap(1).size() + rx.cap(2).size());
+            QString left = file.left(pos) + match.captured(1);
+            QString right = file.mid(pos + match.captured(1).size() + match.captured(2).size());
             for (int x = 0; x < n; x++) {
                 QString subFile = files.at(x);
                 if (subFile != file) {
@@ -315,21 +316,30 @@ SeasonNumber TvShowFileSearcher::getSeasonNumber(QStringList files)
         }
     }
 
-    QRegExp rx(R"(S(\d+)[ ._-]?E)", Qt::CaseInsensitive);
-    if (rx.indexIn(filename) != -1) {
-        return SeasonNumber(rx.cap(1).toInt());
+    QRegularExpression rx(R"(S(\d+)[ ._-]?E)", QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatch match;
+
+    match = rx.match(filename);
+    if (match.hasMatch()) {
+        return SeasonNumber(match.captured(1).toInt());
     }
+
     rx.setPattern("(\\d+)?x(\\d+)");
-    if (rx.indexIn(filename) != -1) {
-        return SeasonNumber(rx.cap(1).toInt());
+    match = rx.match(filename);
+    if (match.hasMatch()) {
+        return SeasonNumber(match.captured(1).toInt());
     }
+
     rx.setPattern("(\\d+).(\\d){2,4}");
-    if (rx.indexIn(filename) != -1) {
-        return SeasonNumber(rx.cap(1).toInt());
+    match = rx.match(filename);
+    if (match.hasMatch()) {
+        return SeasonNumber(match.captured(1).toInt());
     }
+
     rx.setPattern("Season[ ._]?(\\d+)[ ._]?Episode");
-    if (rx.indexIn(filename) != -1) {
-        return SeasonNumber(rx.cap(1).toInt());
+    match = rx.match(filename);
+    if (match.hasMatch()) {
+        return SeasonNumber(match.captured(1).toInt());
     }
 
     // Default if no valid season could be parsed.
@@ -362,33 +372,35 @@ QVector<EpisodeNumber> TvShowFileSearcher::getEpisodeNumbers(QStringList files)
     /// Scans a given filename for a given pattern.
     /// If mayBeAmbiguous is true, we apply a heuristic to avoid matching the video's resolution
     auto scanWithPattern = [&](const QString& pattern, bool mayBeAmbiguous) -> bool {
-        QRegExp rx(pattern);
-        rx.setCaseSensitivity(Qt::CaseInsensitive);
+        QRegularExpression rx(pattern, QRegularExpression::CaseInsensitiveOption);
 
-        int pos = 0;
-        int lastPos = -1;
-        while ((pos = rx.indexIn(filename, pos)) != -1) {
+        QRegularExpressionMatchIterator matches = rx.globalMatch(filename);
+
+        int lastMatchEnd = -1;
+        while (matches.hasNext()) {
+            QRegularExpressionMatch match = matches.next();
             // if between the last match and this one are more than five characters: break
             // this way we can try to filter "false matches" like in "21x04 - Hammond vs. 6x6.mp4"
-            if (mayBeAmbiguous && lastPos != -1 && lastPos < pos + 5) {
+            if (mayBeAmbiguous && lastMatchEnd != -1 && lastMatchEnd < match.capturedStart(0) + 5) {
                 return true;
             }
-            episodes << EpisodeNumber(rx.cap(2).toInt());
-            pos += rx.matchedLength();
-            lastPos = pos;
+            episodes << EpisodeNumber(match.captured(2).toInt());
+            lastMatchEnd = match.capturedEnd(0);
         }
-        pos = lastPos;
 
         // Pattern matched
         if (episodes.isEmpty()) {
             return false;
         }
 
+        // The one episode we found could actually be a multi-episode file.
+        // For example: S01E01E02
         if (episodes.count() == 1) {
-            rx.setPattern(R"(^[-_EeXx]+([0-9]+)($|[\-\._\sE]))");
-            while (rx.indexIn(filename, pos, QRegExp::CaretAtOffset) != -1) {
-                episodes << EpisodeNumber(rx.cap(1).toInt());
-                pos += rx.matchedLength() - 1;
+            rx.setPattern(R"([-_EeXx]+([0-9]+)($|[\-\._\sE]))");
+            matches = rx.globalMatch(
+                filename, lastMatchEnd, QRegularExpression::NormalMatch, QRegularExpression::AnchoredMatchOption);
+            while (matches.hasNext()) {
+                episodes << EpisodeNumber(matches.next().captured(1).toInt());
             }
         }
         return true;
@@ -431,9 +443,9 @@ void TvShowFileSearcher::clearOldTvShows(bool forceClear)
         return;
     }
 
-    for (const SettingsDir& dir : m_directories) {
-        if (dir.autoReload) {
-            database().clearTvShowsInDirectory(dir.path);
+    for (const SettingsDir& dir : asConst(m_directories)) {
+        if (dir.autoReload || dir.disabled) {
+            database().clearTvShowsInDirectory(mediaelch::DirectoryPath(dir.path));
         }
     }
 }
@@ -483,7 +495,7 @@ void TvShowFileSearcher::setupShows(QMap<QString, QVector<QStringList>>& content
         it.next();
 
         // get path
-        QString path;
+        mediaelch::DirectoryPath path;
         int index = -1;
         for (int i = 0, n = m_directories.count(); i < n; ++i) {
             if (it.key().startsWith(m_directories[i].path.path())) {
@@ -495,10 +507,10 @@ void TvShowFileSearcher::setupShows(QMap<QString, QVector<QStringList>>& content
             }
         }
         if (index != -1) {
-            path = m_directories[index].path.path();
+            path = mediaelch::DirectoryPath(m_directories[index].path);
         }
 
-        auto* show = new TvShow(it.key(), this);
+        auto* show = new TvShow(mediaelch::DirectoryPath(it.key()), this);
         show->loadData(Manager::instance()->mediaCenterInterfaceTvShow());
         emit currentDir(show->title());
         database().add(show, path);
@@ -522,7 +534,7 @@ void TvShowFileSearcher::setupShows(QMap<QString, QVector<QStringList>>& content
         QtConcurrent::blockingMapped(episodes, TvShowFileSearcher::reloadEpisodeData);
 
         // Add episodes to model
-        for (TvShowEpisode* episode : episodes) {
+        for (TvShowEpisode* episode : asConst(episodes)) {
             database().add(episode, path, show->databaseId());
             show->addEpisode(episode);
             emit progress(++episodeCounter, episodeSum, m_progressMessageId);
@@ -538,21 +550,24 @@ void TvShowFileSearcher::setupShows(QMap<QString, QVector<QStringList>>& content
 QMap<QString, QVector<QStringList>> TvShowFileSearcher::readTvShowContent(bool forceReload)
 {
     QMap<QString, QVector<QStringList>> contents;
-    for (const SettingsDir& dir : m_directories) {
+    for (const SettingsDir& dir : asConst(m_directories)) {
         if (m_aborted) {
             break;
         }
+        if (dir.disabled) {
+            continue;
+        }
         // Do we need to reload shows from disk?
         if (dir.autoReload || forceReload) {
-            getTvShows(dir.path, contents);
+            getTvShows(mediaelch::DirectoryPath(dir.path), contents);
             continue;
         }
         // TODO: Check if necessary?
         // If there are no shows in the database for the directory, reload
         // all shows regardless of forceReload.
-        const int showsFromDatabase = database().showCount(dir.path);
+        const int showsFromDatabase = database().showCount(mediaelch::DirectoryPath(dir.path));
         if (showsFromDatabase == 0) {
-            getTvShows(dir.path, contents);
+            getTvShows(mediaelch::DirectoryPath(dir.path), contents);
             continue;
         }
     }
@@ -567,11 +582,14 @@ QVector<TvShow*> TvShowFileSearcher::getShowsFromDatabase(bool forceReload)
     }
 
     QVector<TvShow*> dbShows;
-    for (const SettingsDir& dir : m_directories) {
+    for (const SettingsDir& dir : asConst(m_directories)) {
         if (dir.autoReload) { // Those directories are not read from database.
             continue;
         }
-        QVector<TvShow*> showsFromDatabase = database().showsInDirectory(dir.path);
+        if (dir.disabled) {
+            continue;
+        }
+        QVector<TvShow*> showsFromDatabase = database().showsInDirectory(mediaelch::DirectoryPath(dir.path));
         if (!showsFromDatabase.isEmpty()) {
             dbShows.append(showsFromDatabase);
         }

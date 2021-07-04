@@ -1,13 +1,14 @@
 #include "ConcertFileSearcher.h"
 
-#include <QApplication>
-#include <QDebug>
-#include <QSqlQuery>
-#include <QSqlRecord>
-
 #include "globals/Helper.h"
 #include "globals/Manager.h"
 #include "globals/MessageIds.h"
+#include "log/Log.h"
+
+#include <QApplication>
+#include <QRegularExpression>
+#include <QSqlQuery>
+#include <QSqlRecord>
 
 ConcertFileSearcher::ConcertFileSearcher(QObject* parent) :
     QObject(parent), m_progressMessageId{Constants::ConcertFileSearcherProgressMessageId}
@@ -20,18 +21,18 @@ void ConcertFileSearcher::setConcertDirectories(QVector<SettingsDir> directories
 
     for (const auto& dir : directories) {
         if (Settings::instance()->advanced()->isFolderExcluded(dir.path.dirName())) {
-            qWarning() << "[ConcertFileSearcher] Concert directory is excluded by advanced settings! "
-                          "Is this intended? Directory:"
-                       << dir.path.path();
+            qCWarning(generic) << "[ConcertFileSearcher] Concert directory is excluded by advanced settings! "
+                                  "Is this intended? Directory:"
+                               << dir.path.path();
             continue;
         }
 
         if (!dir.path.isReadable()) {
-            qDebug() << "[ConcertFileSearcher] Concert directory is not redable, skipping:" << dir.path.path();
+            qCDebug(generic) << "[ConcertFileSearcher] Concert directory is not redable, skipping:" << dir.path.path();
             continue;
         }
 
-        qDebug() << "[ConcertFileSearcher] Adding concert directory" << dir.path.path();
+        qCDebug(generic) << "[ConcertFileSearcher] Adding concert directory" << dir.path.path();
         m_directories.append(dir);
     }
 }
@@ -57,7 +58,7 @@ void ConcertFileSearcher::reload(bool force)
 
     addConcertsToGui(loadConcertsFromDatabase());
 
-    qDebug() << "Searching for concerts done";
+    qCDebug(generic) << "Searching for concerts done";
     if (!m_aborted) {
         emit concertsLoaded();
     }
@@ -117,7 +118,7 @@ void ConcertFileSearcher::scanDir(QString startPath,
     }
 
     QStringList files;
-    const QStringList entries = getFiles(path);
+    const QStringList entries = getFiles(mediaelch::DirectoryPath(path));
     for (const QString& file : entries) {
         if (m_aborted) {
             return;
@@ -146,7 +147,8 @@ void ConcertFileSearcher::scanDir(QString startPath,
         return;
     }
 
-    QRegExp rx("((part|cd)[\\s_]*)(\\d+)", Qt::CaseInsensitive);
+    QRegularExpression rx("((part|cd)[\\s_]*)(\\d+)");
+    rx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
     for (int i = 0, n = files.size(); i < n; i++) {
         if (m_aborted) {
             return;
@@ -160,10 +162,11 @@ void ConcertFileSearcher::scanDir(QString startPath,
 
         concertFiles << QDir(path + QDir::separator() + file).path();
 
-        int pos = rx.indexIn(file);
+        QRegularExpressionMatch match = rx.match(file);
+        const int pos = match.capturedStart();
         if (pos != -1) {
-            QString left = file.left(pos) + rx.cap(1);
-            QString right = file.mid(pos + rx.cap(1).size() + rx.cap(2).size());
+            QString left = file.left(pos) + match.captured(1);
+            QString right = file.mid(pos + match.captured(1).size() + match.captured(2).size());
             for (int x = 0; x < n; x++) {
                 QString subFile = files.at(x);
                 if (subFile != file) {
@@ -191,7 +194,7 @@ void ConcertFileSearcher::clearOldConcerts(bool forceClear)
 
     for (const SettingsDir& dir : asConst(m_directories)) {
         if (dir.autoReload || forceClear) {
-            database().clearConcertsInDirectory(dir.path);
+            database().clearConcertsInDirectory(mediaelch::DirectoryPath(dir.path));
         }
     }
 }
@@ -201,8 +204,11 @@ QVector<QStringList> ConcertFileSearcher::loadContentsFromDiskIfRequired(bool fo
     QVector<QStringList> contents;
 
     for (const SettingsDir& dir : asConst(m_directories)) {
+        if (dir.disabled) {
+            continue;
+        }
         const QString path = dir.path.path();
-        QVector<Concert*> concertsFromDb = database().concertsInDirectory(dir.path);
+        QVector<Concert*> concertsFromDb = database().concertsInDirectory(mediaelch::DirectoryPath(dir.path));
         if (dir.autoReload || forceReload || concertsFromDb.isEmpty()) {
             scanDir(path, path, contents, dir.separateFolders, true);
         }
@@ -246,7 +252,7 @@ void ConcertFileSearcher::storeContentsInDatabase(const QVector<QStringList>& co
         concert.setInSeparateFolder(inSeparateFolder);
         concert.controller()->loadData(Manager::instance()->mediaCenterInterface());
         emit currentDir(concert.title());
-        database().add(&concert, path);
+        database().add(&concert, mediaelch::DirectoryPath(path));
     }
     database().commit();
 }
@@ -271,7 +277,7 @@ QVector<Concert*> ConcertFileSearcher::loadConcertsFromDatabase()
         if (m_aborted) {
             break;
         }
-        dbConcerts.append(database().concertsInDirectory(dir.path));
+        dbConcerts.append(database().concertsInDirectory(mediaelch::DirectoryPath(dir.path)));
     }
     setupDatabaseConcerts(dbConcerts);
     return dbConcerts;

@@ -48,8 +48,8 @@ public:
     MovieImages& images();
     const MovieImages& constImages() const;
     QString overview() const;
-    QVector<Rating>& ratings();
-    const QVector<Rating>& ratings() const;
+    Ratings& ratings();
+    const Ratings& ratings() const;
     double userRating() const;
     int top250() const;
     QDate released() const;
@@ -67,8 +67,10 @@ public:
     QStringList tags() const;
     QVector<QString*> studiosPointer();
     QUrl trailer() const;
-    QVector<const Actor*> actors() const;
-    QVector<Actor*> actors();
+
+    const Actors& actors() const;
+    Actors& actors();
+
     const mediaelch::FileList& files() const;
     QString folderName() const;
     int playcount() const;
@@ -178,7 +180,7 @@ private:
     QString m_sortTitle;
     QString m_originalName;
     QString m_overview;
-    QVector<Rating> m_ratings;
+    Ratings m_ratings;
     double m_userRating = 0.0;
     int m_imdbTop250 = 0;
     QDate m_released;

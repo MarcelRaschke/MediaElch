@@ -1,5 +1,7 @@
 #pragma once
 
+#include "globals/Meta.h"
+
 #include <QHash>
 #include <QObject>
 #include <QSet>
@@ -44,10 +46,12 @@ QSet<MovieScraperInfo> allMovieScraperInfos();
 } // namespace scraper
 } // namespace mediaelch
 
-inline uint qHash(const MovieScraperInfo& key, uint seed)
+inline ELCH_QHASH_RETURN_TYPE qHash(const MovieScraperInfo& key, uint seed)
 {
     return qHash(static_cast<int>(key), seed);
 }
+
+Q_DECLARE_METATYPE(QSet<MovieScraperInfo>)
 
 enum class ShowScraperInfo : int
 {
@@ -83,7 +87,7 @@ QString scraperInfoToTranslatedString(ShowScraperInfo info);
 QSet<ShowScraperInfo> allShowScraperInfos();
 } // namespace mediaelch
 
-inline uint qHash(const ShowScraperInfo& key, uint seed)
+inline ELCH_QHASH_RETURN_TYPE qHash(const ShowScraperInfo& key, uint seed)
 {
     return qHash(static_cast<int>(key), seed);
 }
@@ -123,7 +127,7 @@ QString scraperInfoToTranslatedString(EpisodeScraperInfo info);
 QSet<EpisodeScraperInfo> allEpisodeScraperInfos();
 } // namespace mediaelch
 
-inline uint qHash(const EpisodeScraperInfo& key, uint seed)
+inline ELCH_QHASH_RETURN_TYPE qHash(const EpisodeScraperInfo& key, uint seed)
 {
     return qHash(static_cast<int>(key), seed);
 }
@@ -147,10 +151,12 @@ enum class ConcertScraperInfo : int
     ExtraFanarts = 14
 };
 
-inline uint qHash(const ConcertScraperInfo& key, uint seed)
+inline ELCH_QHASH_RETURN_TYPE qHash(const ConcertScraperInfo& key, uint seed)
 {
     return qHash(static_cast<int>(key), seed);
 }
+
+Q_DECLARE_METATYPE(QSet<ConcertScraperInfo>)
 
 enum class MusicScraperInfo : int
 {
@@ -183,7 +189,7 @@ enum class MusicScraperInfo : int
 
 // clang-format: on
 
-inline uint qHash(const MusicScraperInfo& key, uint seed)
+inline ELCH_QHASH_RETURN_TYPE qHash(const MusicScraperInfo& key, uint seed)
 {
     return qHash(static_cast<int>(key), seed);
 }

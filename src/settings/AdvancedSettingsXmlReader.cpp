@@ -1,10 +1,11 @@
 #include "settings/AdvancedSettingsXmlReader.h"
 
+#include "log/Log.h"
 #include "settings/Settings.h"
 
-#include <QDebug>
 #include <QDesktopServices>
 #include <QFile>
+#include <QStandardPaths>
 
 /// translations for parser errors / messages
 const QMap<AdvancedSettingsXmlReader::ParseErrorType, QString> AdvancedSettingsXmlReader::errors = {
@@ -19,7 +20,7 @@ QPair<AdvancedSettings, AdvancedSettingsXmlReader::ValidationMessages> AdvancedS
     AdvancedSettingsXmlReader reader;
     mediaelch::FilePath path = reader.getFilePath();
 
-    qDebug() << "Loading advanced settings from:" << path;
+    qCDebug(generic) << "Loading advanced settings from:" << path;
 
     // Only parse the xml if the file exists. Otherwise use defaults.
     if (QFile(path.toString()).exists()) {
@@ -27,8 +28,10 @@ QPair<AdvancedSettings, AdvancedSettingsXmlReader::ValidationMessages> AdvancedS
         if (!xml.isEmpty()) {
             reader.parseSettings(xml);
         }
+        reader.m_settings.m_userDefined = true;
     } else {
-        qWarning() << "[AdvancedSettings] advancedsettings.xml not found at " << path.toString();
+        qCWarning(generic) << "[AdvancedSettings] advancedsettings.xml not found at " << path.toString();
+        reader.m_settings.m_userDefined = false;
         reader.addWarning("advancedsettings.xml", ParseErrorType::FileNotFound);
     }
 
@@ -47,9 +50,10 @@ mediaelch::FilePath AdvancedSettingsXmlReader::getFilePath()
 {
     QFile file(Settings::applicationDir() + "/advancedsettings.xml");
     if (!file.exists()) {
-        file.setFileName(QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/advancedsettings.xml");
+        file.setFileName(
+            QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/advancedsettings.xml");
     }
-    return file.fileName();
+    return mediaelch::FilePath(file.fileName());
 }
 
 QByteArray AdvancedSettingsXmlReader::getAdvancedSettingsXml(const mediaelch::FilePath& filepath)
@@ -65,7 +69,7 @@ QByteArray AdvancedSettingsXmlReader::getAdvancedSettingsXml(const mediaelch::Fi
         xmlStr = file.readAll();
         file.close();
     } else {
-        qWarning() << "[AdvancedSettings] Cannot open advancedsettings.xml in read-only mode";
+        qCWarning(generic) << "[AdvancedSettings] Cannot open advancedsettings.xml in read-only mode";
         addError("advancedsettings.xml", ParseErrorType::FileIsReadOnly);
     }
 
@@ -78,35 +82,35 @@ void AdvancedSettingsXmlReader::parseSettings(const QString& xmlSource)
     m_xml.addData(xmlSource);
 
     if (!m_xml.readNextStartElement() || m_xml.name().toString() != "advancedsettings") {
-        qWarning() << "[AdvancedSettings] Couldn't find an <advancedsettings> tag!";
+        qCWarning(generic) << "[AdvancedSettings] Couldn't find an <advancedsettings> tag!";
         addError("advancedsettings", ParseErrorType::NoMainTag);
         return;
     }
 
     while (m_xml.readNextStartElement()) {
-        if (m_xml.name() == "log") {
+        if (m_xml.name() == QLatin1String("log")) {
             loadLog();
 
-        } else if (m_xml.name() == "locale") {
+        } else if (m_xml.name() == QLatin1String("locale")) {
             m_settings.setLocale(m_xml.readElementText());
 
-        } else if (m_xml.name() == "portableMode") {
+        } else if (m_xml.name() == QLatin1String("portableMode")) {
             expectBool(m_settings.m_portableMode);
 
-        } else if (m_xml.name() == "gui") {
+        } else if (m_xml.name() == QLatin1String("gui")) {
             loadGui();
 
-        } else if (m_xml.name() == "writeThumbUrlsToNfo") {
+        } else if (m_xml.name() == QLatin1String("writeThumbUrlsToNfo")) {
             expectBool(m_settings.m_writeThumbUrlsToNfo);
 
-        } else if (m_xml.name() == "episodeThumb") {
+        } else if (m_xml.name() == QLatin1String("episodeThumb")) {
             while (m_xml.readNextStartElement()) {
-                if (m_xml.name() == "width") {
+                if (m_xml.name() == QLatin1String("width")) {
                     // must be at least 100 pixel wide and should be small than ~4 Mio.
                     const auto inRange = [](int width) { return width >= 100 && width <= (2 << 22); };
                     expectIntChecked(m_settings.m_episodeThumbnailDimensions.width, inRange);
 
-                } else if (m_xml.name() == "height") {
+                } else if (m_xml.name() == QLatin1String("height")) {
                     // must be at least 100 pixel wide and should be small than ~4 Mio.
                     const auto inRange = [](int height) { return height >= 100 && height <= (2 << 22); };
                     expectIntChecked(m_settings.m_episodeThumbnailDimensions.height, inRange);
@@ -116,38 +120,38 @@ void AdvancedSettingsXmlReader::parseSettings(const QString& xmlSource)
                 }
             }
 
-        } else if (m_xml.name() == "bookletCut") {
+        } else if (m_xml.name() == QLatin1String("bookletCut")) {
             expectInt(m_settings.m_bookletCut);
 
-        } else if (m_xml.name() == "sorttokens") {
+        } else if (m_xml.name() == QLatin1String("sorttokens")) {
             loadSortTokens();
 
-        } else if (m_xml.name() == "genres") {
+        } else if (m_xml.name() == QLatin1String("genres")) {
             loadMappings(m_settings.m_genreMappings);
 
-        } else if (m_xml.name() == "audioCodecs") {
+        } else if (m_xml.name() == QLatin1String("audioCodecs")) {
             loadMappings(m_settings.m_audioCodecMappings);
 
-        } else if (m_xml.name() == "videoCodecs") {
+        } else if (m_xml.name() == QLatin1String("videoCodecs")) {
             loadMappings(m_settings.m_videoCodecMappings);
 
-        } else if (m_xml.name() == "certifications") {
+        } else if (m_xml.name() == QLatin1String("certifications")) {
             loadMappings(m_settings.m_certificationMappings);
 
-        } else if (m_xml.name() == "studios") {
+        } else if (m_xml.name() == QLatin1String("studios")) {
             if (m_xml.attributes().hasAttribute("useFirstStudioOnly")) {
                 const auto firstStudioOnly = m_xml.attributes().value("useFirstStudioOnly").trimmed();
-                m_settings.m_useFirstStudioOnly = (firstStudioOnly == "true");
+                m_settings.m_useFirstStudioOnly = (firstStudioOnly == QLatin1String("true"));
             }
             loadMappings(m_settings.m_studioMappings);
 
-        } else if (m_xml.name() == "countries") {
+        } else if (m_xml.name() == QLatin1String("countries")) {
             loadMappings(m_settings.m_countryMappings);
 
-        } else if (m_xml.name() == "fileFilters") {
+        } else if (m_xml.name() == QLatin1String("fileFilters")) {
             loadFilters();
 
-        } else if (m_xml.name() == "exclude") {
+        } else if (m_xml.name() == QLatin1String("exclude")) {
             loadExcludePatterns();
 
         } else {
@@ -159,9 +163,9 @@ void AdvancedSettingsXmlReader::parseSettings(const QString& xmlSource)
 void AdvancedSettingsXmlReader::loadLog()
 {
     while (m_xml.readNextStartElement()) {
-        if (m_xml.name() == "debug") {
+        if (m_xml.name() == QLatin1String("debug")) {
             expectBool(m_settings.m_debugLog);
-        } else if (m_xml.name() == "file") {
+        } else if (m_xml.name() == QLatin1String("file")) {
             m_settings.m_logFile = m_xml.readElementText().trimmed();
         } else {
             skipUnsupportedTag();
@@ -172,9 +176,9 @@ void AdvancedSettingsXmlReader::loadLog()
 void AdvancedSettingsXmlReader::loadGui()
 {
     while (m_xml.readNextStartElement()) {
-        if (m_xml.name() == "forceCache") {
+        if (m_xml.name() == QLatin1String("forceCache")) {
             expectBool(m_settings.m_forceCache);
-        } else if (m_xml.name() == "stylesheet") {
+        } else if (m_xml.name() == QLatin1String("stylesheet")) {
             m_settings.m_customStylesheet = m_xml.readElementText().trimmed();
         } else {
             skipUnsupportedTag();
@@ -186,7 +190,7 @@ void AdvancedSettingsXmlReader::loadSortTokens()
 {
     m_settings.m_sortTokens.clear();
     while (m_xml.readNextStartElement()) {
-        if (m_xml.name() == "token") {
+        if (m_xml.name() == QLatin1String("token")) {
             m_settings.m_sortTokens << m_xml.readElementText().trimmed();
         } else {
             skipUnsupportedTag();
@@ -208,16 +212,16 @@ void AdvancedSettingsXmlReader::loadFilters()
     };
 
     while (m_xml.readNextStartElement()) {
-        if (m_xml.name() == "movies") {
+        if (m_xml.name() == QLatin1String("movies")) {
             appendNextFiltersToList(m_settings.m_movieFilters);
 
-        } else if (m_xml.name() == "concerts") {
+        } else if (m_xml.name() == QLatin1String("concerts")) {
             appendNextFiltersToList(m_settings.m_concertFilters);
 
-        } else if (m_xml.name() == "tvShows") {
+        } else if (m_xml.name() == QLatin1String("tvShows")) {
             appendNextFiltersToList(m_settings.m_tvShowFilters);
 
-        } else if (m_xml.name() == "subtitle") {
+        } else if (m_xml.name() == QLatin1String("subtitle")) {
             appendNextFiltersToList(m_settings.m_subtitleFilters);
 
         } else {
@@ -232,7 +236,7 @@ void AdvancedSettingsXmlReader::loadMappings(QHash<QString, QString>& mappings)
 {
     mappings.clear();
     while (m_xml.readNextStartElement()) {
-        if (m_xml.name() == "map" && m_xml.attributes().hasAttribute("from")) {
+        if (m_xml.name() == QLatin1String("map") && m_xml.attributes().hasAttribute("from")) {
             const auto from = m_xml.attributes().value("from").trimmed();
             const auto to = m_xml.attributes().value("to").trimmed();
             if (!from.isEmpty() && !to.isEmpty()) {
@@ -249,11 +253,12 @@ void AdvancedSettingsXmlReader::loadExcludePatterns()
 {
     m_settings.m_sortTokens.clear();
     while (m_xml.readNextStartElement()) {
-        if (m_xml.name() == "pattern") {
-            QStringRef applyTo = m_xml.attributes().value("applyTo");
+        if (m_xml.name() == QLatin1String("pattern")) {
+            QString applyTo = m_xml.attributes().value("applyTo").toString();
             QRegularExpression pattern(m_xml.readElementText().trimmed());
             if (!pattern.isValid()) {
-                qCritical() << "[AdvancedSettings] Invalid regular expression! Message:" << pattern.errorString();
+                qCCritical(generic) << "[AdvancedSettings] Invalid regular expression! Message:"
+                                    << pattern.errorString();
                 addError("pattern", ParseErrorType::InvalidValue);
                 return;
             }
@@ -264,8 +269,8 @@ void AdvancedSettingsXmlReader::loadExcludePatterns()
             } else if (applyTo == "folders") {
                 m_settings.m_excludePatterns << FileSearchExclude::excludeFolderPattern(pattern);
             } else {
-                qWarning() << "[AdvancedSettings] Unknown value for 'applyTo' attribute of <pattern> element at"
-                           << currentLocation();
+                qCWarning(generic) << "[AdvancedSettings] Unknown value for 'applyTo' attribute of <pattern> element at"
+                                   << currentLocation();
                 addError("pattern", ParseErrorType::InvalidAttributeValue);
             }
 
@@ -287,14 +292,14 @@ void AdvancedSettingsXmlReader::addWarning(QString tag, ParseErrorType type)
 
 void AdvancedSettingsXmlReader::skipUnsupportedTag()
 {
-    qWarning() << "[AdvancedSettings] Found unsupported xml tag" << m_xml.name() << "at" << currentLocation();
+    qCWarning(generic) << "[AdvancedSettings] Found unsupported xml tag" << m_xml.name() << "at" << currentLocation();
     addError(m_xml.name().toString(), ParseErrorType::UnsupportedTag);
     m_xml.skipCurrentElement();
 }
 
 void AdvancedSettingsXmlReader::invalidValue()
 {
-    qWarning() << "[AdvancedSettings] Invalid value for xml tag" << m_xml.name() << "at" << currentLocation();
+    qCWarning(generic) << "[AdvancedSettings] Invalid value for xml tag" << m_xml.name() << "at" << currentLocation();
     addError(m_xml.name().toString(), ParseErrorType::InvalidValue);
 }
 

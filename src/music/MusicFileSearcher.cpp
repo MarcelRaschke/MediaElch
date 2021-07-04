@@ -1,14 +1,14 @@
 #include "MusicFileSearcher.h"
 
-#include <QDebug>
+#include "globals/Manager.h"
+#include "globals/MessageIds.h"
+#include "log/Log.h"
+#include "music/Album.h"
+#include "music/Artist.h"
+
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QtConcurrent>
-
-#include "globals/Manager.h"
-#include "globals/MessageIds.h"
-#include "music/Album.h"
-#include "music/Artist.h"
 
 MusicFileSearcher::MusicFileSearcher(QObject* parent) :
     QObject(parent), m_progressMessageId{Constants::MusicFileSearcherProgressMessageId}, m_aborted{false}
@@ -20,18 +20,18 @@ void MusicFileSearcher::setMusicDirectories(QVector<SettingsDir> directories)
     m_directories.clear();
     for (const SettingsDir& dir : directories) {
         if (Settings::instance()->advanced()->isFolderExcluded(dir.path.dirName())) {
-            qWarning() << "[MusicFileSearcher] Music directory is excluded by advanced settings! "
-                          "Is this intended? Directory:"
-                       << dir.path.path();
+            qCWarning(generic) << "[MusicFileSearcher] Music directory is excluded by advanced settings! "
+                                  "Is this intended? Directory:"
+                               << dir.path.path();
             continue;
         }
 
         if (!dir.path.isReadable()) {
-            qDebug() << "[MusicFileSearcher] Music directory is not redable, skipping:" << dir.path.path();
+            qCDebug(generic) << "[MusicFileSearcher] Music directory is not redable, skipping:" << dir.path.path();
             continue;
         }
 
-        qDebug() << "[MusicFileSearcher] Adding music directory" << dir.path.path();
+        qCDebug(generic) << "[MusicFileSearcher] Adding music directory" << dir.path.path();
         m_directories.append(dir);
     }
 }
@@ -52,15 +52,18 @@ void MusicFileSearcher::reload(bool force)
         Manager::instance()->database()->clearAllArtists();
     }
 
-    QMap<Artist*, QString> artistPaths;
-    QMap<Album*, QString> albumPaths;
-    for (const SettingsDir& dir : m_directories) {
+    QMap<Artist*, mediaelch::DirectoryPath> artistPaths;
+    QMap<Album*, mediaelch::DirectoryPath> albumPaths;
+    for (const SettingsDir& dir : asConst(m_directories)) {
         if (m_aborted) {
             break;
         }
+        if (dir.disabled) {
+            continue;
+        }
 
         if (dir.autoReload) {
-            Manager::instance()->database()->clearArtistsInDirectory(dir.path);
+            Manager::instance()->database()->clearArtistsInDirectory(mediaelch::DirectoryPath(dir.path));
         }
 
         if (dir.autoReload || force) {
@@ -77,10 +80,10 @@ void MusicFileSearcher::reload(bool force)
                 }
 
                 emit currentDir(it.fileInfo().baseName());
-                auto* artist = new Artist(it.filePath(), this);
+                auto* artist = new Artist(mediaelch::DirectoryPath(it.filePath()), this);
                 artist->setName(it.fileInfo().baseName());
                 artists.append(artist);
-                artistPaths.insert(artist, dir.path.path());
+                artistPaths.insert(artist, mediaelch::DirectoryPath(dir.path));
 
                 QDirIterator itAlbums(it.filePath(), QDir::NoDotAndDotDot | QDir::Dirs, QDirIterator::FollowSymlinks);
                 while (itAlbums.hasNext()) {
@@ -97,16 +100,17 @@ void MusicFileSearcher::reload(bool force)
                         continue;
                     }
 
-                    auto* album = new Album(itAlbums.filePath(), this);
+                    auto* album = new Album(mediaelch::DirectoryPath(itAlbums.filePath()), this);
                     album->setTitle(itAlbums.fileInfo().baseName());
                     album->setArtistObj(artist);
                     artist->addAlbum(album);
                     albums.append(album);
-                    albumPaths.insert(album, dir.path.path());
+                    albumPaths.insert(album, mediaelch::DirectoryPath(dir.path));
                 }
             }
         } else {
-            QVector<Artist*> artistsInPath = Manager::instance()->database()->artistsInDirectory(dir.path);
+            QVector<Artist*> artistsInPath =
+                Manager::instance()->database()->artistsInDirectory(mediaelch::DirectoryPath(dir.path));
             for (Artist* artist : artistsInPath) {
                 if (artistsFromDb.count() % 20 == 0) {
                     emit currentDir(artist->path().toString().mid(dir.path.path().length()));
@@ -165,7 +169,7 @@ void MusicFileSearcher::reload(bool force)
     for (Album* album : albums) {
         MusicModelItem* artistItem = artistModelItems.value(album->artistObj(), nullptr);
         if (artistItem == nullptr) {
-            qWarning() << "Artist item was not found for album" << album->path();
+            qCWarning(generic) << "Artist item was not found for album" << album->path();
             continue;
         }
         artistItem->appendChild(album);

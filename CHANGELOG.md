@@ -1,13 +1,71 @@
 # Changelog
 
-## 2.8.7 - tbd
+## 2.8.13 - *tbd*
+
+### Bugfixes
+
+ - AEBN scraper now loads movies again (#1325)  
+   v2.8.8 introduced a bug where the movie ID was parsed incorrectly and the
+   scraping failed with a network error.
+
+### Changes
+
+ - To avoid the possibility of CSV injection, prepend certain fields with an apostrophe according
+   to [OWASP recommendations](https://owasp.org/www-community/attacks/CSV_Injection) (#1338)
+
+### Added
+
+ - *tbd*
+
+### Removed
+
+ - *tbd*
+
+### Internal Improvements and Changes
+
+ - The movie file searcher has been reworked again.  
+   It now runs in another thread so that MediaElch now longer "freezes".
+ - MediaElch will check for QuaZip 1.x if `USE_EXTERN_QUAZIP` is provided in CMake configuration.
+   If it cannot be found, `quazip5` is expected to exist (which is the previous behavior).
+   MediaElch now also search for QuaZip headers in `quazip/` and no longer `quazip5/`.
+
+
+## 2.8.12 - Coridian (2021-05-10)
+
+### Bugfixes
+
+ - The movie file searcher could crash if you have more than two movie directories (#1315, #1316, #1318)  
+   v2.8.8 introduced a bug where MediaElch could crash when movies were reloaded.
+   This bug as well as two other race conditions are now fixed. One exited before v2.8.8 as well.
+   We were only able to fix all of these issues thanks to Alexander Weber who helped to debug the crashes.
+ - The UniversalMusicScraper now scrapes AllMusic reviews again (#1313)
+
+
+## 2.8.10 - Coridian (2021-05-03)
+
+### Bugfixes
+
+ - Movie sets: Sometimes, MediaElch crashed if movies were reloaded (#1298)
+ - Main Window: Fix hard-coded window size (#1301)
+ - TV Shows: If the episode filename does not start with "SxxExx", we sometimes
+   created the episode twice (#1302)
+ - TV Show: The media status column for clear-art and thumbnails was always red (#1304)
+
+### Changes
+
+ - The navigation bar now uses KDE Breeze icons.
+
+
+## 2.8.8 - Coridian (2021-04-26)
 
 ### Bugfixes
 
  - Renamer: On macOS, the renamer was sometimes so large that buttons were not visible (#1227)
  - Local trailers for movies are now detected if the filename contains square brackets such as `Movie[BLURAY]` (#1231)
  - Fix translations on some Windows systems (#1191)
- - Concert: Ratings were not properly written to NFO files
+ - Fix spacing between icons for movie and TV show views (#793)
+ - macOS: Fix text spacing of "new" count bubble (#1275)
+ - Custom TV scraper: Fix scraping of TV shows when TMDb isn't used at all (#1293)
 
 ### Changes
 
@@ -17,14 +75,19 @@
 
 ### Added
 
- - A quick-open menu for movies was added. Open it by clicking <kbd>Ctrl+O</kbd> (<kbd>⌘+O</kbd> on macOS).
+ - A quick-open menu for movies was added. Open it by clicking <kbd>Ctrl+O</kbd> (<kbd>⌘+O</kbd> on macOS) (#1214)  
    It uses a Fuzzy matching algorithm. The menu was inspired and partially taken from the
-   [Kate editor](https://invent.kde.org/utilities/kate/-/merge_requests/179).
+   Kate editor (see https://invent.kde.org/utilities/kate/-/merge_requests/179).
    Our gratitude goes to the Kate team and to Ahmed Waqar for allowing us to use it!
-
-### Removed
-
- - *tbd*
+ - You can now disable folders in MediaElch's settings (#1244)
+ - You can now name your TV show seasons in the GUI (#1261)
+ - Multiple ratings for TV shows/episodes, movies and concerts can now be managed in the UI (#750)  
+   Even though MediaElch supported Kodi's "multiple rating"-feature internally, it was limited in
+   the UI.  MediaElch now uses a table view for ratings.  Double click on an existing rating to change
+   a field.  
+   _Limitations:_ Currently scraping a media item will replace (!) the existing ratings and will not add/update them.
+ - The CSV Exporter can now be opened from the GUI (#1277)
+ - New movie media columns "subtitles" and "tags" can now be used (#795, #425)
 
 ### Internal Improvements and Changes
 
@@ -39,8 +102,8 @@
    1000 movie directories, the time improvements were:
    - 3.8s -> 1.3s (SSD)
    - 4.1s -> 1.4s (HDD)
- - Fix unuseful log warning "[KodiXml] NFO file could not be opened for reading" for TV shows that do not have a NFO file.   
-
+ - Fix unuseful log warning `[KodiXml] NFO file could not be opened for reading` for TV shows that do not have a NFO file.   
+ - MediaElch now uses Qt's logging categories (#1278)
 
 ## 2.8.6 - Coridian (2021-01-22)
 

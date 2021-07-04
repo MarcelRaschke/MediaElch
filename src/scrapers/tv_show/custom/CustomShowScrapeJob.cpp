@@ -23,15 +23,23 @@ CustomShowScrapeJob::CustomShowScrapeJob(CustomTvScraperConfig customConfig,
 {
 }
 
-void CustomShowScrapeJob::execute()
+void CustomShowScrapeJob::start()
 {
     // Because the custom TV scraper always starts with TMDb, the query should stay the same but
     // we have to correctly set the details that we want to load from TmdbTv.
     ShowScrapeJob::Config tmdbConfig = configFor(TmdbTv::ID, config().identifier);
 
+    if (tmdbConfig.details.isEmpty()) {
+        // HACK: in onTmdbLoaded() we copy details to this job's show.
+        //       But if we do not load any details from TMDb, we don't copy anything
+        //       not even the IDs that are needed for TheTvDb, etc.
+        //       By using this hack, we always invoke copyDetailsToShow() so that IDs are copied.
+        tmdbConfig.details.insert(ShowScraperInfo::Invalid);
+    }
+
     auto* tmdbJob = m_customConfig.tmdbTv->loadShow(tmdbConfig);
     connect(tmdbJob, &TmdbTvShowScrapeJob::sigFinished, this, &CustomShowScrapeJob::onTmdbLoaded);
-    tmdbJob->execute();
+    tmdbJob->start();
 }
 
 void CustomShowScrapeJob::onTmdbLoaded(ShowScrapeJob* job)
@@ -74,7 +82,7 @@ void CustomShowScrapeJob::loadWithScraper(const QString& scraperId, const ShowId
 
     TvScraper* scraper = m_customConfig.scraperForId(scraperId);
     if (scraper == nullptr) {
-        qCritical() << "[CustomShowScrapeJob] Invalid scraper ID for custom tv scraper:" << scraperId;
+        qCCritical(generic) << "[CustomShowScrapeJob] Invalid scraper ID for custom tv scraper:" << scraperId;
         decreaseCounterAndCheckIfFinished();
         return;
     }
@@ -89,7 +97,7 @@ void CustomShowScrapeJob::loadWithScraper(const QString& scraperId, const ShowId
         job->deleteLater();
         decreaseCounterAndCheckIfFinished();
     });
-    scrapeJob->execute();
+    scrapeJob->start();
 }
 
 void CustomShowScrapeJob::decreaseCounterAndCheckIfFinished()
@@ -121,7 +129,7 @@ Locale CustomShowScrapeJob::localeFor(const QString& scraperId) const
     ScraperSettings* settings = Settings::instance()->scraperSettings(scraperId);
 
     if (scraper == nullptr) {
-        qCritical() << "[CustomShowScrapeJob] Scraper not supported:" << scraperId;
+        qCCritical(generic) << "[CustomShowScrapeJob] Scraper not supported:" << scraperId;
         return mediaelch::Locale::English;
     }
     if (settings == nullptr) {

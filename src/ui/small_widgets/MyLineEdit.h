@@ -15,8 +15,10 @@
 class MyLineEdit : public QLineEdit
 {
     Q_OBJECT
+
     Q_PROPERTY(LineEditType type READ type WRITE setType)
     Q_ENUMS(LineEditType)
+
 public:
     enum LineEditType
     {
@@ -25,6 +27,8 @@ public:
     };
 
     explicit MyLineEdit(QWidget* parent = nullptr);
+    ~MyLineEdit() override;
+
     void setLoading(bool loading);
     void setType(LineEditType type);
     void addAdditionalStyleSheet(QString style);
@@ -45,6 +49,7 @@ signals:
     void clearClicked();
 
 protected:
+    /// \brief Moves the icons to their positions
     void resizeEvent(QResizeEvent*) override;
     void keyPressEvent(QKeyEvent* event) override;
     void focusOutEvent(QFocusEvent* event) override;

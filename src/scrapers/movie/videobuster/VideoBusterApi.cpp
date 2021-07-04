@@ -2,6 +2,7 @@
 
 #include "globals/Helper.h"
 #include "globals/Meta.h"
+#include "log/Log.h"
 #include "network/NetworkRequest.h"
 
 namespace mediaelch {
@@ -16,9 +17,10 @@ void VideoBusterApi::sendGetRequest(const QUrl& url, VideoBusterApi::ApiCallback
     if (m_cache.hasValidElement(url, Locale::English)) {
         // Do not immediately run the callback because classes higher up may
         // set up a Qt connection while the network request is running.
-        QTimer::singleShot(0, [cb = std::move(callback), element = m_cache.getElement(url, Locale::English)]() { //
-            cb(element, {});
-        });
+        QTimer::singleShot(
+            0, this, [cb = std::move(callback), element = m_cache.getElement(url, Locale::English)]() { //
+                cb(element, {});
+            });
         return;
     }
 
@@ -33,7 +35,8 @@ void VideoBusterApi::sendGetRequest(const QUrl& url, VideoBusterApi::ApiCallback
             data = QString::fromUtf8(reply->readAll());
 
         } else {
-            qWarning() << "[VideoBusterApi] Network Error:" << reply->errorString() << "for URL" << reply->url();
+            qCWarning(generic) << "[VideoBusterApi] Network Error:" << reply->errorString() << "for URL"
+                               << reply->url();
         }
 
         if (!data.isEmpty()) {
@@ -75,6 +78,15 @@ QUrl VideoBusterApi::makeMovieUrl(const QString& id) const
 {
     return makeApiUrl(id, {});
 }
+
+QString VideoBusterApi::replaceEntities(const QString& msg) const
+{
+    // not nice but I don't know other methods which don't require the gui module
+    QString m = msg;
+    m.replace("&#039;", "'");
+    return m;
+}
+
 
 } // namespace scraper
 } // namespace mediaelch

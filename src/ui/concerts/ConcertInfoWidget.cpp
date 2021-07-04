@@ -31,7 +31,7 @@ ConcertInfoWidget::ConcertInfoWidget(QWidget* parent) : QWidget(parent), ui(std:
     connect(ui->album,         &QLineEdit::textEdited,          this, &ConcertInfoWidget::onAlbumChange);
     connect(ui->tagline,       &QLineEdit::textEdited,          this, &ConcertInfoWidget::onTaglineChange);
 
-    connect(ui->rating,        elchOverload<double>(&QDoubleSpinBox::valueChanged), this, &ConcertInfoWidget::onRatingChange);
+    connect(ui->ratings,       &RatingsWidget::ratingsChanged,                      this, [this](){ emit infoChanged(); });
     connect(ui->userRating,    elchOverload<double>(&QDoubleSpinBox::valueChanged), this, &ConcertInfoWidget::onUserRatingChange);
     connect(ui->runtime,       elchOverload<int>(&QSpinBox::valueChanged),          this, &ConcertInfoWidget::onRuntimeChange);
     connect(ui->playcount,     elchOverload<int>(&QSpinBox::valueChanged),          this, &ConcertInfoWidget::onPlayCountChange);
@@ -44,8 +44,6 @@ ConcertInfoWidget::ConcertInfoWidget(QWidget* parent) : QWidget(parent), ui(std:
     connect(ui->overview,      &QTextEdit::textChanged,         this, &ConcertInfoWidget::onOverviewChange);
     // clang-format on
 
-    ui->rating->setSingleStep(0.1);
-    ui->rating->setMinimum(0.0);
     ui->userRating->setSingleStep(0.1);
     ui->userRating->setMinimum(0.0);
 }
@@ -62,11 +60,10 @@ void ConcertInfoWidget::setConcertController(ConcertController* controller)
 void ConcertInfoWidget::updateConcertInfo()
 {
     if ((m_concertController == nullptr) || (m_concertController->concert() == nullptr)) {
-        qDebug() << "My concert is invalid";
+        qCDebug(generic) << "My concert is invalid";
         return;
     }
 
-    ui->rating->blockSignals(true);
     ui->userRating->blockSignals(true);
     ui->runtime->blockSignals(true);
     ui->playcount->blockSignals(true);
@@ -89,11 +86,7 @@ void ConcertInfoWidget::updateConcertInfo()
     ui->album->setText(m_concertController->concert()->album());
     ui->tagline->setText(m_concertController->concert()->tagline());
 
-    if (!m_concertController->concert()->ratings().isEmpty()) {
-        ui->rating->setValue(m_concertController->concert()->ratings().first().rating);
-    } else {
-        ui->rating->setValue(0.0);
-    }
+    ui->ratings->setRatings(&(m_concertController->concert()->ratings()));
 
     ui->userRating->setValue(m_concertController->concert()->userRating());
     ui->released->setDate(m_concertController->concert()->released());
@@ -116,7 +109,6 @@ void ConcertInfoWidget::updateConcertInfo()
     ui->certification->setCurrentIndex(
         certifications.indexOf(m_concertController->concert()->certification().toString()));
 
-    ui->rating->blockSignals(false);
     ui->userRating->blockSignals(false);
     ui->runtime->blockSignals(false);
     ui->playcount->blockSignals(false);
@@ -142,7 +134,7 @@ void ConcertInfoWidget::clear()
     ui->artist->clear();
     ui->album->clear();
     ui->tagline->clear();
-    ui->rating->clear();
+    ui->ratings->clear();
     ui->userRating->clear();
     ui->released->setDate(QDate::currentDate());
     ui->runtime->clear();
@@ -209,28 +201,6 @@ void ConcertInfoWidget::onTaglineChange(QString text)
 {
     ME_REQUIRE_CONCERT_OR_RETURN;
     m_concertController->concert()->setTagline(text);
-    emit infoChanged();
-}
-
-/**
- * \brief Marks the concert as changed when the rating has changed
- */
-void ConcertInfoWidget::onRatingChange(double value)
-{
-    ME_REQUIRE_CONCERT_OR_RETURN;
-    auto& ratings = m_concertController->concert()->ratings();
-
-    Rating rating;
-    rating.rating = value;
-
-    if (ratings.isEmpty()) {
-        ratings.push_back(rating);
-    } else {
-        ratings.first() = rating;
-    }
-
-    m_concertController->concert()->setChanged(true);
-
     emit infoChanged();
 }
 

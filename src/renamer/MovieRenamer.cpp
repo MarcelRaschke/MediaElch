@@ -69,6 +69,12 @@ MovieRenamer::RenameError MovieRenamer::renameMovie(Movie& movie)
             MovieRenamer::replace(newFileName, "partNo", QString::number(++partNo));
             MovieRenamer::replace(newFileName, "videoCodec", movie.streamDetails()->videoCodec());
             MovieRenamer::replace(newFileName, "audioCodec", movie.streamDetails()->audioCodec());
+            // TODO: Let the user decide whether only the first should be used or
+            //       if a space should be the separator.
+            MovieRenamer::replace(newFileName, "audioLanguage", movie.streamDetails()->allAudioLanguages().join("-"));
+            // TODO: Let the user decide whether only the first should be used or
+            //       if a space should be the separator.
+            Renamer::replace(newFileName, "subtitleLanguage", movie.streamDetails()->allSubtitleLanguages().join("-"));
             MovieRenamer::replace(newFileName, "channels", QString::number(movie.streamDetails()->audioChannels()));
             MovieRenamer::replace(newFileName,
                 "resolution",
@@ -241,6 +247,12 @@ MovieRenamer::RenameError MovieRenamer::renameMovie(Movie& movie)
         Renamer::replace(newFolderName, "studio", movie.studios().join(","));
         Renamer::replace(newFolderName, "year", movie.released().toString("yyyy"));
         Renamer::replace(newFolderName, "videoCodec", movie.streamDetails()->videoCodec());
+        // TODO: Let the user decide whether only the first should be used or
+        //       if a space should be the separator.
+        Renamer::replace(newFolderName, "audioLanguage", movie.streamDetails()->allAudioLanguages().join("-"));
+        // TODO: Let the user decide whether only the first should be used or
+        //       if a space should be the separator.
+        Renamer::replace(newFolderName, "subtitleLanguage", movie.streamDetails()->allSubtitleLanguages().join("-"));
         Renamer::replace(newFolderName, "audioCodec", movie.streamDetails()->audioCodec());
         Renamer::replace(newFolderName, "channels", QString::number(movie.streamDetails()->audioChannels()));
         Renamer::replace(newFolderName,
@@ -271,6 +283,12 @@ MovieRenamer::RenameError MovieRenamer::renameMovie(Movie& movie)
         Renamer::replace(newFolderName, "year", movie.released().toString("yyyy"));
         Renamer::replace(newFolderName, "videoCodec", movie.streamDetails()->videoCodec());
         Renamer::replace(newFolderName, "audioCodec", movie.streamDetails()->audioCodec());
+        // TODO: Let the user decide whether only the first should be used or
+        //       if a space should be the separator.
+        Renamer::replace(newFolderName, "audioLanguage", movie.streamDetails()->allAudioLanguages().join("-"));
+        // TODO: Let the user decide whether only the first should be used or
+        //       if a space should be the separator.
+        Renamer::replace(newFolderName, "subtitleLanguage", movie.streamDetails()->allSubtitleLanguages().join("-"));
         Renamer::replace(newFolderName, "channels", QString::number(movie.streamDetails()->audioChannels()));
         Renamer::replace(newFolderName,
             "resolution",

@@ -1,9 +1,13 @@
 #pragma once
 
+#include "data/Actor.h"
 #include "media_centers/KodiVersion.h"
 
 #include <QByteArray>
+#include <QVector>
 #include <QXmlStreamWriter>
+
+class Ratings;
 
 namespace mediaelch {
 namespace kodi {
@@ -17,6 +21,8 @@ public:
     const KodiVersion& version() const { return m_version; }
     void addMediaelchGeneratorTag(QXmlStreamWriter& xml);
 
+    void writeActors(QXmlStreamWriter& xml, const Actors& actors);
+
     bool writeThumbUrlsToNfo() const;
     void setWriteThumbUrlsToNfo(bool writeThumbUrlsToNfo);
 
@@ -24,6 +30,8 @@ private:
     KodiVersion m_version;
     bool m_writeThumbUrlsToNfo = true;
 };
+
+void writeRatings(QXmlStreamWriter& xml, const Ratings& ratings);
 
 } // namespace kodi
 } // namespace mediaelch

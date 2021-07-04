@@ -34,7 +34,7 @@ SimpleEngine::SimpleEngine(ExportTemplate& exportTemplate,
     QObject(parent), m_cancelFlag{cancelFlag}, m_template{&exportTemplate}, m_dir{directory}
 {
     // Create the base structure
-    m_template->copyTo(m_dir.path());
+    m_template->copyTo(mediaelch::DirectoryPath(m_dir));
 }
 
 void SimpleEngine::exportMovies(QVector<Movie*> movies)
@@ -122,8 +122,8 @@ void SimpleEngine::replaceVars(QString& m, Movie* movie, bool subDir)
 
     // \todo multiple ratings
     if (!movie->ratings().isEmpty()) {
-        double rating = movie->ratings().front().rating;
-        int voteCount = movie->ratings().front().voteCount;
+        double rating = movie->ratings().first().rating;
+        int voteCount = movie->ratings().first().voteCount;
         m.replace("{{ MOVIE.RATING }}", QString::number(rating, 'f', 1));
         m.replace("{{ MOVIE.VOTES }}", QString::number(voteCount, 'f', 0));
     } else {
@@ -131,7 +131,7 @@ void SimpleEngine::replaceVars(QString& m, Movie* movie, bool subDir)
         m.replace("{{ MOVIE.VOTES }}", "n/a");
     }
 
-    m.replace("{{ MOVIE.RUNTIME }}", QString::number(movie->runtime().count(), 'f', 0));
+    m.replace("{{ MOVIE.RUNTIME }}", QString::number(static_cast<double>(movie->runtime().count()), 'f', 0));
     m.replace("{{ MOVIE.PLAY_COUNT }}", QString::number(movie->playcount(), 'f', 0));
     m.replace("{{ MOVIE.LAST_PLAYED }}",
         movie->lastPlayed().isValid() ? movie->lastPlayed().toString("yyyy-MM-dd hh:mm") : "");
@@ -231,7 +231,7 @@ void SimpleEngine::replaceVars(QString& m, const Concert* concert, bool subDir)
     }
 
     m.replace("{{ CONCERT.YEAR }}", concert->released().isValid() ? concert->released().toString("yyyy") : "");
-    m.replace("{{ CONCERT.RUNTIME }}", QString::number(concert->runtime().count(), 'f', 0));
+    m.replace("{{ CONCERT.RUNTIME }}", QString::number(static_cast<double>(concert->runtime().count()), 'f', 0));
     m.replace("{{ CONCERT.CERTIFICATION }}", concert->certification().toString().toHtmlEscaped());
     m.replace("{{ CONCERT.TRAILER }}", concert->trailer().toString());
     m.replace("{{ CONCERT.PLAY_COUNT }}", QString::number(concert->playcount(), 'f', 0));
@@ -344,8 +344,8 @@ void SimpleEngine::replaceVars(QString& m, const TvShow* show, bool subDir)
 
     // \todo multiple ratings
     if (!show->ratings().isEmpty()) {
-        double rating = show->ratings().front().rating;
-        int voteCount = show->ratings().front().voteCount;
+        double rating = show->ratings().first().rating;
+        int voteCount = show->ratings().first().voteCount;
         m.replace("{{ TVSHOW.RATING }}", QString::number(rating, 'f', 1));
         m.replace("{{ TVSHOW.VOTES }}", QString::number(voteCount, 'f', 0));
     } else {
@@ -532,7 +532,7 @@ void SimpleEngine::saveImage(QSize size, QString imageFile, QString destinationF
 
     QImage img(imageFile);
     if (img.isNull()) {
-        qWarning() << "[Export][SimpleEngine] Cannot load image:" << imageFile;
+        qCWarning(generic) << "[Export][SimpleEngine] Cannot load image:" << imageFile;
         return;
     }
 
@@ -541,7 +541,7 @@ void SimpleEngine::saveImage(QSize size, QString imageFile, QString destinationF
     if (!img.isNull()) {
         img.save(destinationFile);
     } else {
-        qWarning() << "[Export][SimpleEngine] Could not scale (result was empty):" << imageFile;
+        qCWarning(generic) << "[Export][SimpleEngine] Could not scale (result was empty):" << imageFile;
     }
 }
 

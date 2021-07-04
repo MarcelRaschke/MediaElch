@@ -1,13 +1,13 @@
 #include "Movie.h"
 
 #include <QApplication>
-#include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <utility>
 
 #include "data/ImageCache.h"
 #include "globals/Helper.h"
+#include "log/Log.h"
 #include "media_centers/MediaCenterInterface.h"
 #include "settings/Settings.h"
 
@@ -151,9 +151,7 @@ void Movie::clear(QSet<MovieScraperInfo> infos)
 void Movie::clearImages()
 {
     m_movieImages.clearImages();
-    for (auto& actor : m_crew.actors()) {
-        actor->image = QByteArray();
-    }
+    m_crew.actors().clearImages();
 }
 
 /*** GETTER ***/
@@ -188,13 +186,13 @@ QString Movie::overview() const
     return m_overview;
 }
 
-QVector<Rating>& Movie::ratings()
+Ratings& Movie::ratings()
 {
     return m_ratings;
 }
 
 
-const QVector<Rating>& Movie::ratings() const
+const Ratings& Movie::ratings() const
 {
     return m_ratings;
 }
@@ -336,12 +334,12 @@ QUrl Movie::trailer() const
     return m_trailer;
 }
 
-QVector<const Actor*> Movie::actors() const
+const Actors& Movie::actors() const
 {
     return m_crew.actors();
 }
 
-QVector<Actor*> Movie::actors()
+Actors& Movie::actors()
 {
     return m_crew.actors();
 }
@@ -1146,7 +1144,7 @@ QDebug operator<<(QDebug dbg, const Movie& movie)
     for (const QString& country : movie.countries()) {
         out.append(QString("  Country:       ").append(country)).append(nl);
     }
-    for (const Actor* actor : movie.actors()) {
+    for (const Actor* actor : movie.actors().actors()) {
         out.append(QString("  Actor:         ").append(nl));
         out.append(QString("    Name:  ").append(actor->name)).append(nl);
         out.append(QString("    Role:  ").append(actor->role)).append(nl);

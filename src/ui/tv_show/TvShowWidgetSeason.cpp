@@ -65,11 +65,14 @@ TvShowWidgetSeason::TvShowWidgetSeason(QWidget* parent) :
     ui->backdrop->setImageType(ImageType::TvShowSeasonBackdrop);
     ui->banner->setImageType(ImageType::TvShowSeasonBanner);
     ui->thumb->setImageType(ImageType::TvShowSeasonThumb);
+
     for (ClosableImage* image : ui->groupBox_3->findChildren<ClosableImage*>()) {
         connect(image, &ClosableImage::clicked, this, &TvShowWidgetSeason::onChooseImage);
         connect(image, &ClosableImage::sigClose, this, &TvShowWidgetSeason::onDeleteImage);
         connect(image, &ClosableImage::sigImageDropped, this, &TvShowWidgetSeason::onImageDropped);
     }
+
+    connect(ui->seasonName, &QLineEdit::textEdited, this, &TvShowWidgetSeason::onNameChange);
 
     connect(ui->buttonRevert, &QAbstractButton::clicked, this, &TvShowWidgetSeason::onRevertChanges);
     connect(m_downloadManager,
@@ -108,6 +111,16 @@ void TvShowWidgetSeason::updateSeasonInfo()
 
     emit sigSetActionSearchEnabled(false, MainWidgets::TvShows);
     ui->title->setText(m_show->title() + " - " + tr("Season %1").arg(m_season.toString()));
+
+    const bool blocked = ui->seasonName->blockSignals(true);
+    const auto mappings = m_show->seasonNameMappings();
+    auto name = mappings.find(m_season);
+    if (name != mappings.end()) {
+        ui->seasonName->setText(*name);
+    } else {
+        ui->seasonName->clear();
+    }
+    ui->seasonName->blockSignals(blocked);
 
     updateImages(QVector<ImageType>{ImageType::TvShowSeasonPoster,
         ImageType::TvShowSeasonBackdrop,
@@ -187,6 +200,16 @@ void TvShowWidgetSeason::onSetEnabled(bool enabled)
     ui->groupBox_3->setEnabled(enabled);
 }
 
+void TvShowWidgetSeason::onNameChange(QString name)
+{
+    if (name.isEmpty()) {
+        m_show->clearSeasonName(m_season);
+
+    } else {
+        m_show->setSeasonName(m_season, name);
+    }
+}
+
 void TvShowWidgetSeason::onRevertChanges()
 {
     // \todo: implement
@@ -202,8 +225,8 @@ void TvShowWidgetSeason::onDownloadFinished(DownloadManagerElement elem)
             if (m_show == elem.show) {
                 image->setImage(elem.data);
             }
-            ImageCache::instance()->invalidateImages(
-                Manager::instance()->mediaCenterInterface()->imageFileName(elem.show, elem.imageType, elem.season));
+            ImageCache::instance()->invalidateImages(mediaelch::FilePath(
+                Manager::instance()->mediaCenterInterface()->imageFileName(elem.show, elem.imageType, elem.season)));
             elem.show->setSeasonImage(elem.season, elem.imageType, elem.data);
             break;
         }

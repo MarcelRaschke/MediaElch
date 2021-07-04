@@ -94,7 +94,12 @@ QByteArray TvShowXmlWriterGeneric::getTvShowXml(bool testMode)
         xml.writeCharacters(m_show.tvmazeId().toString());
         xml.writeEndElement();
     }
-    if (!hasDefault) {
+
+    if (hasDefault) {
+        // id: Not used for Kodi import
+        xml.writeTextElement("id", defaultId);
+
+    } else {
         // fallback
         xml.writeComment("No valid ID was defined - using internal DB ID as fallback");
         xml.writeStartElement("uniqueid");
@@ -108,30 +113,7 @@ QByteArray TvShowXmlWriterGeneric::getTvShowXml(bool testMode)
         xml.writeEndElement();
     }
 
-    // id: Not used for Kodi import
-    xml.writeTextElement("id", defaultId);
-
-    // rating
-    const auto& ratings = m_show.ratings();
-    if (!ratings.isEmpty()) {
-        xml.writeStartElement("ratings");
-        bool firstRating = true;
-        for (const Rating& rating : ratings) {
-            xml.writeStartElement("rating");
-            xml.writeAttribute("default", firstRating ? "true" : "false");
-            if (rating.maxRating > 0) {
-                xml.writeAttribute("max", QString::number(rating.maxRating));
-            }
-            xml.writeAttribute("name", rating.source);
-
-            xml.writeTextElement("value", QString::number(rating.rating));
-            xml.writeTextElement("votes", QString::number(rating.voteCount));
-
-            xml.writeEndElement();
-            firstRating = false;
-        }
-        xml.writeEndElement();
-    }
+    writeRatings(xml, m_show.ratings());
 
     xml.writeTextElement("userrating", QString::number(m_show.userRating()));
     xml.writeTextElement("top250", QString::number(m_show.top250()));
@@ -284,18 +266,7 @@ QByteArray TvShowXmlWriterGeneric::getTvShowXml(bool testMode)
         }
     }
 
-    const auto& actors = m_show.actors();
-    for (const Actor* actor : actors) {
-        xml.writeStartElement("actor");
-        xml.writeTextElement("name", actor->name);
-        xml.writeTextElement("role", actor->role);
-        xml.writeTextElement("order", QString::number(actor->order));
-
-        if (writeThumbUrlsToNfo()) {
-            xml.writeTextElement("thumb", actor->thumb);
-        }
-        xml.writeEndElement();
-    }
+    writeActors(xml, m_show.actors());
 
     if (!testMode) {
         addMediaelchGeneratorTag(xml);

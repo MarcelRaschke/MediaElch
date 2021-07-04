@@ -3,6 +3,7 @@
 #include "globals/Helper.h"
 #include "media_centers/KodiXml.h"
 #include "media_centers/kodi/EpisodeXmlReader.h"
+#include "media_centers/kodi/KodiXmlWriter.h"
 #include "tv_shows/TvShowEpisode.h"
 
 #include <QDomDocument>
@@ -73,22 +74,7 @@ void EpisodeXmlWriterGeneric::writeSingleEpisodeDetails(QXmlStreamWriter& xml, T
         xml.writeEndElement();
     }
 
-    // rating
-    xml.writeStartElement("ratings");
-    bool firstRating = true;
-    for (const Rating& rating : episode->ratings()) {
-        xml.writeStartElement("rating");
-        xml.writeAttribute("name", rating.source);
-        xml.writeAttribute("default", firstRating ? "true" : "false");
-        if (rating.maxRating > 0) {
-            xml.writeAttribute("max", QString::number(rating.maxRating));
-        }
-        xml.writeTextElement("value", QString::number(rating.rating));
-        xml.writeTextElement("votes", QString::number(rating.voteCount));
-        xml.writeEndElement();
-        firstRating = false;
-    }
-    xml.writeEndElement();
+    writeRatings(xml, episode->ratings());
 
     xml.writeTextElement("userrating", QString::number(episode->userRating()));
     xml.writeTextElement("top250", QString("%1").arg(episode->top250()));
@@ -126,17 +112,7 @@ void EpisodeXmlWriterGeneric::writeSingleEpisodeDetails(QXmlStreamWriter& xml, T
         xml.writeTextElement("thumb", episode->thumbnail().toString());
     }
 
-    const auto& actors = episode->actors();
-    for (const Actor* actor : actors) {
-        xml.writeStartElement("actor");
-        xml.writeTextElement("name", actor->name);
-        xml.writeTextElement("role", actor->role);
-        xml.writeTextElement("order", QString::number(actor->order));
-        if (!actor->thumb.isEmpty() && writeThumbUrlsToNfo()) {
-            xml.writeTextElement("thumb", actor->thumb);
-        }
-        xml.writeEndElement();
-    }
+    writeActors(xml, episode->actors());
 
     // officially not supported but scraper providers start to support it
     const auto& tags = episode->tags();

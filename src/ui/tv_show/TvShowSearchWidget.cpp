@@ -125,8 +125,8 @@ void TvShowSearchWidget::initializeAndStartSearch()
         return;
     }
 
-    qInfo() << "[TvShowSearch] Scraper is not initialized, wait for initialization:"
-            << m_currentScraper->meta().identifier;
+    qCInfo(generic) << "[TvShowSearch] Scraper is not initialized, wait for initialization:"
+                    << m_currentScraper->meta().identifier;
 
     auto* context = new QObject(this);
     connect(
@@ -156,30 +156,30 @@ void TvShowSearchWidget::startSearch()
     using namespace mediaelch::scraper;
 
     if (ui->searchString->text().trimmed().isEmpty()) {
-        qInfo() << "[TvShowSearch] Search string is empty";
+        qCInfo(generic) << "[TvShowSearch] Search string is empty";
         showError(tr("Please insert a search string!"));
         return;
     }
 
-    qInfo() << "[TvShowSearch] Start search for:" << ui->searchString->text();
+    qCInfo(generic) << "[TvShowSearch] Start search for:" << ui->searchString->text();
 
     ShowSearchJob::Config config{
         ui->searchString->text().trimmed(), m_currentLanguage, Settings::instance()->showAdultScrapers()};
     auto* searchJob = m_currentScraper->search(config);
     connect(searchJob, &ShowSearchJob::sigFinished, this, &TvShowSearchWidget::onShowResults);
-    searchJob->execute();
+    searchJob->start();
 }
 
 void TvShowSearchWidget::onShowResults(ShowSearchJob* searchJob)
 {
     if (searchJob->hasError()) {
-        qDebug() << "[TvShowSearch] Got error while searching for show" << searchJob->error().message;
+        qCDebug(generic) << "[TvShowSearch] Got error while searching for show" << searchJob->error().message;
         showError(searchJob->error().message);
         searchJob->deleteLater();
         return;
     }
 
-    qDebug() << "[TvShowSearch] Result count:" << searchJob->results().count();
+    qCDebug(generic) << "[TvShowSearch] Result count:" << searchJob->results().count();
     showSuccess(tr("Found %n results", "", searchJob->results().count()));
 
     for (const auto& result : searchJob->results()) {
@@ -234,7 +234,7 @@ void TvShowSearchWidget::setSearchType(TvShowType type)
     ui->comboUpdate->blockSignals(blocked);
 
     // Set active tab: Either episode or show depending on what shall be loaded.
-    ui->tabsInfos->setCurrentWidget(isEpisodeUpdateType(updateType()) ? ui->tabEpisodeDetails : ui->tabShowDetails);
+    ui->tabsInfos->setCurrentWidget((type == TvShowType::Episode) ? ui->tabEpisodeDetails : ui->tabShowDetails);
 
     onUpdateTypeChanged(index);
 }
@@ -340,13 +340,13 @@ void TvShowSearchWidget::onChkAllEpisodeInfosToggled()
 void TvShowSearchWidget::onScraperChanged(int index)
 {
     if (index < 0 || index >= Manager::instance()->scrapers().tvScrapers().size()) {
-        qCritical() << "[TvShowSearchWidget] Selected invalid scraper:" << index;
+        qCCritical(generic) << "[TvShowSearchWidget] Selected invalid scraper:" << index;
         showError(tr("Internal inconsistency: Selected an invalid scraper!"));
         return;
     }
 
     const QString scraperId = ui->comboScraper->itemData(index, Qt::UserRole).toString();
-    qDebug() << "[TvShowSearchWidget] Selected scraper:" << scraperId;
+    qCDebug(generic) << "[TvShowSearchWidget] Selected scraper:" << scraperId;
     m_currentScraper = Manager::instance()->scrapers().tvScraper(scraperId);
 
     if (m_currentScraper == nullptr) {
@@ -423,7 +423,7 @@ void TvShowSearchWidget::onSeasonOrderChanged(int index)
     bool ok = false;
     const int order = ui->comboSeasonOrder->itemData(index, Qt::UserRole).toInt(&ok);
     if (!ok) {
-        qCritical() << "[TvShowSearch] Invalid index for SeasonOrder";
+        qCCritical(generic) << "[TvShowSearch] Invalid index for SeasonOrder";
         return;
     }
     m_seasonOrder = SeasonOrder(order);

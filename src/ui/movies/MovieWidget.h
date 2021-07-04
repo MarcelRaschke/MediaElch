@@ -17,9 +17,6 @@ class MovieWidget;
 
 class ClosableImage;
 
-/**
- * \brief The MovieWidget class
- */
 class MovieWidget : public QWidget
 {
     Q_OBJECT
@@ -46,6 +43,7 @@ signals:
     void actorDownloadStarted(QString, int);
     void actorDownloadProgress(int, int, int);
     void actorDownloadFinished(int);
+
     void setActionSearchEnabled(bool, MainWidgets);
     void setActionSaveEnabled(bool, MainWidgets);
 
@@ -65,18 +63,17 @@ private slots:
     void onDeleteImage();
 
     void movieNameChanged(QString text);
+
     void addGenre(QString genre);
     void removeGenre(QString genre);
+
     void addTag(QString tag);
     void removeTag(QString tag);
-    void addActor();
-    void removeActor();
+
     void addStudio(QString studio);
     void removeStudio(QString studio);
     void addCountry(QString country);
     void removeCountry(QString country);
-    void onActorChanged();
-    void onChangeActorImage();
     void onRevertChanges();
     void onArtPageOne();
     void onArtPageTwo();
@@ -88,9 +85,7 @@ private slots:
     void onTaglineChange(QString text);
     void onWriterChange(QString text);
     void onDirectorChange(QString text);
-    void onRatingChange(double value);
     void onUserRatingChange(double value);
-    void onVotesChange(int value);
     void onTop250Change(int value);
     void onReleasedChange(QDate date);
     void onRuntimeChange(int value);
@@ -106,7 +101,6 @@ private slots:
     void onImdbIdOpen();
     void onTmdbIdOpen();
 
-    void onActorEdited(QTableWidgetItem* item);
     void onSubtitleEdited(QTableWidgetItem* item);
     void onStreamDetailsEdited();
     void onReloadStreamDetails();
@@ -119,6 +113,7 @@ private slots:
     void onRemoveExtraFanart(QByteArray image);
     void onAddExtraFanart();
 
+private:
     void updateImage(ImageType imageType, ClosableImage* image);
 
 private:
@@ -130,5 +125,6 @@ private:
     QVector<QVector<QLineEdit*>> m_streamDetailsAudio;
     QVector<QVector<QLineEdit*>> m_streamDetailsSubtitles;
     QLabel* m_backgroundLabel;
+
     void updateImages(QVector<ImageType> images);
 };

@@ -30,7 +30,7 @@ RUN apt-get update && \
         gcc-10 \
         libclang-11-dev \
         clang-tidy-11 \
-        clang-tools-10 \
+        clang-tools-11 \
         clang-format-11 \
         clang-11 \
         llvm-11-dev && \
@@ -51,13 +51,17 @@ RUN apt-get update && \
         libmediainfo-dev \
         ffmpeg && \
     apt-get install -y --no-install-recommends \
-        qt5-default \
+        qtbase5-dev \
+        qtbase5-dev-tools \
+        qt5-qmake \
         qtmultimedia5-dev \
         qtdeclarative5-dev \
         qttools5-dev \
         qttools5-dev-tools \
         libqt5opengl5 \
-        libqt5opengl5-dev && \
+        libqt5opengl5-dev \
+        libqt5svg5 \
+        libqt5svg5-dev && \
     apt-get autoremove && \
     update-alternatives --install /usr/bin/gcc           gcc          /usr/bin/gcc-10          10 && \
     update-alternatives --install /usr/bin/gcov          gcov         /usr/bin/gcov-10         10 && \
@@ -70,7 +74,6 @@ RUN apt-get update && \
     update-alternatives --install /usr/bin/llvm-cov      llvm-cov     /usr/bin/llvm-cov-11     10 && \
     rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y
 # Use latest lcov
 RUN cd /opt && git clone https://github.com/linux-test-project/lcov.git && \
     cd lcov && make install && \

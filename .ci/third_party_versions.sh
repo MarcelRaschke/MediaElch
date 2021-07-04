@@ -9,7 +9,8 @@ export MAC_CREATE_DMG_GIT_HASH=fbe0f36c823adbcbdcc15f9d65c6354252ac8307
 
 export WIN_MEDIAINFO_VERSION="20.03"
 # From https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
-export WIN_FFMPEG_VERSION="ffmpeg-4.3.2-2021-02-02-essentials_build"
-export WIN_FFMPEG_SHA512="9a0c5b0cfff8cda42691e69c6e721ae3033373411b7bd3457d7f3f23b373711bac27ce9c59655923093c82578b0f779ae0147b4adf9091569ac9ed718a76cdc7  ffmpeg.zip"
+export WIN_FFMPEG_VERSION="ffmpeg-4.4-essentials_build"
+export WIN_FFMPEG_SHA512="09762cb5cd090f23ab1abee2f481eca346fffdaa412b237610192951af4f1b907a5e054d746771f02450924eba8f1c345d5cf52beafe38ab1ebcc232a0864364  ffmpeg.zip"
 
-export LINUX_FFMPEG_SHA512="4629887efe26e1473636639e19b42e040217089bbeefd4ca059234d64d9b8ae1e8f6b5b925eeda012ea0665af0fcbb9f68f667a34aa696e38a3644c2bc3fbf16  ffmpeg.tar.xz" # 4.3.1
+# From https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+export LINUX_FFMPEG_SHA512="2ca6fb3279d80871fb79c30ef8799f7c87ad59ae31a22400d63c9d43ef86a36013387cbcb417ddc00be61eca32103e196bbb6a5d39ae2ce096716145fb69f48d  ffmpeg.tar.xz" # 4.4

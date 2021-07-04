@@ -138,7 +138,7 @@ void AlbumController::onDownloadFinished(DownloadManagerElement elem)
         m_album->bookletModel()->addImage(image);
     } else if (!elem.data.isEmpty()) {
         ImageCache::instance()->invalidateImages(
-            Manager::instance()->mediaCenterInterface()->imageFileName(m_album, elem.imageType));
+            mediaelch::FilePath(Manager::instance()->mediaCenterInterface()->imageFileName(m_album, elem.imageType)));
         m_album->setRawImage(elem.imageType, elem.data);
     }
 
@@ -156,7 +156,7 @@ void AlbumController::loadData(MusicBrainzId id,
     QSet<MusicScraperInfo> infos)
 {
     m_infosToLoad = infos;
-    scraperInterface->loadData(id, id2, m_album, infos);
+    scraperInterface->loadAlbum(id, id2, m_album, infos);
 }
 
 void AlbumController::scraperLoadDone(mediaelch::scraper::MusicScraper* scraper)

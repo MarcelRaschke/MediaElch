@@ -1,13 +1,12 @@
 #include "scrapers/concert/tmdb/TmdbConcert.h"
 
-#include "data/Storage.h"
 #include "globals/Globals.h"
 #include "globals/Helper.h"
+#include "log/Log.h"
 #include "network/NetworkRequest.h"
 #include "scrapers/concert/tmdb/TmdbConcertSearchJob.h"
 #include "ui/main/MainWindow.h"
 
-#include <QDebug>
 #include <QGridLayout>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -168,6 +167,16 @@ TmdbConcert::TmdbConcert(QObject* parent) :
     setup();
 }
 
+TmdbConcert::~TmdbConcert()
+{
+    if (m_widget != nullptr && m_widget->parent() == nullptr) {
+        // We set MainWindow::instance() as this Widget's parent.
+        // But at construction time, the instance is not setup, yet.
+        // See settingsWidget()
+        delete m_widget;
+    }
+}
+
 const ConcertScraper::ScraperMeta& TmdbConcert::meta() const
 {
     return m_meta;
@@ -195,6 +204,9 @@ bool TmdbConcert::hasSettings() const
 
 QWidget* TmdbConcert::settingsWidget()
 {
+    if (m_widget->parent() == nullptr) {
+        m_widget->setParent(MainWindow::instance());
+    }
     return m_widget;
 }
 
@@ -293,13 +305,13 @@ void TmdbConcert::setupFinished()
     const auto parsedJson = QJsonDocument::fromJson(reply->readAll(), &parseError).object();
     reply->deleteLater();
     if (parseError.error != QJsonParseError::NoError) {
-        qWarning() << "Error parsing TMDb setup json " << parseError.errorString();
+        qCWarning(generic) << "Error parsing TMDb setup json " << parseError.errorString();
         return;
     }
 
     const auto imagesObject = parsedJson.value("images").toObject();
     m_baseUrl = imagesObject.value("base_url").toString();
-    qDebug() << "TMDb base url:" << m_baseUrl;
+    qCDebug(generic) << "TMDb base url:" << m_baseUrl;
 }
 
 /**
@@ -315,7 +327,7 @@ void TmdbConcert::setupFinished()
  */
 void TmdbConcert::loadData(TmdbId id, Concert* concert, QSet<ConcertScraperInfo> infos)
 {
-    qDebug() << "Entered, id=" << id << "concert=" << concert->title();
+    qCDebug(generic) << "Entered, id=" << id << "concert=" << concert->title();
     concert->setTmdbId(id);
     concert->clear(infos);
 
@@ -331,8 +343,8 @@ void TmdbConcert::loadData(TmdbId id, Concert* concert, QSet<ConcertScraperInfo>
                        .arg(id.toString(), m_apiKey, localeForTMDb()));
         request.setUrl(url);
         QNetworkReply* reply = network()->getWithWatcher(request);
-        reply->setProperty("storage", Storage::toVariant(reply, concert));
-        reply->setProperty("infosToLoad", Storage::toVariant(reply, infos));
+        reply->setProperty("storage", QVariant::fromValue(concert));
+        reply->setProperty("infosToLoad", QVariant::fromValue(infos));
         connect(reply, &QNetworkReply::finished, this, &TmdbConcert::loadFinished);
     }
 
@@ -342,8 +354,8 @@ void TmdbConcert::loadData(TmdbId id, Concert* concert, QSet<ConcertScraperInfo>
         url.setUrl(QString("https://api.themoviedb.org/3/movie/%1/trailers?api_key=%2").arg(id.toString(), m_apiKey));
         request.setUrl(url);
         QNetworkReply* reply = network()->getWithWatcher(request);
-        reply->setProperty("storage", Storage::toVariant(reply, concert));
-        reply->setProperty("infosToLoad", Storage::toVariant(reply, infos));
+        reply->setProperty("storage", QVariant::fromValue(concert));
+        reply->setProperty("infosToLoad", QVariant::fromValue(infos));
         connect(reply, &QNetworkReply::finished, this, &TmdbConcert::loadTrailersFinished);
     }
 
@@ -353,8 +365,8 @@ void TmdbConcert::loadData(TmdbId id, Concert* concert, QSet<ConcertScraperInfo>
         url.setUrl(QString("https://api.themoviedb.org/3/movie/%1/images?api_key=%2").arg(id.toString(), m_apiKey));
         request.setUrl(url);
         QNetworkReply* reply = network()->getWithWatcher(request);
-        reply->setProperty("storage", Storage::toVariant(reply, concert));
-        reply->setProperty("infosToLoad", Storage::toVariant(reply, infos));
+        reply->setProperty("storage", QVariant::fromValue(concert));
+        reply->setProperty("infosToLoad", QVariant::fromValue(infos));
         connect(reply, &QNetworkReply::finished, this, &TmdbConcert::loadImagesFinished);
     }
 
@@ -364,8 +376,8 @@ void TmdbConcert::loadData(TmdbId id, Concert* concert, QSet<ConcertScraperInfo>
         url.setUrl(QString("https://api.themoviedb.org/3/movie/%1/releases?api_key=%2").arg(id.toString(), m_apiKey));
         request.setUrl(url);
         QNetworkReply* reply = network()->getWithWatcher(request);
-        reply->setProperty("storage", Storage::toVariant(reply, concert));
-        reply->setProperty("infosToLoad", Storage::toVariant(reply, infos));
+        reply->setProperty("storage", QVariant::fromValue(concert));
+        reply->setProperty("infosToLoad", QVariant::fromValue(infos));
         connect(reply, &QNetworkReply::finished, this, &TmdbConcert::loadReleasesFinished);
     }
     concert->controller()->setLoadsLeft(loadsLeft);
@@ -378,8 +390,8 @@ void TmdbConcert::loadData(TmdbId id, Concert* concert, QSet<ConcertScraperInfo>
 void TmdbConcert::loadFinished()
 {
     auto* reply = dynamic_cast<QNetworkReply*>(QObject::sender());
-    Concert* concert = reply->property("storage").value<Storage*>()->concert();
-    QSet<ConcertScraperInfo> infos = reply->property("infosToLoad").value<Storage*>()->concertInfosToLoad();
+    Concert* concert = reply->property("storage").value<Concert*>();
+    QSet<ConcertScraperInfo> infos = reply->property("infosToLoad").value<QSet<ConcertScraperInfo>>();
     reply->deleteLater();
     if (concert == nullptr) {
         return;
@@ -389,7 +401,7 @@ void TmdbConcert::loadFinished()
         QString msg = QString::fromUtf8(reply->readAll());
         parseAndAssignInfos(msg, concert, infos);
     } else {
-        qWarning() << "Network Error (load)" << reply->errorString();
+        qCWarning(generic) << "Network Error (load)" << reply->errorString();
     }
     concert->controller()->removeFromLoadsLeft(ScraperData::Infos);
 }
@@ -401,8 +413,8 @@ void TmdbConcert::loadFinished()
 void TmdbConcert::loadTrailersFinished()
 {
     auto* reply = dynamic_cast<QNetworkReply*>(QObject::sender());
-    Concert* concert = reply->property("storage").value<Storage*>()->concert();
-    QSet<ConcertScraperInfo> infos = reply->property("infosToLoad").value<Storage*>()->concertInfosToLoad();
+    Concert* concert = reply->property("storage").value<Concert*>();
+    QSet<ConcertScraperInfo> infos = reply->property("infosToLoad").value<QSet<ConcertScraperInfo>>();
     reply->deleteLater();
     if (concert == nullptr) {
         return;
@@ -412,7 +424,7 @@ void TmdbConcert::loadTrailersFinished()
         QString msg = QString::fromUtf8(reply->readAll());
         parseAndAssignInfos(msg, concert, infos);
     } else {
-        qDebug() << "Network Error (trailers)" << reply->errorString();
+        qCDebug(generic) << "Network Error (trailers)" << reply->errorString();
     }
     concert->controller()->removeFromLoadsLeft(ScraperData::Trailers);
 }
@@ -424,8 +436,8 @@ void TmdbConcert::loadTrailersFinished()
 void TmdbConcert::loadImagesFinished()
 {
     auto* reply = dynamic_cast<QNetworkReply*>(QObject::sender());
-    Concert* concert = reply->property("storage").value<Storage*>()->concert();
-    QSet<ConcertScraperInfo> infos = reply->property("infosToLoad").value<Storage*>()->concertInfosToLoad();
+    Concert* concert = reply->property("storage").value<Concert*>();
+    QSet<ConcertScraperInfo> infos = reply->property("infosToLoad").value<QSet<ConcertScraperInfo>>();
     reply->deleteLater();
     if (concert == nullptr) {
         return;
@@ -435,7 +447,7 @@ void TmdbConcert::loadImagesFinished()
         QString msg = QString::fromUtf8(reply->readAll());
         parseAndAssignInfos(msg, concert, infos);
     } else {
-        qWarning() << "Network Error (images)" << reply->errorString();
+        qCWarning(generic) << "Network Error (images)" << reply->errorString();
     }
     concert->controller()->removeFromLoadsLeft(ScraperData::Images);
 }
@@ -447,8 +459,8 @@ void TmdbConcert::loadImagesFinished()
 void TmdbConcert::loadReleasesFinished()
 {
     auto* reply = dynamic_cast<QNetworkReply*>(QObject::sender());
-    Concert* concert = reply->property("storage").value<Storage*>()->concert();
-    QSet<ConcertScraperInfo> infos = reply->property("infosToLoad").value<Storage*>()->concertInfosToLoad();
+    Concert* concert = reply->property("storage").value<Concert*>();
+    QSet<ConcertScraperInfo> infos = reply->property("infosToLoad").value<QSet<ConcertScraperInfo>>();
     reply->deleteLater();
     if (concert == nullptr) {
         return;
@@ -458,7 +470,7 @@ void TmdbConcert::loadReleasesFinished()
         QString msg = QString::fromUtf8(reply->readAll());
         parseAndAssignInfos(msg, concert, infos);
     } else {
-        qWarning() << "Network Error (releases)" << reply->errorString();
+        qCWarning(generic) << "Network Error (releases)" << reply->errorString();
     }
     concert->controller()->removeFromLoadsLeft(ScraperData::Releases);
 }
@@ -475,7 +487,7 @@ void TmdbConcert::parseAndAssignInfos(QString json, Concert* concert, QSet<Conce
     QJsonParseError parseError{};
     const auto parsedJson = QJsonDocument::fromJson(json.toUtf8(), &parseError).object();
     if (parseError.error != QJsonParseError::NoError) {
-        qWarning() << "Error parsing concert info json " << parseError.errorString();
+        qCWarning(generic) << "Error parsing concert info json " << parseError.errorString();
         return;
     }
 
@@ -494,12 +506,9 @@ void TmdbConcert::parseAndAssignInfos(QString json, Concert* concert, QSet<Conce
     }
     if (infos.contains(ConcertScraperInfo::Rating) && parsedJson.value("vote_average").toDouble(-1) >= 0) {
         Rating rating;
+        rating.source = "themoviedb";
         rating.rating = parsedJson.value("vote_average").toDouble();
-        if (concert->ratings().isEmpty()) {
-            concert->ratings().push_back(rating);
-        } else {
-            concert->ratings().first() = rating;
-        }
+        concert->ratings().setOrAddRating(rating);
         concert->setChanged(true);
     }
     if (infos.contains(ConcertScraperInfo::Tagline) && !parsedJson.value("tagline").toString().isEmpty()) {
