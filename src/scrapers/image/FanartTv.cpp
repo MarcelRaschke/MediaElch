@@ -721,8 +721,10 @@ QVector<Poster> FanartTv::parseTvShowData(QString json, ImageType type, SeasonNu
     return posters;
 }
 
-int FanartTv::findInsertPos(const Poster& poster, const QVector<Poster>& posters,
-    const QVector<QString>& languagePriority, const QString& preferredDiscType)
+int FanartTv::findInsertPos(const Poster& poster,
+    const QVector<Poster>& posters,
+    const QVector<QString>& languagePriority,
+    const QString& preferredDiscType)
 {
     for (int i = 0; i < posters.size(); ++i) {
         if (posterLessThan(poster, posters[i], languagePriority, preferredDiscType)) {
@@ -733,15 +735,16 @@ int FanartTv::findInsertPos(const Poster& poster, const QVector<Poster>& posters
     return -1;
 }
 
-void FanartTv::insertPoster(QVector<Poster>& posters, const Poster& poster,
-    const QVector<QString>& languagePriority, const QString& preferredDiscType)
+void FanartTv::insertPoster(QVector<Poster>& posters,
+    const Poster& poster,
+    const QVector<QString>& languagePriority,
+    const QString& preferredDiscType)
 {
     int pos = findInsertPos(poster, posters, languagePriority, preferredDiscType);
 
     if (pos >= 0) {
         posters.insert(pos, poster);
-    }
-    else {
+    } else {
         posters.append(poster);
     }
 }
@@ -770,8 +773,10 @@ int FanartTv::hdRank(const Poster& p, const QString& preferredDiscType)
     return 1;
 }
 
-bool FanartTv::posterLessThan(const Poster& a, const Poster& b,
-    const QVector<QString>& languagePriority, const QString& preferredDiscType)
+bool FanartTv::posterLessThan(const Poster& a,
+    const Poster& b,
+    const QVector<QString>& languagePriority,
+    const QString& preferredDiscType)
 {
     const int langA = languageRank(a.language, languagePriority);
     const int langB = languageRank(b.language, languagePriority);

@@ -22,10 +22,7 @@ MovieSearch::MovieSearch(QWidget* parent) : QDialog(parent), ui(new Ui::MovieSea
         &MovieSearchWidget::sigMovieSelectionChanged,
         this,
         &MovieSearch::onMovieSelectionChanged);
-    connect(ui->movieSearchWidget,
-        &MovieSearchWidget::sigScraperChanged,
-        this,
-        &MovieSearch::onScraperChanged);
+    connect(ui->movieSearchWidget, &MovieSearchWidget::sigScraperChanged, this, &MovieSearch::onScraperChanged);
 }
 
 MovieSearch::~MovieSearch()

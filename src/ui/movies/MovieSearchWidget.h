@@ -52,7 +52,8 @@ signals:
     void sigResultClicked();
     /// \brief Emitted when a different movie is selected. \p isSelected is false if there is no movie selected.
     void sigMovieSelectionChanged(bool isSelected);
-    /// \brief Emitted when the active scraper changes. \p isCustomScraper is true if the custom movie scraper is active.
+    /// \brief Emitted when the active scraper changes. \p isCustomScraper is true if the custom movie scraper is
+    /// active.
     void sigScraperChanged(bool isCustomScraper);
 
 private slots:
