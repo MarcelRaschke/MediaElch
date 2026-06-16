@@ -75,7 +75,9 @@ void OmdbTvShowSearchJob::searchViaImdbId()
 
 void OmdbTvShowSearchJob::searchViaQuery()
 {
-    const auto [query, year] = extractYear(config().query);
+    const QueryAndYear queryAndYear = extractYear(config().query);
+    const int year = queryAndYear.year;
+    const QString query = queryAndYear.query;
     m_api.searchForShow(query, year, 1, [this](QJsonDocument json, ScraperError error) {
         if (error.hasError()) {
             if (error.message == "Series not found!") {

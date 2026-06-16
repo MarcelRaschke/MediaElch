@@ -82,7 +82,9 @@ void OmdbMovieSearchJob::searchViaImdbId()
 
 void OmdbMovieSearchJob::searchViaQuery()
 {
-    const auto [query, year] = extractYear(config().query);
+    const QueryAndYear queryAndYear = extractYear(config().query);
+    const int year = queryAndYear.year;
+    const QString query = queryAndYear.query;
     m_api.searchForMovie(query, year, 1, [this](QJsonDocument json, ScraperError error) {
         if (error.hasError()) {
             // "Movie not found!" is a normal OMDb response for no results
