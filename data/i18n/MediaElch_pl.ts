@@ -31,32 +31,32 @@
     <message>
         <location line="-58"/>
         <source>MediaElch was built with &lt;a href=&quot;https://www.qt.io/&quot;&gt;Qt&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>MediaElch został zbudowany z&lt;a href=&quot;https://www.qt.io/&quot;&gt;Qt&lt;/a&gt;</translation>
     </message>
     <message>
         <location line="+26"/>
         <source>About Qt</source>
-        <translation type="unfinished"></translation>
+        <translation>O Qt</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>&lt;a href=&quot;https://develop.kde.org/frameworks/breeze-icons/&quot; title=&quot;KDE Breeze Website&quot;&gt;Breeze icons&lt;/a&gt; copyright KDE and licenced under the GNU LGPL version 3 or later</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;a href=&quot;https://develop.kde.org/frameworks/breeze-icons/&quot; title=&quot;KDE Breeze Website&quot;&gt;Ikony Breeze&lt;/a&gt;objęte są prawami autorskimi KDE i licencją GNU LGPL w wersji 3 lub nowszej</translation>
     </message>
     <message>
         <location line="+23"/>
         <source>Stream Details detection with &lt;a href=&quot;https://www.mediaarea.net&quot;&gt;Media Info&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykrywanie ścieżek mediów za pomocą &lt;a href=&quot;https://www.mediaarea.net&quot;&gt;Media Info&lt;/a&gt;</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>&lt;a href=&quot;https://www.mediaelch.de/mediaelch/&quot;&gt;http://www.mediaelch.de&lt;/a&gt; powered by &lt;a href=&quot;https://www.kvibes.de&quot;&gt;k.vibes&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;a href=&quot;https://www.mediaelch.de/mediaelch/&quot;&gt;http://www.mediaelch.de&lt;/a&gt; obsługiwana przez &lt;a href=&quot;https://www.kvibes.de&quot;&gt;k.vibes&lt;/a&gt;</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Bugs and wishes can be reported on &lt;a href=&quot;https://github.com/Komet/MediaElch/issues&quot;&gt;GitHub&lt;/a&gt; .</source>
-        <translation type="unfinished"></translation>
+        <translation>Błędy i życzenia można zgłaszać na &lt;a href=&quot;https://github.com/Komet/MediaElch/issues&quot;&gt;GitHub&lt;/a&gt; .</translation>
     </message>
     <message>
         <location line="+27"/>
@@ -66,12 +66,12 @@
     <message>
         <location line="+6"/>
         <source>The information below is important for developers. Please provide if you need help.</source>
-        <translation type="unfinished"></translation>
+        <translation>Poniższe informacje są ważne dla programistów. Podaj, jeśli potrzebujesz pomocy.</translation>
     </message>
     <message>
         <location line="+28"/>
         <source>Copy to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj do schowka</translation>
     </message>
     <message>
         <location line="+23"/>
@@ -275,7 +275,7 @@
 <context>
     <name>ConcertFileSearcher</name>
     <message>
-        <location filename="../../src/file_search/ConcertFileSearcher.cpp" line="+52"/>
+        <location filename="../../src/file_search/ConcertFileSearcher.cpp" line="+51"/>
         <source>Searching for Concerts...</source>
         <translation>Wyszukiwanie koncertów...</translation>
     </message>
@@ -335,7 +335,7 @@
     <message>
         <location line="+1"/>
         <source>Play concert</source>
-        <translation type="unfinished"></translation>
+        <translation>Odtwarzaj koncert</translation>
     </message>
     <message numerus="yes">
         <location line="+321"/>
@@ -387,7 +387,7 @@
     <message>
         <location line="+11"/>
         <source>User Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocena użytkownika</translation>
     </message>
     <message>
         <location line="+40"/>
@@ -443,7 +443,7 @@
     <message>
         <location line="-302"/>
         <source>IDs</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikatory</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -466,16 +466,16 @@
     <message numerus="yes">
         <location line="+10"/>
         <source>%n concerts will be renamed</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Nazwa %n koncertu zostanie zmieniona</numerusform>
+            <numerusform>Nazwy %n koncertów zostaną zmienione</numerusform>
+            <numerusform>Nazwy %n koncertów zostaną zmienione</numerusform>
         </translation>
     </message>
     <message>
         <location line="+24"/>
         <source>&lt;b&gt;Concert&lt;/b&gt; &quot;%1&quot; not renamed: It has been edited but is not saved</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Koncert&lt;/b&gt; &quot;%1&quot; został zmieniony, ale zmiany nie zostały zapisane</translation>
     </message>
 </context>
 <context>
@@ -488,12 +488,12 @@
     <message>
         <location line="+19"/>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Internal TV scraper ID. Used as key in MediaElch&apos;s settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wewnętrzny identyfikator dostawcy danych seriali. Używany jako klucz w ustawieniach MediaElch.</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -503,42 +503,42 @@
     <message>
         <location line="+44"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Strona webowa</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>The scraper&apos;s main website.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podstawowa strona webowa dostawcy danych.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Terms of Service</source>
-        <translation type="unfinished"></translation>
+        <translation>Warunki świadczenia usług</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Terms of service of the TV scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warunki świadczenia usług dostawcy danych seriali.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Privacy Policy</source>
-        <translation type="unfinished"></translation>
+        <translation>Polityka prywatności</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Privacy Policy of the scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Polityka prywatności dostawcy danych.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomoc</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Where to get help for the TV scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gdzie uzyskać pomoc dotyczącą dostawcy danych seriali.</translation>
     </message>
 </context>
 <context>
@@ -649,20 +649,20 @@
     <message>
         <location filename="../../src/ui/concerts/ConcertSearchWidget.cpp" line="+106"/>
         <source>The %1 scraper could not be initialized!</source>
-        <translation type="unfinished"></translation>
+        <translation>Dostawca %1 nie został zainicjowany!</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Please insert a search string!</source>
-        <translation type="unfinished"></translation>
+        <translation>Wprowadź szukany ciąg znaków!</translation>
     </message>
     <message numerus="yes">
         <location line="+22"/>
         <source>Found %n results</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Znaleziono %n wynik</numerusform>
+            <numerusform>Znaleziono %n wyniki</numerusform>
+            <numerusform>Znaleziono %n wyniki</numerusform>
         </translation>
     </message>
     <message>
@@ -761,7 +761,7 @@
     <message>
         <location line="-115"/>
         <source>HDR Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ HDR</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -824,7 +824,7 @@
     <message>
         <location line="+32"/>
         <source>Play movie</source>
-        <translation type="unfinished"></translation>
+        <translation>Odtwarzaj film</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -936,12 +936,12 @@
     <message>
         <location filename="../../src/ui/export/csv_export/CsvExportDialog.ui" line="+14"/>
         <source>CSV Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksport do CSV</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>CSV Columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolumny CSV</translation>
     </message>
     <message>
         <location line="+13"/>
@@ -959,7 +959,7 @@
         <location line="-207"/>
         <location line="+217"/>
         <source>TV Episodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Odcinki</translation>
     </message>
     <message>
         <location line="-212"/>
@@ -971,18 +971,18 @@
         <location line="-217"/>
         <location line="+227"/>
         <source>Music Artists</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykonawcy muzyczni</translation>
     </message>
     <message>
         <location line="-222"/>
         <location line="+232"/>
         <source>Music Albums</source>
-        <translation type="unfinished"></translation>
+        <translation>Albumy muzyczne</translation>
     </message>
     <message>
         <location line="-67"/>
         <source>Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -992,17 +992,17 @@
     <message>
         <location line="+71"/>
         <source>Separator</source>
-        <translation type="unfinished"></translation>
+        <translation>Separator</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Replacement</source>
-        <translation type="unfinished"></translation>
+        <translation>Zamiana</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>Linebreaks will be replaced by &lt;code&gt;\n&lt;/code&gt;. </source>
-        <translation type="unfinished"></translation>
+        <translation>Podziały wiersza zostaną zastąpione przez &lt;code&gt;\n&lt;/code&gt;.</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -1017,34 +1017,34 @@
     <message>
         <location line="+17"/>
         <source>Export as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj jako CSV</translation>
     </message>
     <message>
         <location filename="../../src/ui/export/csv_export/CsvExportDialog.cpp" line="+30"/>
         <source>Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Zakładka</translation>
     </message>
     <message>
         <location line="+1"/>
         <location line="+5"/>
         <source>Semicolon (;)</source>
-        <translation type="unfinished"></translation>
+        <translation>Średnik (;)</translation>
     </message>
     <message>
         <location line="-4"/>
         <location line="+5"/>
         <source>Comma (,)</source>
-        <translation type="unfinished"></translation>
+        <translation>Przecinek (,)</translation>
     </message>
     <message>
         <location line="-2"/>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation>Spacja</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Minus (-)</source>
-        <translation type="unfinished"></translation>
+        <translation>Minus (-)</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -1059,42 +1059,42 @@
     <message>
         <location line="+2"/>
         <source>Export aborted. No directory was selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksport przerwany. Nie wybrano folderu.</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Export movies...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksport filmów...</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Export TV shows...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksport seriali...</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Export TV episodes...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksport odcinków...</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Export concerts...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksport koncertów...</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Export artists...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksport wykonawców...</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Export albums...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksport albumów...</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Export completed in %1 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksport ukończono w ciągu %1 sekund.</translation>
     </message>
     <message>
         <location line="+66"/>
@@ -1108,7 +1108,7 @@
         <location line="+80"/>
         <location line="+45"/>
         <source>Streamdetails - Duration (in seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżki - Czas trwania (w sekundach)</translation>
     </message>
     <message>
         <location line="-44"/>
@@ -1195,7 +1195,7 @@
     <message>
         <location line="-134"/>
         <source>Wikidata ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator Wikidata</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1239,13 +1239,13 @@
         <location line="+61"/>
         <location line="+72"/>
         <source>User Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocena użytkownika</translation>
     </message>
     <message>
         <location line="-132"/>
         <location line="+59"/>
         <source>IMDb Top 250</source>
-        <translation type="unfinished"></translation>
+        <translation>IMDb Top 250</translation>
     </message>
     <message>
         <location line="-58"/>
@@ -1262,7 +1262,7 @@
     <message>
         <location line="-131"/>
         <source>Runtime in minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas trwania w minutach</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1309,7 +1309,7 @@
     <message>
         <location line="-127"/>
         <source>Trailers</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwiastuny</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1321,17 +1321,17 @@
         <location line="-48"/>
         <location line="+127"/>
         <source>Playcount</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba odtworzeń</translation>
     </message>
     <message>
         <location line="-126"/>
         <source>Last played</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostatnio odtwarzane</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Movie Set</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolekcja</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1339,29 +1339,29 @@
         <location line="+80"/>
         <location line="+38"/>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Folder</translation>
     </message>
     <message>
         <location line="-163"/>
         <location line="+126"/>
         <source>Filename(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa(y) plików</translation>
     </message>
     <message>
         <location line="-125"/>
         <location line="+123"/>
         <source>Last Modified Date</source>
-        <translation type="unfinished"></translation>
+        <translation>Data ostatniej modyfikacji</translation>
     </message>
     <message>
         <location line="-95"/>
         <source>TheTvDb ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator TheTvDb</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>TVmaze ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator TVmaze</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -1383,7 +1383,7 @@
         <location line="-77"/>
         <location line="+73"/>
         <source>Ratings</source>
-        <translation type="unfinished"></translation>
+        <translation>Oceny</translation>
     </message>
     <message>
         <location line="-50"/>
@@ -1476,7 +1476,12 @@
         <translation>Data rozwiązania</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+1"/>
+        <source>MusicBrainz Artist ID</source>
+        <translation>Identyfikator wykonawcy MusicBrainz</translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>AllMusic ID</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1556,84 +1561,79 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+80"/>
-        <source>MusicBrainz Artist ID</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+18"/>
+        <location line="+98"/>
         <source>Artist - Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykonawca - Nazwa</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album - Title</source>
-        <translation type="unfinished"></translation>
+        <translation>Album - Tytuł</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album - Artist Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Album - Nazwa wykonawcy</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album - Genres</source>
-        <translation type="unfinished"></translation>
+        <translation>Album - Gatunki</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album - Styles</source>
-        <translation type="unfinished"></translation>
+        <translation>Album - Style</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album - Moods</source>
-        <translation type="unfinished"></translation>
+        <translation>Album - Nastroje</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album - Review</source>
-        <translation type="unfinished"></translation>
+        <translation>Album - Recenzja</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album - Release Date</source>
-        <translation type="unfinished"></translation>
+        <translation>Album - Premiera</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album - Label</source>
-        <translation type="unfinished"></translation>
+        <translation>Album - Wytwórnia</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album - Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Album - Ocena</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album - Year</source>
-        <translation type="unfinished"></translation>
+        <translation>Album - Rok</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album - MusicBrainz ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Album - Identyfikator MusicBrainz</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album - MusicBrainz ReleaseGroup ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Album - Identyfikator MusicBrainz ReleaseGroup</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album - AllMusic ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Album - Identyfikator AllMusic</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album - Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Album - Folder</translation>
     </message>
     <message>
         <location line="+40"/>
@@ -1676,9 +1676,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/settings/CustomTvScraperSettingsWidget.cpp" line="+160"/>
-        <location line="+34"/>
+        <location filename="../../src/ui/settings/CustomTvScraperSettingsWidget.cpp" line="+174"/>
+        <location line="+36"/>
         <source>No Scraper Available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>OMDb requires a personal API key. Please enter your key under Scraper → OMDb.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1742,10 +1747,10 @@
         <location filename="../../src/ui/import/DownloadsWidget.cpp" line="+128"/>
         <location line="+142"/>
         <source>%n files</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n plik</numerusform>
+            <numerusform>%n pliki</numerusform>
+            <numerusform>%n plików</numerusform>
         </translation>
     </message>
     <message>
@@ -1866,7 +1871,7 @@
     <message>
         <location line="+2"/>
         <source>Export aborted. No directory was selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksport przerwany. Nie wybrano folderu.</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -1934,7 +1939,7 @@
     <message>
         <location line="+5"/>
         <source>No website available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak strony webowej.</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -2053,7 +2058,7 @@
     <message>
         <location line="-315"/>
         <source>Original Title contains &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Tytuł oryginalny zawiera &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+236"/>
@@ -2098,27 +2103,27 @@
     <message>
         <location line="+2"/>
         <source>IMDb</source>
-        <translation type="unfinished"></translation>
+        <translation>IMDb</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Wikidata ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator Wikidata</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Movie has no Wikidata ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Film nie posiada identyfikatora Wikidata.</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>No Wikidata ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak identyfikatora Wikidata</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Wikidata</source>
-        <translation type="unfinished"></translation>
+        <translation>Wikidata</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -2532,7 +2537,7 @@
     <message>
         <location line="-288"/>
         <source>TMDB ID &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator TMDB &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+288"/>
@@ -2547,17 +2552,17 @@
     <message>
         <location line="+1"/>
         <source>Movie has no TMDB ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Film nie posiada identyfikatora TMDB.</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>No TMDB ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Film nie posiada identyfikatora TMDB.</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>TMDB</source>
-        <translation type="unfinished"></translation>
+        <translation>TMDB</translation>
     </message>
     <message>
         <location line="+52"/>
@@ -2810,7 +2815,7 @@
     <message>
         <location filename="../../src/ui/settings/GlobalSettingsWidget.ui" line="+21"/>
         <source>Directories</source>
-        <translation type="unfinished"></translation>
+        <translation>Foldery</translation>
     </message>
     <message>
         <location line="+36"/>
@@ -2857,7 +2862,7 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+3"/>
         <source>Ignore this folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignoruj ten folder.</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -2918,12 +2923,12 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+30"/>
         <source>Appearance</source>
-        <translation type="unfinished"></translation>
+        <translation>Wygląd</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Main Window Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Motyw okna głównego</translation>
     </message>
     <message>
         <location filename="../../src/ui/settings/GlobalSettingsWidget.cpp" line="+42"/>
@@ -2957,17 +2962,17 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+2"/>
         <source>Auto</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatycznie</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Jasny</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Dark</source>
-        <translation type="unfinished"></translation>
+        <translation>Ciemny</translation>
     </message>
     <message>
         <location line="+16"/>
@@ -3105,10 +3110,10 @@ The directories containing your music must contain subdirectories for each artis
     <message numerus="yes">
         <location line="+100"/>
         <source>Found %n results</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Znaleziono %n wynik</numerusform>
+            <numerusform>Znaleziono %n wyniki</numerusform>
+            <numerusform>Znaleziono %n wyniki</numerusform>
         </translation>
     </message>
     <message>
@@ -3148,12 +3153,12 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+19"/>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Internal TV scraper ID. Used as key in MediaElch&apos;s settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wewnętrzny identyfikator dostawcy danych seriali. Używany jako klucz w ustawieniach MediaElch.</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -3163,42 +3168,42 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+44"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Strona webowa</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>The scraper&apos;s main website.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podstawowa strona webowa źródła danych.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Terms of Service</source>
-        <translation type="unfinished"></translation>
+        <translation>Warunki użytkowania</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Terms of service of the TV scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warunki świadczenia usług dostawcy danych telewizyjnych.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Privacy Policy</source>
-        <translation type="unfinished"></translation>
+        <translation>Polityka prywatności</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Privacy Policy of the scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Polityka prywatności dostawcy danych.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomoc</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Where to get help for the TV scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gdzie uzyskać pomoc dotyczącą dostawcy danych seriali.</translation>
     </message>
 </context>
 <context>
@@ -3414,7 +3419,7 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+12"/>
         <source>Kodi Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Wersja Kodi</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -3556,7 +3561,7 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+22"/>
         <source>Error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd: %1</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -3579,7 +3584,7 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location filename="../../src/ui/small_widgets/LanguageCombo.cpp" line="+53"/>
         <source>No language available</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak dostępnego języka</translation>
     </message>
 </context>
 <context>
@@ -3610,17 +3615,17 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Arabic (U.A.E.)</source>
-        <translation type="unfinished"></translation>
+        <translation>Arabski (ZEA)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Arabic (Saudi Arabia)</source>
-        <translation type="unfinished"></translation>
+        <translation>Arabski (Arabia Saudyjska)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Belarusian</source>
-        <translation type="unfinished"></translation>
+        <translation>Białoruski</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3631,22 +3636,22 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Bengali</source>
-        <translation type="unfinished"></translation>
+        <translation>Bengalski</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Catalan (Spain)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kataloński (Hiszpania)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Chamorro (Guam)</source>
-        <translation type="unfinished"></translation>
+        <translation>Chamorro (Guam)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Cantonese</source>
-        <translation type="unfinished"></translation>
+        <translation>Kantoński</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3668,17 +3673,17 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>German (AT)</source>
-        <translation type="unfinished"></translation>
+        <translation>Niemiecki (Austria)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>German (CH)</source>
-        <translation type="unfinished"></translation>
+        <translation>Niemiecki (Szwajcaria)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>German (DE)</source>
-        <translation type="unfinished"></translation>
+        <translation>Niemiecki (Niemcy)</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3694,22 +3699,22 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>English (Australia)</source>
-        <translation type="unfinished"></translation>
+        <translation>Angielski (Australia)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>English (Canada)</source>
-        <translation type="unfinished"></translation>
+        <translation>Angielski (Kanada)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>English (GB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Angielski (Wielka Brytania)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>English (NZ)</source>
-        <translation type="unfinished"></translation>
+        <translation>Angielski (Nowa Zelandia)</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3719,7 +3724,7 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Esperanto</source>
-        <translation type="unfinished"></translation>
+        <translation>Esperanto</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3735,17 +3740,17 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Estonian</source>
-        <translation type="unfinished"></translation>
+        <translation>Estoński</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Basque (Spain)</source>
-        <translation type="unfinished"></translation>
+        <translation>Baskijski (Hiszpania)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Persian (Iran)</source>
-        <translation type="unfinished"></translation>
+        <translation>Perski (Iran)</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3767,7 +3772,7 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+2"/>
         <source>Galician (Spain)</source>
-        <translation type="unfinished"></translation>
+        <translation>Galicyjski (Hiszpania)</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3777,12 +3782,12 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Hebrew (Israel)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hebrajski (Izrael)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Hindi (India)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hindi (Indie)</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3792,7 +3797,7 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Croatian (Croatia)</source>
-        <translation type="unfinished"></translation>
+        <translation>Chorwacki (Chorwacja)</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3803,7 +3808,7 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Indonesian</source>
-        <translation type="unfinished"></translation>
+        <translation>Indonezyjski</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3820,17 +3825,17 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Georgian</source>
-        <translation type="unfinished"></translation>
+        <translation>Gruziński</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Kazakh</source>
-        <translation type="unfinished"></translation>
+        <translation>Kazachski</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Kannada</source>
-        <translation type="unfinished"></translation>
+        <translation>Kannada</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3841,32 +3846,32 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Lithuanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Litewski</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Latvian</source>
-        <translation type="unfinished"></translation>
+        <translation>Łotewski</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Malayalam</source>
-        <translation type="unfinished"></translation>
+        <translation>Malayalam</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Malay (Malaysia)</source>
-        <translation type="unfinished"></translation>
+        <translation>Malajski (Malezja)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Malay (Singapore)</source>
-        <translation type="unfinished"></translation>
+        <translation>Malajski (Singapur)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Norwegian Bokmål</source>
-        <translation type="unfinished"></translation>
+        <translation>Norweski książkowy</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3901,7 +3906,7 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Romanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Rumuński</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3912,12 +3917,12 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Sinhalese (Sri Lanka)</source>
-        <translation type="unfinished"></translation>
+        <translation>Syngaleski (Sri Lanka)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Slovak</source>
-        <translation type="unfinished"></translation>
+        <translation>Słowacki</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3927,17 +3932,17 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Slovenian</source>
-        <translation type="unfinished"></translation>
+        <translation>Słoweński</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Albanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Albański</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Serbian</source>
-        <translation type="unfinished"></translation>
+        <translation>Serbski</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3948,22 +3953,22 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Tamil (India)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamilski (Indie)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Telugu (India)</source>
-        <translation type="unfinished"></translation>
+        <translation>Telugu (Indie)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Thai</source>
-        <translation type="unfinished"></translation>
+        <translation>Tajski</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Tagalog (Philippines)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tagalski (Filipiny)</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3974,12 +3979,12 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Ukrainian</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukraiński</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Vietnamese</source>
-        <translation type="unfinished"></translation>
+        <translation>Wietnamski</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3989,27 +3994,27 @@ The directories containing your music must contain subdirectories for each artis
     <message>
         <location line="+1"/>
         <source>Chinese (PRC)</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiński (ChRL)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Chinese (Hong Kong)</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiński (Hong Kong)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Chinese (Taiwan)</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiński (Taiwan)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Zulu</source>
-        <translation type="unfinished"></translation>
+        <translation>Zulu</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>No language available</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak dostępnego języka</translation>
     </message>
 </context>
 <context>
@@ -4094,42 +4099,42 @@ Main menu entry (tooltip)</extracomment>
     <message>
         <location filename="../../src/ui/main/MainWindow.cpp" line="+126"/>
         <source>FAQ</source>
-        <translation type="unfinished"></translation>
+        <translation>Często zadawane pytania</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Troubleshooting</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozwiązywanie problemów</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Report Issue</source>
-        <translation type="unfinished"></translation>
+        <translation>Zgłoś problem</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Release Notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Informacje o wersji</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Documentation</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokumentacja</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Blog</source>
-        <translation type="unfinished"></translation>
+        <translation>Blog</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Official Kodi Forum</source>
-        <translation type="unfinished"></translation>
+        <translation>Oficjalne forum Kodi</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>View License</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyświetl licencje</translation>
     </message>
     <message>
         <location line="+261"/>
@@ -4407,10 +4412,10 @@ Operacja anulowana.</translation>
         <location filename="../../src/ui/movies/MovieFilesWidget.cpp" line="+30"/>
         <location line="+532"/>
         <source>%n movies</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n film</numerusform>
+            <numerusform>%n filmy</numerusform>
+            <numerusform>%n filmów</numerusform>
         </translation>
     </message>
     <message>
@@ -4466,15 +4471,15 @@ Operacja anulowana.</translation>
     <message>
         <location line="+1"/>
         <source>Play movie</source>
-        <translation type="unfinished"></translation>
+        <translation>Odtwarzaj film</translation>
     </message>
     <message numerus="yes">
         <location line="+476"/>
         <source>%1 of %n movies</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1 z %n filmu</numerusform>
+            <numerusform>%1 z %n filmów</numerusform>
+            <numerusform>%1 z %n filmów</numerusform>
         </translation>
     </message>
 </context>
@@ -4719,7 +4724,7 @@ Operacja anulowana.</translation>
     <message>
         <location line="+7"/>
         <source>Update only movies with IMDb ID/TMDb Id</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizuj tylko filmy z identyfikatorami IMDb/TMDb</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -4798,12 +4803,12 @@ Operacja anulowana.</translation>
     <message>
         <location line="+19"/>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Internal TV scraper ID. Used as key in MediaElch&apos;s settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wewnętrzny identyfikator dostawcy danych seriali. Używany jako klucz w ustawieniach MediaElch.</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -4813,42 +4818,42 @@ Operacja anulowana.</translation>
     <message>
         <location line="+44"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Strona webowa</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>The scraper&apos;s main website.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podstawowa strona webowa źródła danych.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Terms of Service</source>
-        <translation type="unfinished"></translation>
+        <translation>Warunki użytkowania</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Terms of service of the TV scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warunki świadczenia usług dostawcy danych telewizyjnych.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Privacy Policy</source>
-        <translation type="unfinished"></translation>
+        <translation>Polityka prywatności</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Privacy Policy of the scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Polityka prywatności dostawcy danych.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomoc</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Where to get help for the TV scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gdzie uzyskać pomoc dotyczącą dostawcy danych seriali.</translation>
     </message>
 </context>
 <context>
@@ -4862,6 +4867,11 @@ Operacja anulowana.</translation>
         <location line="+31"/>
         <source>Close</source>
         <translation>Zamknij</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Skip</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+13"/>
@@ -5020,19 +5030,19 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message numerus="yes">
         <location line="+41"/>
         <source>Found %n results</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Znaleziono %n wynik</numerusform>
+            <numerusform>Znaleziono %n wyniki</numerusform>
+            <numerusform>Znaleziono %n wyniki</numerusform>
         </translation>
     </message>
     <message>
-        <location line="+182"/>
+        <location line="+200"/>
         <source>Internal inconsistency: Selected an invalid scraper!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+66"/>
+        <location line="+68"/>
         <source>The following scrapers need a search result before MediaElch can load all details:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5107,7 +5117,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+47"/>
         <source>Movie Set Fanart Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa pliku fototapety dla kolekcji</translation>
     </message>
     <message>
         <location filename="../../src/ui/settings/MovieSettingsWidget.cpp" line="+21"/>
@@ -5137,7 +5147,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+9"/>
         <source>Movie Original Title</source>
-        <translation type="unfinished"></translation>
+        <translation>Tytuł oryginalny filmu</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -5165,7 +5175,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+32"/>
         <source>Play movie</source>
-        <translation type="unfinished"></translation>
+        <translation>Odtwarzaj film</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -5292,7 +5302,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+33"/>
         <source>User Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocena użytkownika</translation>
     </message>
     <message>
         <location line="+45"/>
@@ -5318,13 +5328,13 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+19"/>
         <source>Open movie on IMDb.com</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz film na stronie IMDb.com</translation>
     </message>
     <message>
         <location line="+3"/>
         <location line="+36"/>
         <source>Go</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź</translation>
     </message>
     <message>
         <location line="-13"/>
@@ -5334,7 +5344,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+10"/>
         <source>Open movie on TheMovieDB.org</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz film na stronie TheMovieDB.org</translation>
     </message>
     <message>
         <location line="+41"/>
@@ -5416,7 +5426,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="-567"/>
         <source>Ratings</source>
-        <translation type="unfinished"></translation>
+        <translation>Oceny</translation>
     </message>
     <message>
         <location line="+426"/>
@@ -5431,7 +5441,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+144"/>
         <source>HDR Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ HDR</translation>
     </message>
     <message>
         <location line="+28"/>
@@ -5553,7 +5563,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+1"/>
         <source>Add TV Show</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj serial</translation>
     </message>
     <message>
         <location line="+378"/>
@@ -5626,12 +5636,12 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
 <context>
     <name>MusicFileSearcher</name>
     <message>
-        <location filename="../../src/file_search/MusicFileSearcher.cpp" line="+43"/>
+        <location filename="../../src/file_search/MusicFileSearcher.cpp" line="+45"/>
         <source>Searching for Music...</source>
         <translation>Wyszukiwanie muzyki...</translation>
     </message>
     <message>
-        <location line="+86"/>
+        <location line="+84"/>
         <source>Loading Music...</source>
         <translation>Wczytywanie muzyki...</translation>
     </message>
@@ -5860,12 +5870,12 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+19"/>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Internal TV scraper ID. Used as key in MediaElch&apos;s settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wewnętrzny identyfikator dostawcy danych seriali. Używany jako klucz w ustawieniach MediaElch.</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -5875,42 +5885,42 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+44"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Strona webowa</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>The scraper&apos;s main website.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podstawowa strona webowa źródła danych.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Terms of Service</source>
-        <translation type="unfinished"></translation>
+        <translation>Warunki użytkowania</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Terms of service of the TV scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warunki świadczenia usług dostawcy danych telewizyjnych.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Privacy Policy</source>
-        <translation type="unfinished"></translation>
+        <translation>Polityka prywatności</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Privacy Policy of the scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Polityka prywatności dostawcy danych.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomoc</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Where to get help for the TV scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gdzie uzyskać pomoc dotyczącą dostawcy danych seriali.</translation>
     </message>
 </context>
 <context>
@@ -6345,7 +6355,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+7"/>
         <source>MusicBrainz Artist ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator wykonawcy MusicBrainz</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -6543,17 +6553,17 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+4"/>
         <source>Export HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj HTML</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Export CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj CSV</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Export Database (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj bazę danych (%1)</translation>
     </message>
 </context>
 <context>
@@ -6716,27 +6726,27 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+30"/>
         <source>Original Title</source>
-        <translation type="unfinished">Tytuł oryginalny</translation>
+        <translation>Tytuł oryginalny</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Sort Title</source>
-        <translation type="unfinished">Tytuł sortowania</translation>
+        <translation>Tytuł sortowania</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Director(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Reżyser(zy)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Studio(s) (separated by a comma)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wytwórnia(e) (oddzielone przecinkiem)</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Movie set name</source>
-        <translation type="unfinished">Nazwa serii filmowej</translation>
+        <translation>Nazwa serii filmowej</translation>
     </message>
     <message>
         <location line="+418"/>
@@ -6746,63 +6756,63 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location filename="../../src/ui/tv_show/TvShowCommonWidgets.cpp" line="+59"/>
         <source>Aired order</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolejność emisji</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>DVD order</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolejność DVD</translation>
     </message>
     <message>
         <location filename="../../src/network/HttpStatusCodes.cpp" line="+8"/>
         <source>Timeout by MediaElch</source>
-        <translation type="unfinished"></translation>
+        <translation>Przekroczony czas oczekiwania przez MediaElch</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Content not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak zawartości</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Remote connection timed out</source>
-        <translation type="unfinished"></translation>
+        <translation>Przekroczony czas oczekiwania połączenia zdalnego</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>SSL handshake failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieudane zestawienie połączenia SSL</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Too many redirects</source>
-        <translation type="unfinished"></translation>
+        <translation>Zbyt wiele przekierowań</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Connection refused by host</source>
-        <translation type="unfinished"></translation>
+        <translation>Połączenie odrzucone przez serwer</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Host not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Serwer nieodnaleziony</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Unknown network error</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznany błąd sieciowy</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Could not load the requested resource</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można wczytać żądanego zasobu</translation>
     </message>
     <message>
         <location filename="../../src/scrapers/ScraperError.cpp" line="+18"/>
         <location line="+7"/>
         <source>Network Error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd sieciowy: %1</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -6898,14 +6908,14 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="+37"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="-435"/>
         <source>File extension</source>
-        <translation type="unfinished">Rozszerzenie pliku</translation>
+        <translation>Rozszerzenie pliku</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="+1"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+3"/>
         <source>Part number of the current file</source>
-        <translation type="unfinished">Numer części aktualnego pliku</translation>
+        <translation>Numer części aktualnego pliku</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6913,7 +6923,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
         <location line="+17"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+1"/>
         <source>Title</source>
-        <translation type="unfinished">Tytuł</translation>
+        <translation>Tytuł</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6921,38 +6931,38 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
         <location line="+19"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+5"/>
         <source>Year</source>
-        <translation type="unfinished">Rok</translation>
+        <translation>Rok</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="+4"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+4"/>
         <source>Audio Codec</source>
-        <translation type="unfinished">Kodek dźwięku</translation>
+        <translation>Kodek dźwięku</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Artist</source>
-        <translation type="unfinished">Wykonawca</translation>
+        <translation>Wykonawca</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album</source>
-        <translation type="unfinished">Album</translation>
+        <translation>Album</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="+7"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+2"/>
         <source>Resolution (1080p, 720p, ...)</source>
-        <translation type="unfinished">Rozdzielczość (1080p, 720p, ...)</translation>
+        <translation>Rozdzielczość (1080p, 720p, ...)</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="-3"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="-1"/>
         <source>Number of audio channels</source>
-        <translation type="unfinished">Liczba kanałów</translation>
+        <translation>Liczba kanałów</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6966,7 +6976,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="-2"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="-2"/>
         <source>Video Codec</source>
-        <translation type="unfinished">Kodek wideo</translation>
+        <translation>Kodek wideo</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6980,63 +6990,63 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="-5"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+5"/>
         <source>File is 3D</source>
-        <translation type="unfinished">Plik wideo 3D</translation>
+        <translation>Plik wideo 3D</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="-15"/>
         <source>File/directory is BluRay</source>
-        <translation type="unfinished">Plik/folder ma strukturę dysku BluRay</translation>
+        <translation>Plik/folder ma strukturę dysku BluRay</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+1"/>
         <source>File/directory is DVD</source>
-        <translation type="unfinished">Plik/folder ma strukturę dysku DVD</translation>
+        <translation>Plik/folder ma strukturę dysku DVD</translation>
     </message>
     <message>
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="-22"/>
         <location line="+20"/>
         <source>Show Title</source>
-        <translation type="unfinished">Tytuł serialu</translation>
+        <translation>Tytuł serialu</translation>
     </message>
     <message>
         <location line="-19"/>
         <location line="+29"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+17"/>
         <source>TMDB ID</source>
-        <translation type="unfinished">Identyfikator TMDB</translation>
+        <translation>Identyfikator TMDB</translation>
     </message>
     <message>
         <location line="-13"/>
         <source>Episode</source>
-        <translation type="unfinished">Odcinek</translation>
+        <translation>Odcinek</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Season</source>
-        <translation type="unfinished">Sezon</translation>
+        <translation>Sezon</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Season Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa sezonu</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>File is BluRay</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik jest obrazem BluRay</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>File is DVD</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik jest obrazem DVD</translation>
     </message>
     <message>
         <location line="+7"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="-1"/>
         <source>IMDb ID</source>
-        <translation type="unfinished">Identyfikator IMDb</translation>
+        <translation>Identyfikator IMDb</translation>
     </message>
 </context>
 <context>
@@ -7088,7 +7098,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location filename="../../src/model/RatingModel.cpp" line="+100"/>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7098,17 +7108,17 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+1"/>
         <source>Vote Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba głosów</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Min. Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocena minimalna</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Max. Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocena maksymalna</translation>
     </message>
 </context>
 <context>
@@ -7121,12 +7131,12 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+66"/>
         <source>Add rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj ocenę</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Remove selected rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń wybraną ocenę</translation>
     </message>
 </context>
 <context>
@@ -7144,7 +7154,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+158"/>
         <source>Replace Spaces with</source>
-        <translation type="unfinished"></translation>
+        <translation>Zamień spacje znakiem</translation>
     </message>
     <message>
         <location line="+41"/>
@@ -7154,7 +7164,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+10"/>
         <source>Replace Space Delimiter</source>
-        <translation type="unfinished"></translation>
+        <translation>Zamień separator spacji</translation>
     </message>
     <message>
         <location line="-17"/>
@@ -7236,7 +7246,8 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location filename="../../src/ui/small_widgets/ScrapePreview.ui" line="+43"/>
         <source>&lt;b&gt;Preview&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Preview &lt;/b&gt;
+</translation>
     </message>
     <message>
         <location line="+40"/>
@@ -7247,10 +7258,10 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
 <context>
     <name>ScraperInfoTranslation</name>
     <message>
-        <location filename="../../src/scrapers/ScraperInfos.cpp" line="+159"/>
+        <location filename="../../src/scrapers/ScraperInfos.cpp" line="+161"/>
         <location line="+30"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawny</translation>
     </message>
     <message>
         <location line="-29"/>
@@ -7328,7 +7339,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="-24"/>
         <source>Extra Art</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafika dodatkowa</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7343,17 +7354,17 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+1"/>
         <source>Extra Fanart</source>
-        <translation type="unfinished"></translation>
+        <translation>Fototapeta dodatkowa</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Show Thumbnail</source>
-        <translation type="unfinished"></translation>
+        <translation>Miniatura serialu</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Season Thumbnail</source>
-        <translation type="unfinished"></translation>
+        <translation>Miniatura sezonu</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7392,7 +7403,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location filename="../../src/ui/settings/ScraperSettingsTable.ui" line="+41"/>
         <source>Enable adult scrapers</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktywuj dostawców treści dla dorosłych</translation>
     </message>
     <message>
         <location filename="../../src/ui/settings/ScraperSettingsTable.cpp" line="+60"/>
@@ -7430,10 +7441,10 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+14"/>
         <source>Custom TV Scraper</source>
-        <translation type="unfinished"></translation>
+        <translation>Dostawca niestandardowy</translation>
     </message>
     <message>
-        <location filename="../../src/ui/settings/ScraperSettingsWidget.cpp" line="+183"/>
+        <location filename="../../src/ui/settings/ScraperSettingsWidget.cpp" line="+194"/>
         <source>Movies</source>
         <translation>Filmy</translation>
     </message>
@@ -7445,7 +7456,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+4"/>
         <source>TV shows</source>
-        <translation type="unfinished"></translation>
+        <translation>Seriale</translation>
     </message>
     <message>
         <location line="+0"/>
@@ -7483,12 +7494,12 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+94"/>
+        <location line="+97"/>
         <source>Don&apos;t use</source>
         <translation>Nie używaj</translation>
     </message>
     <message>
-        <location line="+47"/>
+        <location line="+49"/>
         <source>Title</source>
         <translation>Tytuł</translation>
     </message>
@@ -7526,6 +7537,11 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
         <location line="+1"/>
         <source>Plot</source>
         <translation>Fabuła</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Outline</source>
+        <translation>Zarys</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7611,6 +7627,11 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
         <location line="+1"/>
         <source>Unsupported</source>
         <translation>Niewspierane</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>OMDb requires a personal API key. Please enter your key under Scraper → OMDb.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7966,12 +7987,12 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+19"/>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Internal TV scraper ID. Used as key in MediaElch&apos;s settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wewnętrzny identyfikator dostawcy danych seriali. Używany jako klucz w ustawieniach MediaElch.</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -7981,48 +8002,48 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
     <message>
         <location line="+44"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Strona webowa</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>The scraper&apos;s main website.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podstawowa strona webowa źródła danych.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Terms of Service</source>
-        <translation type="unfinished"></translation>
+        <translation>Warunki użytkowania</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Terms of service of the TV scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warunki świadczenia usług dostawcy danych telewizyjnych.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Privacy Policy</source>
-        <translation type="unfinished"></translation>
+        <translation>Polityka prywatności</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Privacy Policy of the scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Polityka prywatności dostawcy danych.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomoc</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Where to get help for the TV scraper.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gdzie uzyskać pomoc dotyczącą dostawcy danych seriali.</translation>
     </message>
 </context>
 <context>
     <name>TvShowFileSearcher</name>
     <message>
-        <location filename="../../src/file_search/TvShowFileSearcher.cpp" line="+51"/>
+        <location filename="../../src/file_search/TvShowFileSearcher.cpp" line="+53"/>
         <source>Searching for TV Shows...</source>
         <translation>Wyszukiwanie seriali...</translation>
     </message>
@@ -8032,7 +8053,7 @@ If you want to search by an TMDb id please prefix it with &quot;id&quot;.</sourc
         <translation>Wczytywanie seriali...</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+30"/>
         <source>Searching for Episodes...</source>
         <translation>Wyszukiwanie odcinków...</translation>
     </message>
@@ -8752,20 +8773,20 @@ episode after scraping</source>
     <message>
         <location filename="../../src/ui/tv_show/TvShowSearchWidget.cpp" line="+171"/>
         <source>The %1 scraper could not be initialized!</source>
-        <translation type="unfinished"></translation>
+        <translation>Dostawca %1 nie został zainicjowany!</translation>
     </message>
     <message>
         <location line="-22"/>
         <source>Please insert a search string!</source>
-        <translation type="unfinished"></translation>
+        <translation>Wprowadź szukany ciąg znaków!</translation>
     </message>
     <message numerus="yes">
         <location line="+41"/>
         <source>Found %n results</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Znaleziono %n wynik</numerusform>
+            <numerusform>Znaleziono %n wyniki</numerusform>
+            <numerusform>Znaleziono %n wyniki</numerusform>
         </translation>
     </message>
     <message>
@@ -8936,7 +8957,7 @@ episode after scraping</source>
     <message>
         <location line="-85"/>
         <source>Play movie</source>
-        <translation type="unfinished"></translation>
+        <translation>Odtwarzaj film</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -8957,7 +8978,7 @@ episode after scraping</source>
         <location line="+3"/>
         <location line="+10"/>
         <source>Go</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź</translation>
     </message>
     <message>
         <location line="-3"/>
@@ -9047,12 +9068,12 @@ episode after scraping</source>
     <message>
         <location line="-239"/>
         <source>TVmaze ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator TVmaze</translation>
     </message>
     <message>
         <location line="-68"/>
         <source>IDs</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikatory</translation>
     </message>
     <message>
         <location line="+460"/>
@@ -9202,7 +9223,7 @@ episode after scraping</source>
     <message>
         <location line="+55"/>
         <source>HDR Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ HDR</translation>
     </message>
     <message>
         <location line="+31"/>
@@ -9325,7 +9346,7 @@ episode after scraping</source>
     <message>
         <location line="+11"/>
         <source>Season Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa sezonu</translation>
     </message>
     <message>
         <location line="+22"/>
@@ -9400,7 +9421,7 @@ episode after scraping</source>
     <message>
         <location line="+14"/>
         <source>IDs</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikatory</translation>
     </message>
     <message>
         <location line="+179"/>
@@ -9452,7 +9473,7 @@ episode after scraping</source>
         <location line="+20"/>
         <location line="+96"/>
         <source>Go</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź</translation>
     </message>
     <message>
         <location line="-99"/>
@@ -9472,12 +9493,12 @@ episode after scraping</source>
     <message>
         <location line="+46"/>
         <source>IMDb</source>
-        <translation type="unfinished"></translation>
+        <translation>IMDb</translation>
     </message>
     <message>
         <location line="+20"/>
         <source>TMDB</source>
-        <translation type="unfinished"></translation>
+        <translation>TMDB</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -9547,7 +9568,7 @@ episode after scraping</source>
     <message>
         <location line="-311"/>
         <source>User Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocena użytkownika</translation>
     </message>
     <message>
         <location line="-24"/>
@@ -9885,7 +9906,7 @@ episode after scraping</source>
         <translation>Wyszukiwanie filmów...</translation>
     </message>
     <message>
-        <location line="+99"/>
+        <location line="+98"/>
         <source>Searching for movies...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9930,7 +9951,7 @@ episode after scraping</source>
 <context>
     <name>mediaelch::scraper::CustomTvScraper</name>
     <message>
-        <location filename="../../src/scrapers/tv_show/custom/CustomTvScraper.cpp" line="+28"/>
+        <location filename="../../src/scrapers/tv_show/custom/CustomTvScraper.cpp" line="+29"/>
         <source>Custom TV scraper</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10029,7 +10050,7 @@ episode after scraping</source>
 <context>
     <name>mediaelch::scraper::FernsehserienDeEpisodeScrapeJob</name>
     <message>
-        <location filename="../../src/scrapers/tv_show/fernsehserien_de/FernsehserienDe.cpp" line="+663"/>
+        <location filename="../../src/scrapers/tv_show/fernsehserien_de/FernsehserienDe.cpp" line="+662"/>
         <source>Could not load ID for episode from season overview page. Can&apos;t scrape requested TV show episode.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10127,6 +10148,83 @@ episode after scraping</source>
     </message>
 </context>
 <context>
+    <name>mediaelch::scraper::OmdbApi</name>
+    <message>
+        <location filename="../../src/scrapers/omdb/OmdbApi.cpp" line="+37"/>
+        <source>No OMDb API key configured. Please enter your API key in Settings → Scraper → OMDb.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>OMDb API returned invalid JSON</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbMovie</name>
+    <message>
+        <location filename="../../src/scrapers/movie/omdb/OmdbMovie.cpp" line="+28"/>
+        <source>The Open Movie Database (OMDb) is a free web service to obtain movie information. It provides ratings from IMDB, Rotten Tomatoes, and Metacritic in a single API call. Requires a free personal API key from omdbapi.com (free: 1,000 requests/day). High-resolution poster images are available for OMDb Patreon supporters (see patreon.com/omdb).</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbMovieConfigurationView</name>
+    <message>
+        <location filename="../../src/ui/scrapers/movie/OmdbMovieConfigurationView.cpp" line="+15"/>
+        <source>API key</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbMovieScrapeJob</name>
+    <message>
+        <location filename="../../src/scrapers/movie/omdb/OmdbMovieScrapeJob.cpp" line="+24"/>
+        <source>OMDb requires an IMDb ID for loading movie details</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbTv</name>
+    <message>
+        <location filename="../../src/scrapers/tv_show/omdb/OmdbTv.cpp" line="+18"/>
+        <source>The Open Movie Database (OMDb) is a free web service to obtain movie and TV information. It provides ratings from IMDB, Rotten Tomatoes, and Metacritic in a single API call. Requires a free personal API key from omdbapi.com (free: 1,000 requests/day).</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbTvConfigurationView</name>
+    <message>
+        <location filename="../../src/ui/scrapers/tv_show/OmdbTvConfigurationView.cpp" line="+15"/>
+        <source>API key</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbTvEpisodeScrapeJob</name>
+    <message>
+        <location filename="../../src/scrapers/tv_show/omdb/OmdbTvEpisodeScrapeJob.cpp" line="+25"/>
+        <source>OMDb requires an IMDb ID for loading episode details</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbTvSeasonScrapeJob</name>
+    <message>
+        <location filename="../../src/scrapers/tv_show/omdb/OmdbTvSeasonScrapeJob.cpp" line="+24"/>
+        <source>OMDb requires an IMDb ID for loading season details</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbTvShowScrapeJob</name>
+    <message>
+        <location filename="../../src/scrapers/tv_show/omdb/OmdbTvShowScrapeJob.cpp" line="+24"/>
+        <source>OMDb requires an IMDb ID for loading show details</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>mediaelch::scraper::TheTvDb</name>
     <message>
         <location filename="../../src/scrapers/tv_show/thetvdb/TheTvDb.cpp" line="+19"/>
@@ -10209,7 +10307,7 @@ episode after scraping</source>
 <context>
     <name>mediaelch::scraper::TmdbMovie</name>
     <message>
-        <location filename="../../src/scrapers/movie/tmdb/TmdbMovie.cpp" line="+37"/>
+        <location filename="../../src/scrapers/movie/tmdb/TmdbMovie.cpp" line="+38"/>
         <source>The Movie Database (TMDB) is a community built movie and TV database. Every piece of data has been added by our amazing community dating back to 2008. TMDB&apos;s strong international focus and breadth of data is largely unmatched and something we&apos;re incredibly proud of. Put simply, we live and breathe community and that&apos;s precisely what makes us different.</source>
         <translation type="unfinished"></translation>
     </message>

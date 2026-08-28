@@ -275,7 +275,7 @@
 <context>
     <name>ConcertFileSearcher</name>
     <message>
-        <location filename="../../src/file_search/ConcertFileSearcher.cpp" line="+52"/>
+        <location filename="../../src/file_search/ConcertFileSearcher.cpp" line="+51"/>
         <source>Searching for Concerts...</source>
         <translation>Cerco i concerti...</translation>
     </message>
@@ -1472,7 +1472,12 @@
         <translation>Data di scioglimento</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+1"/>
+        <source>MusicBrainz Artist ID</source>
+        <translation>MusicBrainz Artist ID</translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>AllMusic ID</source>
         <translation>ID AllMusic</translation>
     </message>
@@ -1552,12 +1557,7 @@
         <translation>Episodio - Nome file</translation>
     </message>
     <message>
-        <location line="+80"/>
-        <source>MusicBrainz Artist ID</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+18"/>
+        <location line="+98"/>
         <source>Artist - Name</source>
         <translation>Artista - Nome</translation>
     </message>
@@ -1672,10 +1672,15 @@
         <translation>Dettagli episodio</translation>
     </message>
     <message>
-        <location filename="../../src/ui/settings/CustomTvScraperSettingsWidget.cpp" line="+160"/>
-        <location line="+34"/>
+        <location filename="../../src/ui/settings/CustomTvScraperSettingsWidget.cpp" line="+174"/>
+        <location line="+36"/>
         <source>No Scraper Available</source>
         <translation>Nessuno scraper disponibile</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>OMDb requires a personal API key. Please enter your key under Scraper → OMDb.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4855,6 +4860,11 @@ Operazione cancellata</translation>
         <translation>Chiudi</translation>
     </message>
     <message>
+        <location line="+16"/>
+        <source>Skip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+13"/>
         <source>Scrape</source>
         <translation>Scrape</translation>
@@ -5018,12 +5028,12 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
         </translation>
     </message>
     <message>
-        <location line="+182"/>
+        <location line="+200"/>
         <source>Internal inconsistency: Selected an invalid scraper!</source>
         <translation>Errore interno: è stato selezionato uno scraper non valido!</translation>
     </message>
     <message>
-        <location line="+66"/>
+        <location line="+68"/>
         <source>The following scrapers need a search result before MediaElch can load all details:</source>
         <translation>I seguenti scraper necessitano di un risultato di ricerca prima che MediaElch possa caricare tutti i dettagli:</translation>
     </message>
@@ -5098,7 +5108,7 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
     <message>
         <location line="+47"/>
         <source>Movie Set Fanart Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome file dei Fanart per i Gruppi di Film</translation>
     </message>
     <message>
         <location filename="../../src/ui/settings/MovieSettingsWidget.cpp" line="+21"/>
@@ -5617,12 +5627,12 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
 <context>
     <name>MusicFileSearcher</name>
     <message>
-        <location filename="../../src/file_search/MusicFileSearcher.cpp" line="+43"/>
+        <location filename="../../src/file_search/MusicFileSearcher.cpp" line="+45"/>
         <source>Searching for Music...</source>
         <translation>Ricerca per Musica...</translation>
     </message>
     <message>
-        <location line="+86"/>
+        <location line="+84"/>
         <source>Loading Music...</source>
         <translation>Caricamento Musica...</translation>
     </message>
@@ -6331,7 +6341,7 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
     <message>
         <location line="+7"/>
         <source>MusicBrainz Artist ID</source>
-        <translation type="unfinished"></translation>
+        <translation>MusicBrainz Artist ID</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -6612,12 +6622,12 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
     <message>
         <location filename="../../src/main.cpp" line="+33"/>
         <source>Logfile could not be opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile aprire il file di log</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>The logfile %1 could not be opened for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile aprire il file di log %1 in scrittura.</translation>
     </message>
     <message>
         <location line="+42"/>
@@ -6702,27 +6712,27 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
     <message>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+30"/>
         <source>Original Title</source>
-        <translation type="unfinished">Titolo originale</translation>
+        <translation>Titolo originale</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Sort Title</source>
-        <translation type="unfinished">Titolo per ordinamento</translation>
+        <translation>Titolo per ordinamento</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Director(s)</source>
-        <translation type="unfinished">Regista(i)</translation>
+        <translation>Regista(i)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Studio(s) (separated by a comma)</source>
-        <translation type="unfinished">Studio (separati da virgola)</translation>
+        <translation>Studio (separati da virgola)</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Movie set name</source>
-        <translation type="unfinished">Nome del Gruppo di Film</translation>
+        <translation>Nome del Gruppo di Film</translation>
     </message>
     <message>
         <location line="+418"/>
@@ -6884,14 +6894,14 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="+37"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="-435"/>
         <source>File extension</source>
-        <translation type="unfinished">Estensione file</translation>
+        <translation>Estensione file</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="+1"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+3"/>
         <source>Part number of the current file</source>
-        <translation type="unfinished">Numero parte del file corrente</translation>
+        <translation>Numero parte del file corrente</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6899,7 +6909,7 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
         <location line="+17"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+1"/>
         <source>Title</source>
-        <translation type="unfinished">Titolo</translation>
+        <translation>Titolo</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6907,122 +6917,122 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
         <location line="+19"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+5"/>
         <source>Year</source>
-        <translation type="unfinished">Anno</translation>
+        <translation>Anno</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="+4"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+4"/>
         <source>Audio Codec</source>
-        <translation type="unfinished">Codec Audio</translation>
+        <translation>Codec Audio</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Artist</source>
-        <translation type="unfinished">Artista</translation>
+        <translation>Artista</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Album</source>
-        <translation type="unfinished">Album</translation>
+        <translation>Album</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="+7"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+2"/>
         <source>Resolution (1080p, 720p, ...)</source>
-        <translation type="unfinished">Risoluzione (1080p, 720p, ...)</translation>
+        <translation>Risoluzione (1080p, 720p, ...)</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="-3"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="-1"/>
         <source>Number of audio channels</source>
-        <translation type="unfinished">Numero di canali audio</translation>
+        <translation>Numero di canali audio</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="-1"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="-2"/>
         <source>Subtitle Language(s) (separated by a minus)</source>
-        <translation type="unfinished">Lingue sottotitoli (separate da trattino)</translation>
+        <translation>Lingue sottotitoli (separate da trattino)</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="-2"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="-2"/>
         <source>Video Codec</source>
-        <translation type="unfinished">Codec Video</translation>
+        <translation>Codec Video</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="+1"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+1"/>
         <source>Audio Language(s) (separated by a minus)</source>
-        <translation type="unfinished">Lingue Audio (separate da trattino)</translation>
+        <translation>Lingue Audio (separate da trattino)</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="-5"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+5"/>
         <source>File is 3D</source>
-        <translation type="unfinished">File è in 3D</translation>
+        <translation>File è in 3D</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="-15"/>
         <source>File/directory is BluRay</source>
-        <translation type="unfinished">File/Cartella è un BluRay</translation>
+        <translation>File/Cartella è un BluRay</translation>
     </message>
     <message>
         <location line="+1"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+1"/>
         <source>File/directory is DVD</source>
-        <translation type="unfinished">File/Cartella è un DVD</translation>
+        <translation>File/Cartella è un DVD</translation>
     </message>
     <message>
         <location filename="../../src/renamer/EpisodeRenamer.cpp" line="-22"/>
         <location line="+20"/>
         <source>Show Title</source>
-        <translation type="unfinished">Titolo</translation>
+        <translation>Titolo</translation>
     </message>
     <message>
         <location line="-19"/>
         <location line="+29"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="+17"/>
         <source>TMDB ID</source>
-        <translation type="unfinished">TMDB ID</translation>
+        <translation>TMDB ID</translation>
     </message>
     <message>
         <location line="-13"/>
         <source>Episode</source>
-        <translation type="unfinished">Episodio</translation>
+        <translation>Episodio</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Season</source>
-        <translation type="unfinished">Stagione</translation>
+        <translation>Stagione</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Season Name</source>
-        <translation type="unfinished">Nome Stagione</translation>
+        <translation>Nome Stagione</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>File is BluRay</source>
-        <translation type="unfinished"></translation>
+        <translation>File è un BluRay</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>File is DVD</source>
-        <translation type="unfinished"></translation>
+        <translation>File è un DVD</translation>
     </message>
     <message>
         <location line="+7"/>
         <location filename="../../src/renamer/MovieRenamer.cpp" line="-1"/>
         <source>IMDb ID</source>
-        <translation type="unfinished">IMDb ID</translation>
+        <translation>IMDb ID</translation>
     </message>
 </context>
 <context>
@@ -7233,7 +7243,7 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
 <context>
     <name>ScraperInfoTranslation</name>
     <message>
-        <location filename="../../src/scrapers/ScraperInfos.cpp" line="+159"/>
+        <location filename="../../src/scrapers/ScraperInfos.cpp" line="+161"/>
         <location line="+30"/>
         <source>Invalid</source>
         <translation>Non valido</translation>
@@ -7419,7 +7429,7 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
         <translation>Scraper TV personalizzato</translation>
     </message>
     <message>
-        <location filename="../../src/ui/settings/ScraperSettingsWidget.cpp" line="+183"/>
+        <location filename="../../src/ui/settings/ScraperSettingsWidget.cpp" line="+194"/>
         <source>Movies</source>
         <translation>Film</translation>
     </message>
@@ -7469,12 +7479,12 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
         <translation>Seleziona un provider per le immagini dalla lista.</translation>
     </message>
     <message>
-        <location line="+94"/>
+        <location line="+97"/>
         <source>Don&apos;t use</source>
         <translation>Non usare</translation>
     </message>
     <message>
-        <location line="+47"/>
+        <location line="+49"/>
         <source>Title</source>
         <translation>Titolo</translation>
     </message>
@@ -7512,6 +7522,11 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
         <location line="+1"/>
         <source>Plot</source>
         <translation>Trama</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Outline</source>
+        <translation>Sinossi</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7597,6 +7612,11 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
         <location line="+1"/>
         <source>Unsupported</source>
         <translation>Non supportato</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>OMDb requires a personal API key. Please enter your key under Scraper → OMDb.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8008,7 +8028,7 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
 <context>
     <name>TvShowFileSearcher</name>
     <message>
-        <location filename="../../src/file_search/TvShowFileSearcher.cpp" line="+51"/>
+        <location filename="../../src/file_search/TvShowFileSearcher.cpp" line="+53"/>
         <source>Searching for TV Shows...</source>
         <translation>Ricerca Serie TV...</translation>
     </message>
@@ -8018,7 +8038,7 @@ Se vuoi cercare per un ID di TMDb inizia la stringa con &quot;id&quot;.</transla
         <translation>Caricamento Serie TV...</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+30"/>
         <source>Searching for Episodes...</source>
         <translation>Ricerca episodi...</translation>
     </message>
@@ -9865,7 +9885,7 @@ Episodio dopo lo scraping</translation>
         <translation>Ricerca Film...</translation>
     </message>
     <message>
-        <location line="+99"/>
+        <location line="+98"/>
         <source>Searching for movies...</source>
         <translation>Ricerca Film...</translation>
     </message>
@@ -9891,7 +9911,7 @@ Episodio dopo lo scraping</translation>
     <message>
         <location filename="../../src/ui/scrapers/movie/AdultDvdEmpireConfigurationView.cpp" line="+13"/>
         <source>Store back cover as fanart and poster</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva la cover posteriore come fanart e poster</translation>
     </message>
 </context>
 <context>
@@ -9910,7 +9930,7 @@ Episodio dopo lo scraping</translation>
 <context>
     <name>mediaelch::scraper::CustomTvScraper</name>
     <message>
-        <location filename="../../src/scrapers/tv_show/custom/CustomTvScraper.cpp" line="+28"/>
+        <location filename="../../src/scrapers/tv_show/custom/CustomTvScraper.cpp" line="+29"/>
         <source>Custom TV scraper</source>
         <translation>Scraper TV personalizzato</translation>
     </message>
@@ -10009,7 +10029,7 @@ Episodio dopo lo scraping</translation>
 <context>
     <name>mediaelch::scraper::FernsehserienDeEpisodeScrapeJob</name>
     <message>
-        <location filename="../../src/scrapers/tv_show/fernsehserien_de/FernsehserienDe.cpp" line="+663"/>
+        <location filename="../../src/scrapers/tv_show/fernsehserien_de/FernsehserienDe.cpp" line="+662"/>
         <source>Could not load ID for episode from season overview page. Can&apos;t scrape requested TV show episode.</source>
         <translation>Non è possibile caricare l&apos;ID dell&apos;episodio dalla pagina di riepilogo della stagione. Non è possibile fare lo scraping dell&apos;episodio richiesto.</translation>
     </message>
@@ -10107,6 +10127,83 @@ Episodio dopo lo scraping</translation>
     </message>
 </context>
 <context>
+    <name>mediaelch::scraper::OmdbApi</name>
+    <message>
+        <location filename="../../src/scrapers/omdb/OmdbApi.cpp" line="+37"/>
+        <source>No OMDb API key configured. Please enter your API key in Settings → Scraper → OMDb.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>OMDb API returned invalid JSON</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbMovie</name>
+    <message>
+        <location filename="../../src/scrapers/movie/omdb/OmdbMovie.cpp" line="+28"/>
+        <source>The Open Movie Database (OMDb) is a free web service to obtain movie information. It provides ratings from IMDB, Rotten Tomatoes, and Metacritic in a single API call. Requires a free personal API key from omdbapi.com (free: 1,000 requests/day). High-resolution poster images are available for OMDb Patreon supporters (see patreon.com/omdb).</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbMovieConfigurationView</name>
+    <message>
+        <location filename="../../src/ui/scrapers/movie/OmdbMovieConfigurationView.cpp" line="+15"/>
+        <source>API key</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbMovieScrapeJob</name>
+    <message>
+        <location filename="../../src/scrapers/movie/omdb/OmdbMovieScrapeJob.cpp" line="+24"/>
+        <source>OMDb requires an IMDb ID for loading movie details</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbTv</name>
+    <message>
+        <location filename="../../src/scrapers/tv_show/omdb/OmdbTv.cpp" line="+18"/>
+        <source>The Open Movie Database (OMDb) is a free web service to obtain movie and TV information. It provides ratings from IMDB, Rotten Tomatoes, and Metacritic in a single API call. Requires a free personal API key from omdbapi.com (free: 1,000 requests/day).</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbTvConfigurationView</name>
+    <message>
+        <location filename="../../src/ui/scrapers/tv_show/OmdbTvConfigurationView.cpp" line="+15"/>
+        <source>API key</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbTvEpisodeScrapeJob</name>
+    <message>
+        <location filename="../../src/scrapers/tv_show/omdb/OmdbTvEpisodeScrapeJob.cpp" line="+25"/>
+        <source>OMDb requires an IMDb ID for loading episode details</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbTvSeasonScrapeJob</name>
+    <message>
+        <location filename="../../src/scrapers/tv_show/omdb/OmdbTvSeasonScrapeJob.cpp" line="+24"/>
+        <source>OMDb requires an IMDb ID for loading season details</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mediaelch::scraper::OmdbTvShowScrapeJob</name>
+    <message>
+        <location filename="../../src/scrapers/tv_show/omdb/OmdbTvShowScrapeJob.cpp" line="+24"/>
+        <source>OMDb requires an IMDb ID for loading show details</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>mediaelch::scraper::TheTvDb</name>
     <message>
         <location filename="../../src/scrapers/tv_show/thetvdb/TheTvDb.cpp" line="+19"/>
@@ -10189,7 +10286,7 @@ Episodio dopo lo scraping</translation>
 <context>
     <name>mediaelch::scraper::TmdbMovie</name>
     <message>
-        <location filename="../../src/scrapers/movie/tmdb/TmdbMovie.cpp" line="+37"/>
+        <location filename="../../src/scrapers/movie/tmdb/TmdbMovie.cpp" line="+38"/>
         <source>The Movie Database (TMDB) is a community built movie and TV database. Every piece of data has been added by our amazing community dating back to 2008. TMDB&apos;s strong international focus and breadth of data is largely unmatched and something we&apos;re incredibly proud of. Put simply, we live and breathe community and that&apos;s precisely what makes us different.</source>
         <translation>The Movie Database (TMDB) è un database di contenuti per Film e Serie TV gestito dalla comunità. Ogni dato è stato aggiunto dalla nostra fantastica comunità a partire dal 2008. Il respiro internazionale di TMDB e l&apos;ampiezza dei suoi dati sono ampiamente insuperati e qualcosa di cui andiamo incredibilmente fieri. Semplicemente, noi viviamo e respiriamo nella nostra comunità e questo è esattamente quello che ci rende differenti.</translation>
     </message>
